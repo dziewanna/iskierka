@@ -6,6 +6,7 @@
   var K = window.ISK_KIT, B = K.B;
   var learn = K.learn, choice = K.choice, tf = K.tf, pairs = K.pairs, fill = K.fill, sort = K.sort, circ = K.circ;
   var calc = K.calc, dial = K.dial, tune = K.tune, volts = K.volts, rcombo = K.rcombo, bands = K.bands;
+  var build = K.build, triangle = K.triangle, grid = K.grid, F = K.F;
   var LL = K.LL;
 
   /* dzielnik z przerwą do zamknięcia */
@@ -20,6 +21,7 @@
     {
       id: 'e2u1', color: 'sky', title: 'Mierzymy prąd', sub: 'Jednostki, multimetr, prawo Ohma',
       guide: [
+        '<b>Symbol</b> to litera we wzorze (U, I, R, P), a <b>jednostka</b> to miara w wyniku (V, A, Ω, W). Wzór: I = U : R, wynik: 0,02 A.',
         'Napięcie <b>U</b> mierzymy w woltach (V), natężenie prądu <b>I</b> w amperach (A), opór <b>R</b> w omach (Ω).',
         'Przedrostki: <b>m</b> (mili) = 1/1000, <b>k</b> (kilo) = 1000, <b>M</b> (mega) = 1 000 000. Czyli 250 mA = 0,25 A, a 4,7 kΩ = 4700 Ω.',
         '<b>Woltomierz</b> podłączamy równolegle do elementu, <b>amperomierz</b> – szeregowo.',
@@ -29,9 +31,21 @@
       ],
       lessons: [
         {
-          id: 'e2u1l1', title: 'Jednostki i przedrostki', icon: 'calc', desc: 'Mili, kilo, mega – liczymy jak fizycy.',
+          id: 'e2u1l0', title: 'Symbol czy jednostka?', icon: 'calc', desc: 'Dlaczego prąd to I, a wynik podajemy w A?',
           ex: [
-            learn('mascot', 'Hej, to ja – Iskra!', 'Urosłam i teraz będziemy liczyć jak prawdziwi fizycy. Zaczniemy od jednostek: <b>napięcie U</b> w woltach (V), <b>natężenie prądu I</b> w amperach (A) i <b>opór R</b> w omach (Ω).', { mood: 'cheer' }),
+            learn('mascot', 'Hej, to ja – Iskra!', 'Urosłam i teraz będziemy liczyć jak prawdziwi fizycy. Na start rozplączemy coś, co myli prawie wszystkich: <b>symbole</b> i <b>jednostki</b>.', { mood: 'cheer' }),
+            learn('qtable', 'Imię i miara', 'Każda wielkość ma <b>symbol</b> – literę, której używamy we <b>wzorze</b> – i <b>jednostkę</b>, w której podajemy <b>wynik</b>. Znasz to z czasu: we wzorze piszemy <b>t</b>, a wynik to np. 5 <b>s</b>. Z prądem jest tak samo: wzór mówi <b>I</b>, a wynik mówi <b>A</b>. Kolory pomagają: symbol i jego jednostka mają ten sam kolor.'),
+            learn('mascot', 'Sztuczki na zapamiętanie', '<b>I</b> jak <b>I</b>ntensywność – po francusku natężenie prądu to „intensité”, tak pisał André-Marie Ampère. <b>R</b> jak <b>R</b>ezystancja, czyli opór. <b>P</b> jak <b>P</b>ower – po angielsku moc. <b>U</b> jak <b>U</b>pychanie elektronów – napięcie upycha je w przewód. To tylko sztuczka, ale działa!', { mood: 'think' }),
+            grid('Uzupełnij tabelę: symbol we wzorze i jednostkę w wyniku.', { cols: ['Wielkość', 'Symbol', 'Jednostka'], rows: [['Napięcie', 'U', 'V'], ['Natężenie prądu', 'I', 'A'], ['Opór', 'R', 'Ω'], ['Moc', 'P', 'W']], blanks: [1, 2] }, 'Symbol to litera we wzorze, a jednostka jedzie do wyniku.'),
+            tf('Ω to symbol oporu we wzorze.', false, 'Ω (om) to jednostka. We wzorze opór zapisujemy literą R.'),
+            choice('We wzorze I = U : R litera I oznacza…', ['natężenie prądu', 'jednostkę amper', 'opornik', F('Iskierkę', 'Miło! Ale tym razem I to natężenie prądu.')], 0, 'I to symbol natężenia prądu. Wynik podamy w amperach (A).'),
+            choice('W wyniku „I = 0,5 A” litera A oznacza…', ['jednostkę – amper', 'symbol napięcia', 'opór', F('Pana Ampera, który wpadł na lekcję', 'Hihi! Ampère był fizykiem, a jego nazwisko stało się jednostką: amper.')], 0, 'A to amper – jednostka, w której podajemy natężenie prądu.'),
+            pairs('Połącz symbol z jego jednostką', [['U', 'V'], ['I', 'A'], ['R', 'Ω'], ['P', 'W']], { big: true })
+          ]
+        },
+        {
+          id: 'e2u1l1', title: 'Przedrostki', icon: 'calc', desc: 'Mili, kilo, mega – liczymy jak fizycy.',
+          ex: [
             pairs('Połącz symbol z wielkością', [['U', 'napięcie [V]'], ['I', 'natężenie prądu [A]'], ['R', 'opór [Ω]'], ['P', 'moc [W]']], { big: true }),
             learn('mascot', 'Przedrostki', 'Bardzo małe i bardzo duże liczby skracamy przedrostkami: <b>m</b> (mili) to tysięczna część, <b>k</b> (kilo) to tysiąc, <b>M</b> (mega) to milion. Czyli 20 mA = 0,02 A, a 4,7 kΩ = 4700 Ω.', { mood: 'think' }),
             calc('Zamień: 250 mA = ? A', 0.25, 'A', '250 : 1000 = 0,25 A.', { hint: 'mili to tysięczna część: podziel przez 1000' }),
@@ -56,7 +70,11 @@
         {
           id: 'e2u1l3', title: 'Prawo Ohma', icon: 'resistor', desc: 'Jeden wzór, trzy wielkości.',
           ex: [
-            learn('ohm', 'Trójkąt Ohma', 'Napięcie, prąd i opór łączy wzór <b>U = I · R</b>. Z niego: <b>I = U : R</b> oraz <b>R = U : I</b>. Zasłoń palcem w trójkącie to, czego szukasz – reszta pokaże wzór!'),
+            learn('ohm', 'Trójkąt Ohma', 'Napięcie, prąd i opór łączy wzór <b>U = I · R</b>. W trójkącie <b>U</b> siedzi na górze, a <b>I</b> i <b>R</b> na dole obok siebie. Pod literami są jednostki: V, A i Ω. Zasłoń palcem to, czego szukasz – reszta pokaże wzór!'),
+            triangle('Chcesz policzyć prąd (I). Zasłoń w trójkącie to, czego szukasz.', 'I', 'Zostaje U nad R, czyli I = U : R. W jednostkach: A = V : Ω.'),
+            triangle('Teraz chcesz policzyć opór (R). Co zasłonisz?', 'R', 'Zostaje U nad I, czyli R = U : I. W jednostkach: Ω = V : A.'),
+            triangle('A teraz napięcie (U).', 'U', 'Zostają I i R obok siebie – mnożymy: U = I · R. W jednostkach: V = A · Ω.'),
+            learn('ohm', 'Liczymy w trzech krokach', '<b>1.</b> Wzór z literami: I = U : R. <b>2.</b> Wstaw liczby z jednostkami: I = 9 V : 450 Ω. <b>3.</b> Wynik z jednostką: I = 0,02 A. Litera zostaje we wzorze, a jednostka jedzie do wyniku.'),
             calc('Bateria 9 V, opornik 450 Ω. Jaki prąd płynie? Wynik w mA.', 20, 'mA', 'I = 9 V : 450 Ω = 0,02 A = 20 mA.', { hint: 'I = U : R, a potem zamień ampery na miliampery' }),
             calc('Przez opornik 100 Ω płynie 0,05 A. Jakie jest na nim napięcie?', 5, 'V', 'U = 0,05 A · 100 Ω = 5 V.', { hint: 'U = I · R' }),
             calc('Żarówka przy 12 V pobiera 0,5 A. Jaki ma opór?', 24, 'Ω', 'R = 12 V : 0,5 A = 24 Ω.', { hint: 'R = U : I' }),
@@ -157,7 +175,7 @@
             learn('mascot', 'Moc', 'Moc mówi, <b>jak szybko</b> urządzenie zużywa energię. Liczymy ją wzorem <b>P = U · I</b> i podajemy w <b>watach</b> (W). Czajnik ma około 2000 W, a ładowarka telefonu – kilkanaście.', { mood: 'think' }),
             calc('Żarówka w latarce: 3 V i 0,5 A. Jaka jest jej moc?', 1.5, 'W', 'P = 3 V · 0,5 A = 1,5 W.', { hint: 'P = U · I' }),
             calc('Grzałka podłączona do 230 V pobiera 2 A. Jaka jest jej moc?', 460, 'W', 'P = 230 V · 2 A = 460 W.'),
-            choice('Które urządzenie ma zwykle największą moc?', ['Czajnik elektryczny', 'Ładowarka telefonu', 'Lampka LED', 'Zegar ścienny'], 0, 'Grzanie wody wymaga dużo energii w krótkim czasie.'),
+            choice('Które urządzenie ma zwykle największą moc?', ['Czajnik elektryczny', 'Ładowarka telefonu', 'Lampka LED', F('Chomik w kołowrotku', 'Chomik bardzo się stara, ale czajnik jest dużo mocniejszy!')], 0, 'Grzanie wody wymaga dużo energii w krótkim czasie.'),
             sort('Duża czy mała moc?', [{ t: 'Duża (ponad 1000 W)', icon: 'bolt' }, { t: 'Mała (do 100 W)', icon: 'leaf' }], [
               { t: 'Czajnik', b: 0 }, { t: 'Ładowarka telefonu', b: 1 }, { t: 'Piekarnik', b: 0 },
               { t: 'Żarówka LED', b: 1 }, { t: 'Suszarka do włosów', b: 0 }, { t: 'Router Wi-Fi', b: 1 }
@@ -181,10 +199,27 @@
           ex: [
             learn('fuse', 'Bezpiecznik Bartek', 'Bartek pilnuje instalacji. Gdy prąd jest za duży – przy zwarciu albo gdy włączysz za dużo urządzeń naraz – <b>wyłącza obwód</b>, zanim kable się przegrzeją.', { friend: true }),
             calc('Czajnik 2300 W, napięcie w gniazdku 230 V. Jaki prąd pobiera?', 10, 'A', 'I = P : U = 2300 W : 230 V = 10 A.', { hint: 'I = P : U' }),
-            choice('Na jednym obwodzie działają czajnik (10 A) i grzejnik (8 A). Bezpiecznik to B16. Co się stanie?', ['Bezpiecznik wyłączy prąd', 'Nic, wszystko zadziała', 'Czajnik będzie grzał szybciej', 'Grzejnik zacznie świecić'], 0, '10 A + 8 A = 18 A, a to więcej niż 16 A.'),
+            choice('Na jednym obwodzie działają czajnik (10 A) i grzejnik (8 A). Bezpiecznik to B16. Co się stanie?', ['Bezpiecznik wyłączy prąd', 'Nic, wszystko zadziała', 'Czajnik będzie grzał szybciej', F('Grzejnik zacznie świecić', 'Grzejnik-lampa? Ciekawy pomysł, ale bezpiecznik po prostu wyłączy prąd.')], 0, '10 A + 8 A = 18 A, a to więcej niż 16 A.'),
             tf('Przepalony bezpiecznik można zastąpić kawałkiem drutu.', false, 'To bardzo groźne! Bez bezpiecznika kable mogą się przegrzać i wywołać pożar.'),
             learn('bulbOn', 'Sprawność', 'Żadne urządzenie nie zamienia całej energii w to, co chcemy. Zwykła żarówka oddaje jako światło tylko kilka procent energii, a reszta to ciepło. LED ma dużo większą <b>sprawność</b>.'),
-            choice('Dlaczego ładowarka robi się ciepła?', ['Część energii zamienia się w ciepło', 'Bo bateria jest pełna', 'Bo prąd jest zimny', 'Bo kabel jest za długi'], 0, 'Każde urządzenie traci trochę energii jako ciepło.')
+            choice('Dlaczego ładowarka robi się ciepła?', ['Część energii zamienia się w ciepło', 'Bo bateria jest pełna', F('Bo prąd jest zimny', 'Prąd nie jest ani zimny, ani ciepły jak lody. Ciepło to zgubiona energia.'), 'Bo kabel jest za długi'], 0, 'Każde urządzenie traci trochę energii jako ciepło.')
+          ]
+        },
+        {
+          id: 'e2u3w', title: 'Misje Wolcika', icon: 'robot', ws: true, desc: 'Misja: napięcie musi się zgadzać.',
+          ex: [
+            learn('robot', 'Robot Wolcik', 'Wolcik ma wiatraczek, który potrzebuje <b>9 V</b>, i dwie baterie po 4,5 V. Żeby napięcia się dodały, baterie łączymy <b>szeregowo</b>: plus jednej do minusa drugiej.'),
+            build('Połącz baterie szeregowo i zasil wiatraczek Wolcika napięciem 9 V.', {
+              scene: 'robot', parts: [{ id: 'B1', t: 'bat', rint: 0.01, at: [62, 200] }, { id: 'B2', t: 'bat', rint: 0.01, at: [62, 262] }, { id: 'M', t: 'motor', skin: 'fan', at: [203, 42], name: 'Wiatraczek', vmin: 7, need: 9 }],
+              goal: { lit: { M: true } }, hint: 'plus jednej baterii połącz z minusem drugiej, a wolne końce z wiatraczkiem', sol: [['B1:+', 'B2:-'], ['B2:+', 'M:a'], ['M:b', 'B1:-']]
+            }, 'Plus do minusa – i 4,5 V + 4,5 V = 9 V. Wiatraczek ruszył!'),
+            tf('Odwrotnie połączona bateria w szeregu odejmuje napięcie zamiast je dodawać.', true, '4,5 V − 4,5 V = 0 V. Dlatego w pilocie baterie wkłada się według rysunku.'),
+            calc('Trzy baterie po 1,5 V i jedna 4,5 V połączone szeregowo. Ile to razem woltów?', 9, 'V', '1,5 + 1,5 + 1,5 + 4,5 = 9 V.'),
+            build('Wolcik ma oko z diody LED. Zapal je tak, żeby się nie przepaliło.', {
+              scene: 'robot', parts: [{ id: 'B', t: 'bat', v: 9, at: [62, 262] }, { id: 'R', t: 'res', r: 470, at: [70, 176] }, { id: 'D', t: 'led', skin: 'eye', col: '#22C3A4', at: [203, 214], name: 'Oko-dioda' }],
+              goal: { lit: { D: true }, noBurn: true }, hint: 'opornik musi stać w drodze prądu do diody, a plus diody od strony plusa baterii', sol: [['B:+', 'R:a'], ['R:b', 'D:+'], ['D:-', 'B:-']]
+            }, 'Opornik 470 Ω ogranicza prąd do bezpiecznych ok. 15–19 mA.'),
+            calc('Bateria 9 V, dioda zabiera 2 V, chcesz 15 mA. Jaki opornik (Ω)?', 467, 'Ω', 'R = (9 − 2) V : 0,015 A ≈ 467 Ω. W sklepie wybierzesz najbliższy: 470 Ω.', { tol: 0.02, hint: 'R = (U baterii − U diody) : I' })
           ]
         }
       ]
@@ -206,7 +241,7 @@
           id: 'e2u4l1', title: 'Elektromagnes Edek', icon: 'magnet', sticker: 'coil', desc: 'Magnes, który się włącza.',
           ex: [
             learn('coil', 'Elektromagnes Edek', 'Edek to <b>cewka</b> – drut nawinięty na żelazny gwóźdź. Gdy płynie prąd, Edek staje się <b>magnesem</b> i przyciąga spinacze. Wyłączysz prąd – puszcza!', { friend: true }),
-            choice('Jak wzmocnić elektromagnes?', ['Nawinąć więcej zwojów drutu', 'Pomalować go na czerwono', 'Użyć plastikowego rdzenia', 'Wyłączyć prąd'], 0, 'Więcej zwojów i większy prąd dają silniejsze pole magnetyczne.'),
+            choice('Jak wzmocnić elektromagnes?', ['Nawinąć więcej zwojów drutu', F('Pomalować go na czerwono', 'Na czerwono wygląda groźniej, ale magnes od tego nie urośnie!'), 'Użyć plastikowego rdzenia', 'Wyłączyć prąd'], 0, 'Więcej zwojów i większy prąd dają silniejsze pole magnetyczne.'),
             tf('Elektromagnes działa także wtedy, gdy nie płynie przez niego prąd.', false, 'Bez prądu nie ma pola magnetycznego.'),
             learn('mascot', 'Przekaźnik', '<b>Przekaźnik</b> to przełącznik, którym steruje elektromagnes. Mały prąd z baterii może nim włączyć duże urządzenie – dlatego przekaźniki są w samochodach i pralkach.', { mood: 'think' }),
             choice('Do czego służy przekaźnik?', ['Mały prąd włącza nim duży obwód', 'Zamienia światło w prąd', 'Mierzy napięcie', 'Przechowuje energię'], 0, 'Elektromagnes w przekaźniku przyciąga styk i zamyka drugi obwód.'),
@@ -218,7 +253,7 @@
           ex: [
             learn('motorOn', 'Silnik od środka', 'W silniku prąd płynie przez cewkę, która staje się magnesem. Magnesy przyciągają się i odpychają – i wirnik się kręci.'),
             learn('induction', 'Prądnica', 'A teraz odwrotnie! Gdy poruszasz magnesem przy cewce, w cewce <b>powstaje prąd</b>. To <b>indukcja elektromagnetyczna</b>. Tak działa dynamo w rowerze i generatory w elektrowniach.'),
-            choice('Co wytwarza prąd w elektrowni wiatrowej?', ['Prądnica kręcona przez wiatr', 'Bateria w środku wiatraka', 'Panel słoneczny na łopatach', 'Kabel z miasta'], 0, 'Łopaty kręcą wirnikiem prądnicy.'),
+            choice('Co wytwarza prąd w elektrowni wiatrowej?', ['Prądnica kręcona przez wiatr', F('Bateria w środku wiatraka', 'Taka bateria musiałaby być wielka jak autobus! Prąd robi prądnica.'), 'Panel słoneczny na łopatach', 'Kabel z miasta'], 0, 'Łopaty kręcą wirnikiem prądnicy.'),
             pairs('Co w co zamienia?', [['Silnik', 'prąd → ruch'], ['Prądnica', 'ruch → prąd'], ['Elektromagnes', 'prąd → magnetyzm'], ['Panel słoneczny', 'światło → prąd']]),
             tf('Dynamo w rowerze świeci tylko wtedy, gdy jedziesz.', true, 'Bez ruchu magnes się nie kręci i prąd nie powstaje.'),
             choice('Michael Faraday pokazał w 1831 roku, że…', ['ruch magnesu przy cewce wytwarza prąd', 'prąd jest zrobiony z wody', 'magnesy nie działają na żelazo', 'bateria nigdy się nie rozładowuje'], 0, 'To odkrycie stoi za każdą elektrownią na świecie.')

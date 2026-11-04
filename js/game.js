@@ -464,10 +464,12 @@
     if (!f.grade || (f.ready && !f.ready(ex, L.st))) return;
     const ok = f.grade(ex, L.st);
     if (f.reveal) f.reveal(ex, L.st, ok);
-    feedback(ok, ex, f.answer ? f.answer(ex, L.st) : '');
+    const fun = !ok && f.fun ? f.fun(ex, L.st) : '';
+    feedback(ok, ex, f.answer ? f.answer(ex, L.st) : '', fun ? { note: fun, funny: true } : undefined);
   }
   const GOOD = ['Super!', 'Brawo!', 'Iskrząco!', 'Świetnie!', 'Ekstra!', 'Tak trzymaj!', 'Genialnie!'];
   const BAD = ['Ups!', 'Prawie!', 'Nie tym razem', 'Spokojnie, jeszcze raz'];
+  const FUNNY = ['Hihi, nie tym razem!', 'Ha! Dobry żart', 'Uroczo, ale nie', 'Iskierka chichocze'];
   function feedback(ok, ex, ans, o) {
     o = o || {};
     L.checked = true; L.checks++;
@@ -478,12 +480,12 @@
       if (!o.noRequeue) L.queue.push(ex);
     }
     const pick = (a) => a[Math.floor(Math.random() * a.length)];
-    const title = ok ? pick(GOOD) : (o.partial ? 'Prawie!' : pick(BAD));
+    const title = ok ? pick(GOOD) : o.funny ? pick(FUNNY) : (o.partial ? 'Prawie!' : pick(BAD));
     const combo = ok && L.combo >= 3 ? '<span class="combo">Seria ' + L.combo + '!</span>' : '';
     $('#lfoot').className = 'l-foot gut ' + (ok ? 'ok' : 'bad');
-    $('#lfin').innerHTML = '<div class="fb" role="status">' + ART.mascot(ok ? 'cheer' : 'oops', S.wear) + '<div><h3>' + title + combo + '</h3>' +
+    $('#lfin').innerHTML = '<div class="fb" role="status">' + ART.mascot(ok || o.funny ? 'cheer' : 'oops', S.wear) + '<div><h3>' + title + combo + '</h3>' +
       (!ok && ans ? '<p class="ans">' + (ex.t === 'circuit' || ex.t === 'slider' ? 'Wskazówka: ' : 'Poprawnie: ') + ans + '</p>' : '') +
-      (o.note ? '<p class="ans">' + o.note + '</p>' : '') +
+      (o.note ? '<p class="' + (o.funny ? 'fun' : 'ans') + '">' + o.note + '</p>' : '') +
       (ex.explain && (ok || ex.t !== 'circuit') ? '<p>' + ex.explain + '</p>' : '') +
       (!ok && !o.noRequeue ? '<p style="opacity:.75">To zadanie wróci na końcu lekcji.</p>' : '') +
       '</div></div><button class="btn ' + (ok ? 'mint' : 'berry') + '" data-act="next" id="cta">Dalej</button>';
@@ -647,7 +649,8 @@
       optsReveal(st.order.findIndex((x) => x.i === ex.ans), st);
       if (ex.art && typeof ex.art === 'object' && !ex.art.sim) { const a = $('#exart'); if (a) a.outerHTML = artBlock(ex.art, true); }
     },
-    answer(ex) { const o = ex.opts[ex.ans]; return typeof o === 'string' ? o : (o.t || ''); }
+    answer(ex) { const o = ex.opts[ex.ans]; return typeof o === 'string' ? o : (o.t || ''); },
+    fun(ex, st) { const x = st.order[st.sel]; return x && x.o.fun ? x.o.fun : ''; }
   };
 
   EX.tf = {

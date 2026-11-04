@@ -279,3 +279,114 @@
     $('#bin').innerHTML = binHTML(ex(), L.st); api.SND.play(L.st.b[i] ? 'lamp' : 'click');
   };
 });
+
+/* ---------- symbole i jednostki: tabela, trójkąt Ohma ---------- */
+(window.ISK_PLUGINS = window.ISK_PLUGINS || []).push(function (api) {
+  'use strict';
+  var EX = api.EX, ACTS = api.ACTS, ART = api.ART, $ = api.$;
+  function cur(t) { var L = api.L; return L && !L.checked && L.queue[L.i].t === t ? L : null; }
+  function ex() { return api.L.queue[api.L.i]; }
+  var Q = { U: ['Napięcie', 'V', 'wolt'], I: ['Natężenie prądu', 'A', 'amper'], R: ['Opór', 'Ω', 'om'], P: ['Moc', 'W', 'wat'] };
+  function qs(sym) { return '<span class="q-' + sym + '">' + sym + '</span>'; }
+
+  ART.register('qtable', function () {
+    var rows = ['U', 'I', 'R', 'P'].map(function (k) {
+      return '<div class="qn">' + Q[k][0] + '</div><div class="qs q-' + k + '">' + k + '</div><div class="qu q-' + k + '">' + Q[k][1] + ' <small>' + Q[k][2] + '</small></div>';
+    }).join('');
+    return '<div class="qtable"><div class="qh">Wielkość</div><div class="qh">Symbol<small>we wzorze</small></div><div class="qh">Jednostka<small>w wyniku</small></div>' + rows +
+      '<div class="qn muted">Czas</div><div class="qs muted">t</div><div class="qu muted">s <small>sekunda</small></div></div>';
+  });
+
+  /* trójkąt Ohma z zasłanianiem */
+  var REG = {
+    U: { pts: '120,14 177.6,104 62.4,104', lx: 120, ly: 80 },
+    I: { pts: '62.4,104 120,104 120,186 10,186', lx: 80, ly: 160 },
+    R: { pts: '120,104 177.6,104 230,186 120,186', lx: 160, ly: 160 }
+  };
+  var FORM = {
+    U: ['U = I · R', 'V = A · Ω', 'napięcie = natężenie prądu · opór'],
+    I: ['I = U : R', 'A = V : Ω', 'natężenie prądu = napięcie : opór'],
+    R: ['R = U : I', 'Ω = V : A', 'opór = napięcie : natężenie prądu']
+  };
+  function colorize(s) { return s.replace(/\b([UIRP])\b/g, function (m) { return qs(m); }).replace(/([VAΩ])(?![a-ząćęłńóśźż])/g, function (m) { var k = { V: 'U', A: 'I', 'Ω': 'R' }[m]; return '<span class="q-' + k + '">' + m + '</span>'; }); }
+  function triSVG(st, interactive) {
+    var out = '';
+    Object.keys(REG).forEach(function (k) {
+      var r = REG[k], cov = st.cover === k;
+      out += '<g class="tri-r' + (interactive ? ' tap' : '') + '"' + (interactive ? ' data-act="tcov" data-k="' + k + '" role="button" tabindex="0" aria-label="Zasłoń ' + k + '"' : '') + '>' +
+        '<polygon points="' + r.pts + '" class="tri-p' + (cov ? ' cov' : '') + '"/>' +
+        (cov ? '<g transform="translate(' + r.lx + ' ' + (r.ly - 8) + ') rotate(-18)"><rect x="-13" y="-26" width="26" height="48" rx="13" fill="#F6C9A5" stroke="#D99A70" stroke-width="2.5"/><path d="M-7 -18 q7 -5 14 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/></g>'
+          : '<text x="' + r.lx + '" y="' + r.ly + '" text-anchor="middle" class="tri-l q-' + k + '">' + k + '</text><text x="' + r.lx + '" y="' + (r.ly + 18) + '" text-anchor="middle" class="tri-u q-' + k + '">' + Q[k][1] + '</text>') + '</g>';
+    });
+    return '<svg xmlns="http://www.w3.org/2000/svg" class="tri" viewBox="0 0 240 200" role="img" aria-label="Trójkąt Ohma">' + out +
+      '<polygon points="120,14 230,186 10,186" fill="none" stroke="var(--violet)" stroke-width="3.5" stroke-linejoin="round"/>' +
+      '<path d="M62.4 104 H177.6 M120 104 V186" stroke="var(--violet)" stroke-width="3"/></svg>';
+  }
+  function triFormula(st) {
+    if (!st.cover) return '<p class="tri-tip">Dotknij litery, której szukasz – zasłonisz ją palcem.</p>';
+    var f = FORM[st.cover];
+    return '<div class="tri-f"><b>' + colorize(f[0]) + '</b><span>w jednostkach: ' + colorize(f[1]) + '</span><span class="tri-w">' + f[2] + '</span></div>';
+  }
+  function triHTML(e, st, done) { return '<div class="tri-wrap">' + triSVG(st, !done) + '</div><div id="trif">' + triFormula(st) + '</div>'; }
+  EX.triangle = {
+    render: function (e, st) { st.cover = null; return '<div class="eyebrow">Trójkąt Ohma</div>' + api.speaker(e.q) + '<div class="cir-card" id="tri">' + triHTML(e, st) + '</div>'; },
+    ready: function (e, st) { return st.cover != null; },
+    grade: function (e, st) { return st.cover === e.target; },
+    reveal: function (e, st) { $('#tri').innerHTML = triHTML(e, st, true); },
+    answer: function (e) { return 'zasłoń ' + e.target + ', wtedy zostaje ' + FORM[e.target][0]; }
+  };
+  ACTS.tcov = function (el) {
+    var L = cur('triangle'); if (!L) return;
+    L.st.cover = L.st.cover === el.dataset.k ? null : el.dataset.k;
+    $('#tri').innerHTML = triHTML(ex(), L.st); api.SND.play('pop'); api.updateCta();
+  };
+  api.KEYS.push(function (ev) {
+    var t = ev.target.closest && ev.target.closest('[data-act="tcov"]');
+    if (t && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); ACTS.tcov(t); return true; }
+    return false;
+  });
+
+  /* tabela do uzupełnienia */
+  function gridHTML(e, st, done) {
+    var head = '<div class="gh">' + e.cols.join('</div><div class="gh">') + '</div>';
+    var body = e.rows.map(function (row, r) {
+      return row.map(function (cell, c) {
+        if (e.blanks.indexOf(c) < 0) return '<div class="gc">' + cell + '</div>';
+        var key = r + ':' + c, b = st.cells[key];
+        var cls = 'slot' + (b != null ? ' filled' : '') + (done ? (b != null && st.bank[b] === cell ? ' right' : ' wrong') : '');
+        return '<div class="gc"><button class="' + cls + '" data-act="gslot" data-c="' + key + '"' + (done ? ' disabled' : '') + ' aria-label="Pole: ' + row[0] + '">' + (b != null ? st.bank[b] : '') + '</button></div>';
+      }).join('');
+    }).join('');
+    var bank = st.bank.map(function (w, k) {
+      var used = Object.keys(st.cells).some(function (c) { return st.cells[c] === k; });
+      return '<button class="chip' + (used ? ' used' : '') + '" data-act="gchip" data-k="' + k + '"' + (done ? ' disabled' : '') + '>' + w + '</button>';
+    }).join('');
+    return '<div class="gtable" style="--gc:' + e.cols.length + '">' + head + body + '</div><div class="bank" style="margin-top:16px">' + bank + '</div>';
+  }
+  function slots(e) { var out = []; e.rows.forEach(function (row, r) { e.blanks.forEach(function (c) { out.push(r + ':' + c); }); }); return out; }
+  EX.grid = {
+    render: function (e, st) {
+      var words = [];
+      e.rows.forEach(function (row) { e.blanks.forEach(function (c) { words.push(row[c]); }); });
+      st.bank = api.shuffle(words.concat(e.extra || []));
+      st.cells = {};
+      return '<div class="eyebrow">Uzupełnij tabelę</div>' + api.speaker(e.q) + '<div class="cir-card" id="grd">' + gridHTML(e, st) + '</div>';
+    },
+    ready: function (e, st) { return slots(e).every(function (k) { return st.cells[k] != null; }); },
+    grade: function (e, st) { return slots(e).every(function (k) { var rc = k.split(':'); return st.bank[st.cells[k]] === e.rows[+rc[0]][+rc[1]]; }); },
+    reveal: function (e, st) { $('#grd').innerHTML = gridHTML(e, st, true); },
+    answer: function (e) { return e.rows.map(function (row) { return row[0] + ' – ' + e.blanks.map(function (c) { return row[c]; }).join(', '); }).join('; '); }
+  };
+  ACTS.gchip = function (el) {
+    var L = cur('grid'); if (!L) return;
+    var e = ex(), st = L.st, k = +el.dataset.k;
+    if (Object.keys(st.cells).some(function (c) { return st.cells[c] === k; })) return;
+    var free = slots(e).find(function (s) { return st.cells[s] == null; });
+    if (!free) return;
+    st.cells[free] = k; $('#grd').innerHTML = gridHTML(e, st); api.SND.play('tap'); api.updateCta();
+  };
+  ACTS.gslot = function (el) {
+    var L = cur('grid'); if (!L) return;
+    delete L.st.cells[el.dataset.c]; $('#grd').innerHTML = gridHTML(ex(), L.st); api.SND.play('tap'); api.updateCta();
+  };
+});

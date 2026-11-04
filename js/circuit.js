@@ -61,7 +61,7 @@
       case 'buzz': case 'motor': case 'coil': return 1 / 15;
       case 'am': return G_WIRE;
       case 'vm': return 0;
-      case 'ldr': return p.dark ? 1 / 200000 : 1 / 500;
+      case 'ldr': return p.dark ? 1 / 200000 : 1 / 50;
       case 'res': return 1 / (p.r || 100);
       default: return 0;
     }
@@ -72,8 +72,9 @@
     ids.forEach(function (k, i) { idx[k] = i; });
     var ledOn = new Map(), beOn = new Map(), ceOn = new Map();
     c.parts.forEach(function (p) { if (p.t === 'led') ledOn.set(p, true); if (p.t === 'npn') { beOn.set(p, true); ceOn.set(p, false); } });
-    var bat = c.parts.find(function (p) { return p.t === 'bat'; });
-    var V = bat ? (bat.v || 4.5) : 0, gB = bat ? 1 / (bat.rint || 0.5) : 2;
+    var bats = c.parts.filter(function (p) { return p.t === 'bat'; });
+    var vOf = function (p) { return p.v || 4.5; }, gOf = function (p) { return 1 / (p.rint || 0.5); };
+    var V = bats.length ? Math.max.apply(null, bats.map(vOf)) : 0, gB = bats.length ? gOf(bats[0]) : 2;
     var gBE = 1 / 1000;
     var v = new Array(n).fill(0);
     var ibOf = function (p) { var b = idx[p.base], e = idx[p.n[1]]; return beOn.get(p) ? gBE * (v[b] - v[e] - VF_BE) : 0; };
@@ -85,9 +86,10 @@
       c.parts.forEach(function (p) {
         var a = idx[p.n[0]], q = idx[p.n[1]];
         if (p.t === 'bat') {
-          st(a, q, gB);
+          var g0 = gOf(p), v0 = vOf(p);
+          st(a, q, g0);
           var plus = p.flip ? a : q, minus = p.flip ? q : a;
-          b[plus] += V * gB; b[minus] -= V * gB;
+          b[plus] += v0 * g0; b[minus] -= v0 * g0;
         } else if (p.t === 'npn') {
           var bb = idx[p.base];
           if (beOn.get(p)) { st(bb, q, gBE); b[bb] += gBE * VF_BE; b[q] -= gBE * VF_BE; }
@@ -120,16 +122,17 @@
       var a = idx[p.n[0]], q = idx[p.n[1]], I;
       if (p.t === 'bat') {
         var plus = p.flip ? a : q, minus = p.flip ? q : a;
-        I = gB * (V - (v[plus] - v[minus]));
-        res.Ib = I;
+        I = gOf(p) * (vOf(p) - (v[plus] - v[minus]));
+        res.Ib = Math.max(res.Ib, I);
+        if (I > 0.5 * vOf(p) * gOf(p)) res.short = true;
       } else if (p.t === 'npn') I = ceOn.get(p) ? (v[a] - v[q]) * 5 : 0;
       else I = (v[a] - v[q]) * cond(p, ledOn);
       res.cur[i] = I;
       if (p.t === 'vm') res.read[i] = v[a] - v[q];
       if (p.t === 'am') res.read[i] = I;
     });
-    res.short = V > 0 && res.Ib > 0.5 * V * gB;
-    var Pref = Math.pow(V / (10 + 1 / gB), 2) * 10;
+    var Vr = c.vref || V;
+    var Pref = Math.pow(Vr / (10 + 1 / gB), 2) * 10;
     c.parts.forEach(function (p, i) {
       var I = Math.abs(res.cur[i]);
       if (p.t === 'lamp') {
@@ -137,11 +140,17 @@
         res.state[p.id] = { on: !p.out && br > 0.04, br: Math.min(1.2, br) };
       } else if (p.t === 'led') {
         var on = ledOn.get(p) && I > 0.005;
-        res.state[p.id] = { on: on, br: on ? 1 : 0 };
+        res.state[p.id] = { on: on, br: on ? 1 : 0, burn: I > 0.06 };
       } else if (p.t === 'buzz' || p.t === 'motor' || p.t === 'coil') {
-        res.state[p.id] = { on: I > 0.04, br: 1 };
+        res.state[p.id] = { on: I > 0.025, br: 1 };
       } else if (p.t === 'npn') {
         res.state[p.id] = { on: !!ceOn.get(p), br: 1, ib: Math.max(0, ibOf(p)) };
+      }
+      var stt = p.id && res.state[p.id];
+      if (stt) {
+        stt.dv = Math.abs(v[idx[p.n[0]]] - v[idx[p.n[1]]]);
+        if (p.vmin && stt.dv < p.vmin - 0.05) stt.on = false;
+        if (p.vmax && stt.dv > p.vmax + 0.05) stt.over = true;
       }
     });
     return res;
@@ -155,6 +164,9 @@
   function check(c, goal) {
     var s = solve(c);
     if (goal.noShort && s.short) return false;
+    if (goal.noBurn) {
+      for (var bid in s.state) if (s.state[bid].burn || s.state[bid].over) return false;
+    }
     var lit = goal.lit || {};
     for (var id in lit) {
       var st = s.state[id];

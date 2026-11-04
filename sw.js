@@ -1,11 +1,11 @@
 /* ISKIERKA — tryb offline (service worker).
    Przy każdej nowej wersji gry zmień numer w CACHE, żeby telefony pobrały nowe pliki. */
-const CACHE = 'iskierka-v1';
+const CACHE = 'iskierka-v2';
 const FILES = [
   './', './index.html', './style.css', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png',
   './js/sound.js', './js/art.js', './js/art2.js', './js/circuit.js', './js/kit.js',
-  './js/etap1.js', './js/etap2.js', './js/etap3.js', './js/ex-stage.js', './js/ex-puzzle.js', './js/pwa.js', './js/game.js'
+  './js/etap1.js', './js/etap2.js', './js/etap3.js', './js/ex-stage.js', './js/ex-puzzle.js', './js/ex-build.js', './js/pwa.js', './js/game.js'
 ];
 
 self.addEventListener('install', (e) => {

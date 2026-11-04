@@ -6,7 +6,7 @@
   var K = window.ISK_KIT, B = K.B;
   var learn = K.learn, choice = K.choice, tf = K.tf, pairs = K.pairs, fill = K.fill, sort = K.sort, circ = K.circ;
   var calc = K.calc, order = K.order, truth = K.truth, logic = K.logic, binary = K.binary, pattern = K.pattern;
-  var V = K.V, G = K.G;
+  var V = K.V, G = K.G, build = K.build, F = K.F;
 
   function twilightDark() { var c = B.twilight('ldr'); c.parts.forEach(function (p) { if (p.t === 'ldr') p.dark = true; }); return c; }
 
@@ -31,7 +31,7 @@
             choice('W czym mierzymy pojemność kondensatora?', ['W faradach (F)', 'W omach (Ω)', 'W watach (W)', 'W hercach (Hz)'], 0, 'Jednostka uczci Michaela Faradaya. 1 F to bardzo dużo, więc zwykle spotkasz µF i nF.'),
             calc('Zamień: 0,001 F = ? µF', 1000, 'µF', 'Mikro to milionowa część: 0,001 · 1 000 000 = 1000 µF.', { hint: '1 F = 1 000 000 µF' }),
             tf('Kondensator elektrolityczny można podłączyć odwrotnie bez żadnych skutków.', false, 'Odwrotnie podłączony elektrolit może się nagrzać, a nawet pęknąć. Pasek na obudowie oznacza minus.'),
-            choice('Jak rozpoznać minus kondensatora elektrolitycznego?', ['Po pasku na obudowie i krótszej nóżce', 'Po kolorze nóżek', 'Po zapachu', 'Nie da się'], 0, 'Pasek z minusami pokazuje biegun ujemny.', { art: 'capChar' }),
+            choice('Jak rozpoznać minus kondensatora elektrolitycznego?', ['Po pasku na obudowie i krótszej nóżce', 'Po kolorze nóżek', F('Po zapachu', 'Nie wąchamy elementów! Minus pokazuje pasek na obudowie.'), 'Nie da się'], 0, 'Pasek z minusami pokazuje biegun ujemny.', { art: 'capChar' }),
             pairs('Połącz przedrostek z wartością', [['µ', 'milionowa część'], ['n', 'miliardowa część'], ['m', 'tysięczna część'], ['k', 'tysiąc']], { big: true })
           ]
         },
@@ -50,7 +50,7 @@
           id: 'e3u1l3', title: 'Kondensator w akcji', icon: 'bolt', desc: 'Gdzie pracują kondensatory?',
           ex: [
             learn('capChar', 'Kondensatory są wszędzie', 'Wygładzają napięcie w zasilaczach, odmierzają czas w migaczach, oddają energię w lampach błyskowych, a w ekranach dotykowych wyczuwają Twój palec!'),
-            choice('Jak ekran dotykowy wyczuwa palec?', ['Palec zmienia pojemność między elektrodami', 'Ekran słyszy dotyk', 'Palec przewodzi światło', 'Ekran waży palec'], 0, 'Twoje ciało przewodzi, więc zmienia pojemność malutkich kondensatorów w ekranie.'),
+            choice('Jak ekran dotykowy wyczuwa palec?', ['Palec zmienia pojemność między elektrodami', 'Ekran słyszy dotyk', 'Palec przewodzi światło', F('Ekran waży palec', 'Palec waży kilka gramów – za mało, żeby ekran go zważył!')], 0, 'Twoje ciało przewodzi, więc zmienia pojemność malutkich kondensatorów w ekranie.'),
             tf('Duży kondensator w odłączonym zasilaczu może być nadal naładowany.', true, 'Dlatego nie rozkręcamy zasilaczy i telewizorów.'),
             calc('Kondensator 0,01 F naładowano do 10 V. Ile energii zgromadził? (E = ½ · C · U²)', 0.5, 'J', 'E = 0,5 · 0,01 · 10² = 0,5 J.', { hint: 'najpierw U² = 100' }),
             sort('Magazynuje energię czy ją zamienia?', [{ t: 'Magazynuje', icon: 'battery' }, { t: 'Zamienia', icon: 'bolt' }], [
@@ -105,7 +105,7 @@
             choice('Do czego służy stabilizator napięcia?', ['Utrzymuje stałe napięcie mimo zmian', 'Zwiększa napięcie do 230 V', 'Wyłącza prąd w nocy', 'Zamienia prąd w światło'], 0, 'Nawet gdy napięcie wejściowe się waha, na wyjściu zostaje równe 5 V.'),
             calc('Stabilizator daje 5 V. Na wejściu jest 9 V i płynie 0,2 A. Ile watów zamienia się w nim w ciepło?', 0.8, 'W', 'P = (9 V − 5 V) · 0,2 A = 0,8 W.', { hint: 'P = (U wejścia − U wyjścia) · I' }),
             tf('Nowoczesne ładowarki są małe, bo pracują z bardzo wysoką częstotliwością.', true, 'To zasilacze impulsowe: przy wysokiej częstotliwości wystarczy malutki transformator.'),
-            choice('Dlaczego nie rozkręcamy zasilaczy podłączonych do gniazdka?', ['W środku jest groźne 230 V i naładowane kondensatory', 'Bo są nudne', 'Bo zepsują się od patrzenia', 'Bo są za lekkie'], 0, 'Bezpieczeństwo przede wszystkim – to zasada każdego elektronika.')
+            choice('Dlaczego nie rozkręcamy zasilaczy podłączonych do gniazdka?', ['W środku jest groźne 230 V i naładowane kondensatory', 'Bo są nudne', F('Bo zepsują się od patrzenia', 'Od patrzenia nic się nie psuje. Ale 230 V w środku jest naprawdę groźne!'), 'Bo są za lekkie'], 0, 'Bezpieczeństwo przede wszystkim – to zasada każdego elektronika.')
           ]
         }
       ]
@@ -139,7 +139,7 @@
           ex: [
             learn({ c: function () { var c = B.twilight('switch'); c.parts.forEach(function (p) { if (p.t === 'sw') p.on = true; }); return c; }, sim: true }, 'Przełącznik bez palca', 'Gdy do bazy płynie prąd, tranzystor <b>przewodzi</b> i dioda świeci. Gdy prądu w bazie nie ma – tranzystor się <b>zatyka</b> i dioda gaśnie. Tak działa każdy układ cyfrowy.'),
             circ('Zapal diodę, podając prąd do bazy tranzystora.', function () { return B.twilight('switch'); }, { lit: { D: true } }, 'Przez opornik 10 kΩ do bazy płynie ok. 0,35 mA – to wystarczy, żeby tranzystor przepuścił prąd diody.', { hint: 'włącz przełącznik przy bazie' }),
-            choice('Po co tranzystor, skoro jest zwykły przełącznik?', ['Może nim sterować czujnik albo mikrokontroler', 'Jest ładniejszy', 'Świeci w ciemności', 'Nie potrzebuje prądu'], 0, 'Tranzystor przełącza bez ruchomych części – miliony razy na sekundę.'),
+            choice('Po co tranzystor, skoro jest zwykły przełącznik?', ['Może nim sterować czujnik albo mikrokontroler', 'Jest ładniejszy', F('Świeci w ciemności', 'Sam tranzystor nie świeci – ale potrafi zapalić lampkę, gdy zrobi się ciemno!'), 'Nie potrzebuje prądu'], 0, 'Tranzystor przełącza bez ruchomych części – miliony razy na sekundę.'),
             calc('Opornik bazy: zasilanie 5 V, na złączu baza–emiter 0,7 V, chcemy prąd bazy 0,43 mA. Jaki opornik (kΩ)?', 10, 'kΩ', 'R = (5 − 0,7) V : 0,43 mA = 4,3 V : 0,00043 A = 10 000 Ω = 10 kΩ.', { hint: 'R = (U − 0,7 V) : I' }),
             tf('Tranzystor zaczyna przewodzić, gdy na bazie jest około 0,7 V więcej niż na emiterze.', true, 'To napięcie złącza krzemowego – takie samo jak w diodzie.')
           ]
@@ -151,7 +151,7 @@
             calc('Sygnał w bazie zmienia się o 0,05 mA, β = 200. O ile zmienia się prąd kolektora?', 10, 'mA', '200 · 0,05 mA = 10 mA.'),
             pairs('Kto co robi w głośniku Bluetooth?', [['Mikrofon', 'zamienia dźwięk w prąd'], ['Wzmacniacz', 'wzmacnia sygnał'], ['Głośnik', 'zamienia prąd w dźwięk'], ['Akumulator', 'daje energię']]),
             tf('Pierwszy tranzystor zbudowano w 1947 roku w laboratorium Bella w USA.', true, 'Jego twórcy dostali za to Nagrodę Nobla w 1956 roku.'),
-            choice('Co się stanie, gdy podasz na bazę za duży prąd bez opornika?', ['Tranzystor może się spalić', 'Zagra muzyka', 'Bateria się naładuje', 'Nic'], 0, 'Złącze baza–emiter to dioda – bez opornika popłynie przez nią ogromny prąd.')
+            choice('Co się stanie, gdy podasz na bazę za duży prąd bez opornika?', ['Tranzystor może się spalić', F('Zagra muzyka', 'Byłoby zabawnie! Ale za duży prąd bazy raczej spali tranzystor.'), 'Bateria się naładuje', 'Nic'], 0, 'Złącze baza–emiter to dioda – bez opornika popłynie przez nią ogromny prąd.')
           ]
         },
         {
@@ -160,6 +160,21 @@
             learn({ c: function () { return B.twilight('ldr'); }, sim: true }, 'Czujnik zmierzchu', 'Fotorezystor Fotek i opornik 10 kΩ tworzą <b>dzielnik napięcia</b> dla bazy. W świetle Fotek ma mały opór, więc na bazie jest za mało napięcia. W ciemności jego opór rośnie – i tranzystor się otwiera.'),
             circ('Zrób noc: zasłoń czujnik światła (dotknij go), żeby lampka się zapaliła.', function () { return B.twilight('ldr'); }, { lit: { D: true } }, 'Ciemność → duży opór fotorezystora → wyższe napięcie na bazie → tranzystor przewodzi.', { hint: 'dotknij fotorezystora' }),
             circ('Jest już rano. Odsłoń czujnik – lampka ma zgasnąć.', twilightDark, { lit: { D: false } }, 'W świetle opór fotorezystora spada, napięcie na bazie maleje i tranzystor się zatyka.', { hint: 'dotknij fotorezystora jeszcze raz' }),
+            build('Strażnik nocy: oko potwora ma się otwierać samo, gdy zrobi się ciemno. Dokończ obwód z tranzystorem.', {
+              scene: 'night', parts: [
+                { id: 'B', t: 'bat', at: [56, 270] },
+                { id: 'R1', t: 'res', r: 10000, at: [70, 150] },
+                { id: 'F', t: 'ldr', at: [150, 232], name: 'Czujnik światła' },
+                { id: 'T', t: 'npn', at: [232, 222], name: 'Tranzystor' },
+                { id: 'R2', t: 'res', r: 220, at: [290, 150] },
+                { id: 'E1', t: 'led', skin: 'eye', col: '#22C3A4', at: [226, 110], name: 'Oko strażnika' }
+              ],
+              wires: [['B:+', 'R1:a'], ['R1:b', 'T:B'], ['B:+', 'R2:b'], ['R2:a', 'E1:+'], ['T:E', 'B:-']],
+              goal: { noBurn: true, cases: [
+                { name: 'Noc (ciemno)', want: 'oko świeci', set: { F: { dark: true } }, lit: { E1: true } },
+                { name: 'Dzień (jasno)', want: 'oko śpi', set: { F: { dark: false } }, lit: { E1: false } }
+              ] }, hint: 'czujnik światła od bazy do minusa baterii, a minus oka do kolektora', sol: [['E1:-', 'T:C'], ['F:a', 'T:B'], ['F:b', 'B:-']]
+            }, 'Ciemność zwiększa opór fotorezystora, baza dostaje napięcie i tranzystor otwiera oko. Tak działa prawdziwy czujnik zmierzchu!'),
             order('Ułóż po kolei, co dzieje się wieczorem.', ['Robi się ciemno', 'Opór fotorezystora rośnie', 'Napięcie na bazie rośnie', 'Tranzystor zaczyna przewodzić', 'Dioda się zapala'], 'Tak działają latarnie i lampki ogrodowe.'),
             choice('Co zrobić, żeby lampka zapalała się dopiero w głębszej ciemności?', ['Zwiększyć opornik 10 kΩ, np. na 47 kΩ', 'Odwrócić diodę', 'Dodać drugą diodę', 'Zasłonić diodę'], 0, 'Większy opornik słabiej „ciągnie” bazę w górę. Wtedy fotorezystor musi mieć jeszcze większy opór – czyli musi być ciemniej – żeby na bazie pojawiło się 0,7 V.')
           ]
@@ -187,7 +202,7 @@
             logic('Ustaw wejścia tak, żeby bramka AND dała na wyjściu 1.', G('AND', V('A'), V('B')), { out: 1 }, 'Oba wejścia muszą mieć 1.', { hint: 'włącz oba wejścia' }),
             learn('sym-or', 'OR i NOT', '<b>OR</b> (LUB) daje 1, gdy <b>choć jedno</b> wejście ma 1 – jak przełączniki równolegle. <b>NOT</b> (NIE) odwraca: z 0 robi 1, a z 1 robi 0. Na symbolu NOT widać kółeczko na wyjściu.'),
             truth('Uzupełnij tabelę prawdy bramki OR.', 'OR', 'OR daje 0 tylko wtedy, gdy oba wejścia mają 0.'),
-            choice('Bramka NOT dostaje 1. Co daje na wyjściu?', ['0', '1', '2', 'Nic'], 0, 'NOT zawsze odwraca stan.'),
+            choice('Bramka NOT dostaje 1. Co daje na wyjściu?', ['0', '1', '2', F('Wysyła SMS-a', 'Hihi! Bramki nie piszą SMS-ów, choć bez nich telefon by nie działał. NOT zamienia 1 na 0.')], 0, 'NOT zawsze odwraca stan.'),
             logic('Obie jedynki są włączone. Zrób tak, żeby bramka OR dała 0.', G('OR', V('A'), V('B')), { out: 0 }, 'Żeby OR dała 0, oba wejścia muszą mieć 0.', { start: { A: 1, B: 1 }, hint: 'wyłącz oba wejścia' })
           ]
         },

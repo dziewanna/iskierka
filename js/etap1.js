@@ -6,7 +6,7 @@
   'use strict';
   var K = window.ISK_KIT, B = K.B;
   var learn = K.learn, choice = K.choice, tf = K.tf, pairs = K.pairs, fill = K.fill, sort = K.sort, circ = K.circ, slider = K.slider;
-  var board = K.board, pattern = K.pattern, volts = K.volts;
+  var board = K.board, volts = K.volts, build = K.build, F = K.F;
   var L = K.L, LL = K.LL, YESNO = K.YESNO;
 
   var units = [
@@ -26,7 +26,7 @@
           id: 'u1l1', title: 'Co to jest prąd?', icon: 'bolt', sticker: 'wire', desc: 'Poznasz elektrony i Kabelka Kubę.',
           ex: [
             learn('mascot', 'Cześć, tu Iskierka!', 'Wszystko wokół zbudowane jest z atomów, a w nich krążą malutkie <b>elektrony</b>. Kiedy elektrony ruszają razem w jedną stronę, płynie <b>prąd elektryczny</b>.', { mood: 'cheer' }),
-            choice('Czym jest prąd elektryczny?', ['Ruchem malutkich elektronów', 'Gorącym powietrzem w kablu', 'Wodą płynącą w przewodzie', 'Dymem z baterii'], 0, 'Prąd to ruch elektronów. Nie widać ich, ale widać, co potrafią: zapalić światło albo uruchomić silnik!'),
+            choice('Czym jest prąd elektryczny?', ['Ruchem malutkich elektronów', 'Gorącym powietrzem w kablu', 'Wodą płynącą w przewodzie', F('Tańcem kabelków na imprezie', 'Kabelki lubią potańczyć, ale prąd to ruch elektronów, a nie disco!')], 0, 'Prąd to ruch elektronów. Nie widać ich, ale widać, co potrafią: zapalić światło albo uruchomić silnik!'),
             learn('wire', 'Kabelek Kuba', 'To mój kolega Kuba. W środku ma <b>miedziany drucik</b>, po którym elektrony pędzą jak po torze. Prąd płynie przewodem trochę jak woda rurą.', { friend: true }),
             fill(['Prąd płynie przez przewód trochę jak woda przez ', 0, '.'], ['rurę', 'balon', 'chmurę'], ['rurę'], 'Przewód prowadzi prąd tak, jak rura prowadzi wodę.'),
             tf('Elektrony są tak duże, że widać je gołym okiem.', false, 'Są tak malutkie, że nie widać ich nawet pod najlepszym mikroskopem!'),
@@ -38,11 +38,11 @@
           id: 'u1l2', title: 'Bateria Basia', icon: 'battery', sticker: 'battery', desc: 'Plus, minus i wolty.',
           ex: [
             learn('battery', 'Bateria Basia', 'Bateria to <b>źródło prądu</b> – mały magazyn energii. Ma dwa bieguny: <b>plus (+)</b> i <b>minus (−)</b>. Prąd wypływa z baterii, robi kółko po obwodzie i do niej wraca.', { friend: true }),
-            choice('Ile biegunów ma bateria?', ['Jeden', 'Dwa', 'Trzy', 'Dziesięć'], 1, 'Dwa: plus (+) i minus (−). Na każdej baterii znajdziesz te znaczki.'),
+            choice('Ile biegunów ma bateria?', ['Jeden', 'Dwa', 'Trzy', F('Tyle, ile ma urodzin', 'Hihi! Bateria nie obchodzi urodzin – ma zawsze dwa bieguny.')], 1, 'Dwa: plus (+) i minus (−). Na każdej baterii znajdziesz te znaczki.'),
             learn('battery', 'Napięcie', 'Siłę, z jaką bateria „pcha” elektrony, nazywamy <b>napięciem</b>. Mierzymy je w <b>woltach</b> (V). Paluszek AA ma 1,5 V, płaska bateria 4,5 V, a prostokątna 9 V.', { mood: 'wow' }),
-            choice('W czym mierzymy napięcie?', ['W woltach (V)', 'W kilogramach (kg)', 'W metrach (m)', 'W litrach (l)'], 0, 'Nazwa „wolt” pochodzi od nazwiska Alessandra Volty, który zbudował pierwszą baterię.'),
+            choice('W czym mierzymy napięcie?', ['W woltach (V)', 'W kilogramach (kg)', 'W metrach (m)', F('W łyżeczkach cukru', 'Słodko, ale nie. Cukier sypiemy łyżeczką, a napięcie mierzymy w woltach!')], 0, 'Nazwa „wolt” pochodzi od nazwiska Alessandra Volty, który zbudował pierwszą baterię.'),
             tf('Bateria 9 V ma większe napięcie niż paluszek 1,5 V.', true, '9 to więcej niż 1,5 – taka bateria mocniej „pcha” elektrony.'),
-            choice('Co z tych rzeczy jest źródłem prądu?', ['Panel słoneczny', 'Gumka do mazania', 'Drewniana łyżka', 'Kubek'], 0, 'Panel słoneczny zamienia światło słońca w prąd. Źródłem prądu są też baterie i akumulatory.'),
+            choice('Co z tych rzeczy jest źródłem prądu?', ['Panel słoneczny', 'Gumka do mazania', 'Drewniana łyżka', F('Kot, który się wyspał', 'Wyspany kot ma mnóstwo energii, ale nie da się go podłączyć do lampki!')], 0, 'Panel słoneczny zamienia światło słońca w prąd. Źródłem prądu są też baterie i akumulatory.'),
             pairs('Połącz znaczek z nazwą', [['+', 'plus'], ['−', 'minus'], ['V', 'wolt'], ['AA', 'paluszek']], { big: true }),
             tf('Zużyte baterie wyrzucamy do zwykłego kosza.', false, 'Zużyte baterie oddajemy do specjalnego pojemnika – w sklepie albo w szkole. Są w nich substancje groźne dla przyrody.')
           ]
@@ -125,8 +125,8 @@
               { t: 'Łyżeczka', art: 'spoon', b: 0 }, { t: 'Plastikowa linijka', art: 'ruler', b: 1 },
               { t: 'Spinacz', art: 'clip', b: 0 }, { t: 'Szklana kulka', art: 'marble', b: 1 }
             ], 'Metale przewodzą prąd. Plastik, guma, drewno i szkło – nie.'),
-            choice('Co wstawisz w przerwę obwodu, żeby żarówka zaświeciła?', [{ t: 'Monetę', art: 'coin' }, { t: 'Gumkę', art: 'eraser' }, { t: 'Patyczek', art: 'stick' }, { t: 'Kaczuszkę', art: 'duck' }], 0, 'Moneta jest z metalu, więc przewodzi prąd i zamknie obwód.'),
-            choice('Dlaczego kabel ma plastikową osłonkę?', ['Żeby prąd nie uciekał i nie raził', 'Żeby był ładniejszy', 'Żeby prąd płynął szybciej', 'Żeby był cięższy'], 0, 'Plastik to izolator. Chroni nas przed prądem płynącym w środku.'),
+            choice('Co wstawisz w przerwę obwodu, żeby żarówka zaświeciła?', [{ t: 'Monetę', art: 'coin' }, { t: 'Gumkę', art: 'eraser' }, { t: 'Patyczek', art: 'stick' }, { t: 'Kaczuszkę', art: 'duck', fun: 'Kwa! Kaczuszka jest z gumy, więc prąd się na niej zatrzyma.' }], 0, 'Moneta jest z metalu, więc przewodzi prąd i zamknie obwód.'),
+            choice('Dlaczego kabel ma plastikową osłonkę?', ['Żeby prąd nie uciekał i nie raził', F('Żeby kabelkowi nie było zimno', 'Urocze! Ale osłonka to nie kurtka – to izolator, który chroni nas przed prądem.'), 'Żeby prąd płynął szybciej', 'Żeby był cięższy'], 0, 'Plastik to izolator. Chroni nas przed prądem płynącym w środku.'),
             tf('Rysik w ołówku (grafit) przewodzi prąd.', true, 'Zaskakujące, prawda? Grafit nie jest metalem, a jednak przewodzi.', { art: 'pencil' }),
             fill(['Guma i plastik to ', 0, ', a metale to ', 1, '.'], ['izolatory', 'przewodniki', 'baterie'], ['izolatory', 'przewodniki'], 'Izolatory zatrzymują prąd, przewodniki go przepuszczają.'),
             tf('Ludzkie ciało przewodzi prąd.', true, 'Dlatego prąd z gniazdka jest dla nas tak groźny.')
@@ -142,6 +142,28 @@
             tf('Na symbolu baterii dłuższa kreska to plus (+).', true, 'Dłuższa kreska to plus, krótsza i grubsza to minus.', { art: 'sym-battery' }),
             choice('Co pokazuje ten schemat?', ['Baterię, żarówkę i włączony przełącznik', 'Dwie baterie', 'Samą żarówkę', 'Silniczek i brzęczyk'], 0, 'Kreski to bateria, kółko z krzyżykiem to żarówka, a kreska z kropkami to przełącznik.', { art: { c: function () { return B.loop(L(), { t: 'sw', on: true }); }, style: 'schem' } }),
             choice('Czy żarówka na tym schemacie zaświeci?', YESNO, 1, 'Przełącznik jest podniesiony, czyli otwarty, więc obwód jest przerwany.', { art: { c: function () { return B.loop(L(), { t: 'sw', on: false }); }, style: 'schem' }, keep: true })
+          ]
+        },
+        {
+          id: 'u2w', title: 'Potwór Mruczek', icon: 'monster', ws: true, desc: 'Misja: obudź elektronicznego potwora.',
+          ex: [
+            learn('missionDemo', 'Poznaj Mruczka', 'To Mruczek – elektroniczny potwór. Jego oczy to żarówki. Złote kropki to <b>zaciski</b>: dotknij jednego, a potem drugiego, żeby połączyć je kabelkiem. Dotknij kabelka, żeby go usunąć. Na obrazku jeden kabelek już jest – czego jeszcze brakuje, żeby oko się otworzyło?'),
+            build('Mruczek śpi. Połącz baterię z jego okiem, żeby je otworzył.', {
+              scene: 'monster', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'E1', t: 'lamp', skin: 'eye', at: [220, 112], name: 'Oko' }],
+              goal: { lit: { E1: true } }, hint: 'plus baterii do jednej nóżki oka, a drugą nóżkę do minusa', sol: [['B:+', 'E1:a'], ['E1:b', 'B:-']]
+            }, 'Obwód jest zamknięty: z plusa baterii, przez oko, z powrotem do minusa.'),
+            choice('Dlaczego oko zaświeciło dopiero po drugim kabelku?', ['Bo prąd musi wrócić do baterii – obwód był otwarty', F('Bo Mruczek budzi się powoli', 'Mruczek to śpioch, ale tu chodziło o zamknięte kółko dla prądu!'), F('Bo pierwszy kabelek był nieśmiały', 'Kabelki nie bywają nieśmiałe. Obwód musiał się zamknąć.'), 'Bo bateria potrzebowała chwili'], 0, 'Jeden kabelek to tylko połowa drogi. Prąd potrzebuje pełnego kółka.'),
+            build('Teraz Mruczek ma dwoje oczu. Zapal oba!', {
+              scene: 'monster', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'E1', t: 'lamp', skin: 'eye', at: [185, 112], name: 'Lewe oko' }, { id: 'E2', t: 'lamp', skin: 'eye', at: [255, 112], name: 'Prawe oko' }],
+              goal: { lit: { E1: true, E2: true } }, hint: 'połącz oczy jedno za drugim albo każde osobno z baterią', sol: [['B:+', 'E1:a'], ['E1:b', 'E2:a'], ['E2:b', 'B:-']]
+            }, 'Da się na dwa sposoby: oczy jedno za drugim (szeregowo) albo każde osobno z baterią (równolegle).'),
+            build('Mruczek ma otwierać oczy dopiero wtedy, gdy wciśniesz mu nos.', {
+              scene: 'monster', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'E1', t: 'lamp', skin: 'eye', at: [185, 112], name: 'Lewe oko' }, { id: 'E2', t: 'lamp', skin: 'eye', at: [255, 112], name: 'Prawe oko' }, { id: 'S', t: 'sw', skin: 'nose', at: [220, 168], name: 'Nos' }],
+              goal: { cases: [
+                { name: 'Nos wciśnięty', want: 'oczy otwarte', set: { S: { on: true } }, lit: { E1: true, E2: true } },
+                { name: 'Nos puszczony', want: 'oczy śpią', set: { S: { on: false } }, lit: { E1: false, E2: false } }
+              ] }, hint: 'prąd z baterii musi przejść przez nos, zanim dotrze do oczu', sol: [['B:+', 'S:a'], ['S:b', 'E1:a'], ['E1:b', 'E2:a'], ['E2:b', 'B:-']]
+            }, 'Nos działa jak przełącznik: dopiero gdy go wciśniesz, obwód się zamyka.')
           ]
         }
       ]
@@ -164,7 +186,7 @@
           ex: [
             learn({ c: function () { return B.loop2t(LL('A'), LL('B')); }, sim: true }, 'Szeregowo', 'Gdy żarówki stoją jedna za drugą, jak wagoniki pociągu, są połączone <b>szeregowo</b>. Prąd ma tylko <b>jedną drogę</b> – musi przejść przez obie.'),
             circ('Zgaś OBIE żarówki, wykręcając tylko jedną z nich.', function () { return B.loop2t(LL('A', { tap: true }), LL('B', { tap: true })); }, { lit: { A: false, B: false }, removed: 1 }, 'W szeregu prąd ma jedną drogę. Wykręcona żarówka przerywa ją dla wszystkich.', { hint: 'Dotknij jednej żarówki, żeby ją wykręcić.' }),
-            choice('W lampkach połączonych szeregowo przepaliła się jedna. Co z resztą?', ['Wszystkie gasną', 'Reszta świeci jaśniej', 'Nic się nie zmienia', 'Bateria się ładuje'], 0, 'Przepalona żarówka przerywa jedyną drogę prądu.'),
+            choice('W lampkach połączonych szeregowo przepaliła się jedna. Co z resztą?', ['Wszystkie gasną', 'Reszta świeci jaśniej', 'Nic się nie zmienia', F('Pozostałe płaczą ze smutku', 'Wzruszające! Ale żarówki nie płaczą – gasną, bo prąd stracił jedyną drogę.')], 0, 'Przepalona żarówka przerywa jedyną drogę prądu.'),
             tf('Dwie żarówki w szeregu świecą jaśniej niż jedna.', false, 'Świecą słabiej, bo dzielą się napięciem baterii. Zobacz – są przygaszone.', { art: { c: function () { return B.loop2t(LL('A'), LL('B')); }, sim: true } }),
             circ('Zapal obie żarówki naraz.', function () { return B.loop2t(LL('A'), LL('B'), { t: 'gap', id: 'G', tap: true }); }, { lit: { A: true, B: true } }, 'Jedna droga, dwie żarówki – i obie świecą.', { hint: 'Wstaw kabelek w przerwę.' }),
             fill(['W połączeniu szeregowym prąd ma ', 0, ' drogę.'], ['jedną', 'dwie', 'zero'], ['jedną'], 'Jedna droga – jak tory dla pociągu.')
@@ -175,7 +197,7 @@
           ex: [
             learn({ c: function () { return B.ladder([[LL('A')], [LL('B')]]); }, sim: true }, 'Równolegle', 'Tu każda żarówka ma <b>własną drogę</b> do baterii. To połączenie <b>równoległe</b>. Obie świecą jasno!'),
             circ('Wykręć żarówkę A. Czy B dalej świeci?', function () { return B.ladder([[LL('A', { tap: true })], [LL('B', { tap: true })]]); }, { lit: { A: false, B: true } }, 'Tak! Żarówka B ma swoją drogę, więc świeci dalej.', { hint: 'Dotknij żarówki A.' }),
-            choice('Dlaczego w domu, gdy przepali się jedna lampa, inne dalej świecą?', ['Bo są połączone równolegle', 'Bo są połączone szeregowo', 'Bo każda ma swoją baterię', 'Bo lampy są magiczne'], 0, 'W domu każda lampa ma swoją drogę dla prądu.'),
+            choice('Dlaczego w domu, gdy przepali się jedna lampa, inne dalej świecą?', ['Bo są połączone równolegle', 'Bo są połączone szeregowo', 'Bo każda ma swoją baterię', F('Bo lampy są magiczne', 'Magia działa w bajkach. W domu działa połączenie równoległe!')], 0, 'W domu każda lampa ma swoją drogę dla prądu.'),
             circ('Każda żarówka ma swój przełącznik. Zapal TYLKO żarówkę B.', function () { return B.ladder([[LL('A'), { t: 'sw', id: 'SA', label: 'A', tap: true }], [LL('B'), { t: 'sw', id: 'SB', label: 'B', tap: true }]]); }, { lit: { A: false, B: true } }, 'Równoległe drogi można włączać osobno. Tak działają światła w Twoim domu.', { hint: 'Włącz tylko przełącznik B.' }),
             tf('W połączeniu równoległym każda żarówka ma własną drogę dla prądu.', true, 'Dlatego jedna może świecić, a druga nie.'),
             choice('Który obwód jest połączony równolegle?', [{ t: 'Obwód 1', c: function () { return B.loop2t(L({ id: 'x' }), L({ id: 'y' })); } }, { t: 'Obwód 2', c: function () { return B.ladder([[L({ id: 'x' })], [L({ id: 'y' })]]); } }], 1, 'W obwodzie 2 każda żarówka ma osobną drogę. W obwodzie 1 stoją jedna za drugą.')
@@ -189,27 +211,30 @@
             tf('Zwarcie jest bezpieczne i baterie je lubią.', false, 'Przy zwarciu bateria szybko się rozładowuje i nagrzewa. W domu zwarcie może nawet wywołać pożar.'),
             choice('Co jest nie tak z tym obwodem?', ['Jest zwarcie – przewód omija żarówkę', 'Brakuje baterii', 'Obwód jest otwarty', 'Wszystko jest dobrze'], 0, 'Dolny przewód łączy plus z minusem na skróty. Prąd omija żarówkę.', { art: { c: function () { return B.ladder([[LL('A')], [{ t: 'wire' }]]); } } }),
             fill(['Przy zwarciu prąd płynie na ', 0, '.'], ['skróty', 'około', 'wakacje'], ['skróty'], 'Na skróty – z pominięciem odbiornika.'),
-            choice('Do czego służy bezpiecznik w domu?', ['Wyłącza prąd, gdy dzieje się coś groźnego', 'Zwiększa prąd w gniazdkach', 'Ozdabia ścianę', 'Ładuje telefon'], 0, 'Bezpiecznik pilnuje instalacji. Przy zwarciu sam odcina prąd.')
+            choice('Do czego służy bezpiecznik w domu?', ['Wyłącza prąd, gdy dzieje się coś groźnego', 'Zwiększa prąd w gniazdkach', F('Ozdabia ścianę', 'Bywa ładny, ale ma ważniejszą pracę: pilnuje, żeby nie było pożaru.'), 'Ładuje telefon'], 0, 'Bezpiecznik pilnuje instalacji. Przy zwarciu sam odcina prąd.')
           ]
         },
         {
-          id: 'u3w', title: 'Wzorki świetlne', icon: 'grid', ws: true, desc: 'Warsztat: zapal diody tak, żeby ułożyły obrazek.',
+          id: 'u3w', title: 'Mruczek się nie poddaje', icon: 'monster', ws: true, desc: 'Misja: oczy, które się nie poddają, i puszczanie oczka.',
           ex: [
-            learn('ledOn', 'Panel świetlny', 'Każdy przełącznik zapala swoją grupę diod – to osobne drogi, połączone <b>równolegle</b>. Kolorowe kropki na diodzie pokazują, które przełączniki ją zasilają. Ułóż wzorek z obrazka!'),
-            pattern('Zapal plusik.', { size: [3, 3], target: [[0, 1], [1, 0], [1, 1], [1, 2], [2, 1]], switches: [
-              { cells: [[0, 1], [1, 1], [2, 1]] }, { cells: [[1, 0], [1, 1], [1, 2]] }, { cells: [[0, 0], [0, 2], [2, 0], [2, 2]] }, { cells: [[0, 0], [1, 1], [2, 2]] }] },
-            'Pionowa i pozioma kreska razem tworzą plus.', { hint: 'szukaj kresek: pionowej i poziomej' }),
-            pattern('Teraz ułóż literę X.', { size: [3, 3], target: [[0, 0], [0, 2], [1, 1], [2, 0], [2, 2]], switches: [
-              { cells: [[0, 0], [1, 1], [2, 2]] }, { cells: [[0, 1], [1, 1], [2, 1]] }, { cells: [[0, 2], [1, 1], [2, 0]] }, { cells: [[1, 0], [1, 2]] }] },
-            'Dwie ukośne kreski tworzą X. Środkowa dioda jest w obu grupach.'),
-            pattern('Zapal serce dla Iskierki!', { size: [5, 5], target: [[0, 1], [0, 3], [1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [2, 0], [2, 1], [2, 2], [2, 3], [2, 4], [3, 1], [3, 2], [3, 3], [4, 2]], switches: [
-              { cells: [[0, 1], [0, 3]] }, { cells: [[1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [2, 0], [2, 1], [2, 2], [2, 3], [2, 4]] }, { cells: [[0, 0], [0, 4], [4, 0], [4, 4]] },
-              { cells: [[3, 1], [3, 2], [3, 3], [4, 2]] }, { cells: [[2, 2], [3, 2], [4, 1], [4, 2], [4, 3]] }] },
-            'Serce składa się z uszek, szerokiego środka i czubka na dole.', { hint: 'uważaj na grupy, które zapalają diody poza sercem' }),
-            learn('mascot', 'Ekran z diod', 'W prawdziwych ekranach LED diody łączy się w <b>rzędy (R)</b> i <b>kolumny (K)</b>. Dioda świeci, gdy włączony jest <b>jej rząd i jej kolumna</b> – oba naraz, jak dwa przełączniki w szeregu. Tak działają tablice na dworcach!', { mood: 'think' }),
-            pattern('Zapal tylko środkową diodę.', { mode: 'matrix', size: [3, 3], target: [[1, 1]] }, 'Rząd 2 i kolumna 2 spotykają się w środku.', { hint: 'włącz jeden rząd i jedną kolumnę' }),
-            pattern('Zapal cztery rogi.', { mode: 'matrix', size: [3, 3], target: [[0, 0], [0, 2], [2, 0], [2, 2]] }, 'Rzędy 1 i 3 oraz kolumny 1 i 3 krzyżują się dokładnie w rogach.', { hint: 'potrzebujesz dwóch rzędów i dwóch kolumn' }),
-            pattern('Zapal cały środkowy rząd.', { mode: 'matrix', size: [3, 3], target: [[1, 0], [1, 1], [1, 2]] }, 'Jeden rząd i wszystkie kolumny – i cały pasek świeci.')
+            build('Oko Mruczka może się przepalić. Połącz oczy tak, żeby po wykręceniu jednego drugie dalej świeciło.', {
+              scene: 'monster', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'E1', t: 'lamp', skin: 'eye', at: [185, 112], name: 'Lewe oko' }, { id: 'E2', t: 'lamp', skin: 'eye', at: [255, 112], name: 'Prawe oko' }],
+              goal: { cases: [
+                { name: 'Oba oczy całe', want: 'oba świecą', lit: { E1: true, E2: true } },
+                { name: 'Lewe oko wykręcone', want: 'prawe świeci', set: { E1: { out: true } }, lit: { E2: true } },
+                { name: 'Prawe oko wykręcone', want: 'lewe świeci', set: { E2: { out: true } }, lit: { E1: true } }
+              ] }, hint: 'każde oko musi mieć własną drogę do baterii – równolegle', sol: [['B:+', 'E1:a'], ['E1:b', 'B:-'], ['B:+', 'E2:a'], ['E2:b', 'B:-']]
+            }, 'Równolegle każde oko ma swoją drogę. Jedno zgaśnie – drugie dalej patrzy!'),
+            choice('Mruczek ma oczy połączone równolegle. Jedno się przepaliło. Co z drugim?', ['Świeci dalej', 'Też gaśnie', F('Świeci jaśniej niż słońce', 'Ojej, oślepiłoby nas! Świeci dalej tak samo jasno.'), F('Puszcza do nas oczko', 'Hihi! Mruczek to żartowniś, ale drugie oko po prostu świeci dalej.')], 0, 'Każda droga w połączeniu równoległym działa niezależnie.'),
+            build('Mruczek puszcza oczko: lewe oko ma się otwierać tylko po wciśnięciu nosa, a prawe ma być otwarte cały czas.', {
+              scene: 'monster', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'E1', t: 'lamp', skin: 'eye', at: [185, 112], name: 'Lewe oko' }, { id: 'E2', t: 'lamp', skin: 'eye', at: [255, 112], name: 'Prawe oko' }, { id: 'S', t: 'sw', skin: 'nose', at: [220, 168], name: 'Nos' }],
+              wires: [['B:+', 'E2:a'], ['E2:b', 'B:-']],
+              goal: { cases: [
+                { name: 'Nos wciśnięty', want: 'oba oczy otwarte', set: { S: { on: true } }, lit: { E1: true, E2: true } },
+                { name: 'Nos puszczony', want: 'lewe śpi, prawe patrzy', set: { S: { on: false } }, lit: { E1: false, E2: true } }
+              ] }, hint: 'lewe oko dostaje własną drogę przez nos', sol: [['B:+', 'S:a'], ['S:b', 'E1:a'], ['E1:b', 'B:-']]
+            }, 'Prawe oko ma swoją drogę, a lewe swoją – przez nos. Tak w domu każda lampa ma swój włącznik.'),
+            tf('Gdy każde oko ma osobną drogę do baterii, to połączenie równoległe.', true, 'Właśnie tak! Szeregowo byłaby jedna wspólna droga.')
           ]
         }
       ]
@@ -231,10 +256,10 @@
           id: 'u4l1', title: 'Opornik Olek', icon: 'resistor', sticker: 'resistor', desc: 'Kto hamuje prąd?',
           ex: [
             learn('resistor', 'Opornik Olek', 'Olek <b>hamuje prąd</b>. Działa jak przewężenie w rurze: przepuszcza mniej wody. Kolorowe paski na brzuszku mówią, jak mocno hamuje.', { friend: true }),
-            choice('Co robi opornik?', ['Zmniejsza prąd w obwodzie', 'Wytwarza prąd', 'Świeci na czerwono', 'Mierzy temperaturę'], 0, 'Opornik ogranicza prąd, żeby inne elementy się nie przegrzały.'),
+            choice('Co robi opornik?', ['Zmniejsza prąd w obwodzie', 'Wytwarza prąd', 'Świeci na czerwono', F('Opowiada prądowi bajki na dobranoc', 'Przy bajce prąd może by zwolnił… ale opornik po prostu go hamuje.')], 0, 'Opornik ogranicza prąd, żeby inne elementy się nie przegrzały.'),
             learn('resistor', 'Omy', 'Opór mierzymy w <b>omach</b>. Znak omów to grecka litera <b>Ω</b> (omega). Olek ma paski czerwony, czerwony i brązowy – to znaczy 220 Ω.', { mood: 'wow' }),
             pairs('Połącz znak z tym, co mierzy', [['V', 'napięcie (wolt)'], ['A', 'prąd (amper)'], ['Ω', 'opór (om)']], { big: true }),
-            choice('Większy opór oznacza…', ['Mniejszy prąd', 'Większy prąd', 'Więcej baterii', 'Kolorowy kabel'], 0, 'Im mocniej Olek hamuje, tym mniej prądu przepływa.'),
+            choice('Większy opór oznacza…', ['Mniejszy prąd', 'Większy prąd', 'Więcej baterii', F('Bardziej kolorowe paski', 'Paski mówią, jaki jest opór, ale same kolory niczego nie hamują!')], 0, 'Im mocniej Olek hamuje, tym mniej prądu przepływa.'),
             choice('Który symbol oznacza opornik?', [{ art: 'sym-resistor' }, { art: 'sym-bulb' }, { art: 'sym-battery' }, { art: 'sym-switch' }], 0, 'W Polsce opornik rysujemy jako mały prostokąt.'),
             tf('1 amper to 1000 miliamperów.', true, 'Tak jak 1 metr to 1000 milimetrów.')
           ]
@@ -244,10 +269,10 @@
           ex: [
             learn('ledOn', 'Dioda Lena', 'Lena to <b>dioda LED</b>. Jest malutka, oszczędna i świeci w wielu kolorach. Ale uwaga: przepuszcza prąd tylko <b>w jedną stronę</b>!', { friend: true }),
             learn('ledLegs', 'Dwie nóżki', 'Lena ma dwie nóżki. <b>Dłuższa to plus</b> (anoda), krótsza to minus (katoda). Dłuższą nóżkę podłączamy do plusa baterii.'),
-            choice('Którą nóżkę diody podłączysz do plusa baterii?', ['Dłuższą', 'Krótszą', 'Obojętnie którą', 'Żadną'], 0, 'Dłuższa nóżka to plus. Łatwo zapamiętać: plus jest „dłuższy”, bo ma dodatkową kreskę!', { art: 'ledLegs' }),
+            choice('Którą nóżkę diody podłączysz do plusa baterii?', ['Dłuższą', 'Krótszą', 'Obojętnie którą', F('Tę, która ładniej tańczy', 'Nóżki diody nie tańczą (a szkoda!). Do plusa idzie dłuższa.')], 0, 'Dłuższa nóżka to plus. Łatwo zapamiętać: plus jest „dłuższy”, bo ma dodatkową kreskę!', { art: 'ledLegs' }),
             circ('Lena nie świeci! Odwróć ją – dotknij diody.', function () { return B.loop({ t: 'led', id: 'D', flip: true, tap: true }, null, { t: 'res', r: 220 }); }, { lit: { D: true } }, 'Teraz plus diody patrzy w stronę plusa baterii i prąd może przez nią płynąć.', { hint: 'Dotknij diody, żeby ją obrócić.' }),
             tf('Dioda LED świeci bez względu na to, w którą stronę ją podłączysz.', false, 'Dioda to jednokierunkowa furtka dla prądu.'),
-            choice('Dlaczego żarówki LED są dobre dla planety?', ['Zużywają mało prądu', 'Są cięższe', 'Świecą tylko w nocy', 'Nie potrzebują prądu'], 0, 'LED-y dają tyle samo światła, zużywając kilka razy mniej energii niż zwykłe żarówki.')
+            choice('Dlaczego żarówki LED są dobre dla planety?', ['Zużywają mało prądu', F('Bo są zielone', 'Diody świecą w wielu kolorach. „Zielone” są dlatego, że oszczędzają prąd!'), 'Świecą tylko w nocy', 'Nie potrzebują prądu'], 0, 'LED-y dają tyle samo światła, zużywając kilka razy mniej energii niż zwykłe żarówki.')
           ]
         },
         {
@@ -255,7 +280,7 @@
           ex: [
             learn({ c: function () { return B.loop({ t: 'led', id: 'D' }, null, { t: 'res', r: 220 }); }, sim: true }, 'Ochroniarz Leny', 'Dioda bez opornika dostałaby za dużo prądu i by się przepaliła. Opornik to jej <b>ochroniarz</b>! Zwykłej diodzie wystarczy od 5 do 20 miliamperów (mA).'),
             slider('Bateria ma 5 V. Dobierz opornik, żeby Lena świeciła bezpiecznie – w zielonej strefie.', { v: 5, vf: 2, start: 7, ok: [5, 20] }, 'Przy 5 V pasuje opornik 220 Ω albo 470 Ω.'),
-            choice('Co się stanie, gdy podłączysz diodę do baterii bez opornika?', ['Może się przepalić', 'Zaświeci w kolorach tęczy', 'Bateria się naładuje', 'Nic'], 0, 'Za duży prąd przegrzewa diodę. Opornik chroni ją przed tym.'),
+            choice('Co się stanie, gdy podłączysz diodę do baterii bez opornika?', ['Może się przepalić', F('Zaświeci w kolorach tęczy', 'Piękne marzenie! Niestety za duży prąd raczej ją przepali.'), 'Bateria się naładuje', 'Nic'], 0, 'Za duży prąd przegrzewa diodę. Opornik chroni ją przed tym.'),
             slider('Teraz bateria ma 9 V. Znajdź opornik dla Leny!', { v: 9, vf: 2, start: 2, ok: [5, 20] }, 'Przy 9 V pasuje 470 Ω albo 1 kΩ. Większe napięcie – większy opornik.'),
             tf('Im większy opornik, tym jaśniej świeci dioda.', false, 'Odwrotnie! Większy opornik mocniej hamuje prąd, więc dioda świeci słabiej.'),
             choice('Dla ambitnych: prąd = napięcie : opór. Bateria ma 6 V, opornik 3 Ω. Jaki płynie prąd?', ['2 A', '18 A', '3 A', '9 A'], 0, '6 : 3 = 2. Płynie prąd 2 amperów. To jest prawo Ohma!')
@@ -305,7 +330,7 @@
             learn('motorOn', 'Silniczek Szymek', 'Szymek <b>zamienia prąd w ruch</b> – kręci się! Silniczki są w wentylatorach, zabawkach i hulajnogach elektrycznych.', { friend: true }),
             circ('Zbuduj dzwonek: włącz brzęczyk.', function () { return B.loop({ t: 'buzz', id: 'Z' }, { t: 'sw', id: 'S', tap: true }); }, { lit: { Z: true } }, 'Bzzzz! Tak działa najprostszy dzwonek do drzwi.', { hint: 'Dotknij przełącznika.' }),
             pairs('W co zamieniają prąd?', [['Żarówka', 'światło'], ['Brzęczyk', 'dźwięk'], ['Silniczek', 'ruch'], ['Grzałka', 'ciepło']]),
-            choice('W co zamienia prąd wentylator?', ['W ruch', 'W światło', 'W wodę', 'W dźwięk dzwonka'], 0, 'W wentylatorze silniczek kręci łopatkami.'),
+            choice('W co zamienia prąd wentylator?', ['W ruch', 'W światło', F('W lody', 'Wentylator chłodzi, ale lodów nie zrobi. Zamienia prąd w ruch!'), 'W dźwięk dzwonka'], 0, 'W wentylatorze silniczek kręci łopatkami.'),
             circ('Włącz wiatraczek, ale zostaw światło zgaszone.', function () { return B.ladder([[LL('A'), { t: 'sw', id: 'SA', label: 'A', tap: true }], [{ t: 'motor', id: 'M' }, { t: 'sw', id: 'SM', label: 'M', tap: true }]]); }, { lit: { A: false, M: true } }, 'Każde urządzenie ma swoją drogę i swój przełącznik.', { hint: 'Włącz tylko przełącznik M.' })
           ]
         },
@@ -313,10 +338,10 @@
           id: 'u5l2', title: 'Zmysły elektroniki', icon: 'eye', sticker: 'ldr', desc: 'Czujniki, które widzą i słyszą.',
           ex: [
             learn('ldr', 'Fotorezystor Fotek', 'Fotek to opornik, który <b>czuje światło</b>: w jasności przepuszcza dużo prądu, a w ciemności mało. Dzięki niemu latarnie same zapalają się wieczorem!', { friend: true }),
-            choice('Jaki czujnik pomoże lampce zapalać się, gdy robi się ciemno?', ['Czujnik światła (fotorezystor)', 'Czujnik temperatury', 'Mikrofon', 'Waga'], 0, 'Fotorezystor „widzi”, że zrobiło się ciemno.'),
+            choice('Jaki czujnik pomoże lampce zapalać się, gdy robi się ciemno?', ['Czujnik światła (fotorezystor)', 'Czujnik temperatury', 'Mikrofon', F('Waga łazienkowa', 'Ważenie ciemności? To byłby wynalazek! Ciemność wyczuje fotorezystor.')], 0, 'Fotorezystor „widzi”, że zrobiło się ciemno.'),
             pairs('Co wyczuwa ten czujnik?', [['Fotorezystor', 'światło'], ['Termometr', 'ciepło'], ['Mikrofon', 'dźwięk'], ['Przycisk', 'naciśnięcie']]),
             tf('Czujnik ruchu może zapalić światło, gdy ktoś wejdzie do pokoju.', true, 'Tak działa światło na wielu klatkach schodowych.'),
-            choice('Robot sprzątający nie spada ze schodów. Co mu pomaga?', ['Czujniki, które wyczuwają krawędź', 'Mocne kółka', 'Głośna muzyka', 'Kolorowa obudowa'], 0, 'Czujniki pod spodem sprawdzają, czy pod robotem jest podłoga.'),
+            choice('Robot sprzątający nie spada ze schodów. Co mu pomaga?', ['Czujniki, które wyczuwają krawędź', 'Mocne kółka', F('Boi się wysokości', 'Hihi, roboty nie mają lęku wysokości – mają czujniki!'), 'Kolorowa obudowa'], 0, 'Czujniki pod spodem sprawdzają, czy pod robotem jest podłoga.'),
             fill(['Czujniki to ', 0, ' urządzeń elektronicznych.'], ['zmysły', 'buty', 'kapelusze'], ['zmysły'], 'Czujniki pozwalają urządzeniom „widzieć”, „słyszeć” i „czuć”.')
           ]
         },
@@ -333,7 +358,7 @@
               { t: 'Używam żarówek LED', b: 0 },
               { t: 'Komputer zostaje włączony na całą noc', b: 1 }
             ], 'Każde zgaszone światło to oszczędność energii – i pieniędzy!'),
-            choice('Co zamienia wiatr w prąd?', ['Turbina wiatrowa', 'Parasol', 'Latawiec', 'Wiatraczek z papieru'], 0, 'Wiatr kręci łopatami turbiny, a w środku prądnica robi prąd.'),
+            choice('Co zamienia wiatr w prąd?', ['Turbina wiatrowa', F('Parasol', 'W wichurze parasol raczej odleci, niż zrobi prąd!'), 'Latawiec', 'Wiatraczek z papieru'], 0, 'Wiatr kręci łopatami turbiny, a w środku prądnica robi prąd.'),
             tf('Zużyte baterie oddajemy do specjalnego pojemnika.', true, 'Tak! Z odzyskanych baterii można zrobić nowe rzeczy, a przyroda jest bezpieczna.'),
             learn('mascot', 'Gratulacje!', 'Znasz już podstawy elektroniki: obwody, przełączniki, diody i czujniki. Prawdziwi inżynierowie zaczynali tak samo – od baterii, kabelka i żaróweczki. Co zbudujesz jutro?', { mood: 'cheer' })
           ]
@@ -346,9 +371,28 @@
               tray: [{ t: 'wire' }, { t: 'wire', col: '#2A2153' }], goal: { lit: { Z1: true } }, hint: 'kolumna 3 do szyny +, kolumna 6 do szyny −', sol: [['+3', 'a3'], ['a6', '-6']]
             }, 'Bzzzz! Brzęczyk dostał prąd z obu stron.'),
             volts('Wiatraczek potrzebuje 4,5 V. Ułóż baterie.', 4.5, [1.5, 1.5, 1.5, 9], 'Trzy paluszki po 1,5 V dają 4,5 V.', { name: 'Wiatraczek' }),
-            pattern('Zbuduj sygnalizator: zapal strzałkę w prawo.', { size: [3, 4], target: [[1, 0], [1, 1], [1, 2], [1, 3], [0, 2], [2, 2]], switches: [
-              { cells: [[1, 0], [1, 1], [1, 2], [1, 3]] }, { cells: [[0, 1], [2, 1]] }, { cells: [[0, 2], [2, 2]] }, { cells: [[0, 3], [2, 3]] }] },
-            'Trzon strzałki i grot razem pokazują kierunek.'),
+            build('Mruczek ma ryczeć tylko po wciśnięciu nosa, a oczy mają świecić cały czas.', {
+              scene: 'monster', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'E1', t: 'lamp', skin: 'eye', at: [185, 112], name: 'Lewe oko' }, { id: 'E2', t: 'lamp', skin: 'eye', at: [255, 112], name: 'Prawe oko' }, { id: 'Z', t: 'buzz', skin: 'mouth', at: [220, 212], name: 'Paszcza' }, { id: 'S', t: 'sw', skin: 'nose', at: [220, 168], name: 'Nos' }],
+              wires: [['B:+', 'E1:a'], ['E1:b', 'B:-'], ['B:+', 'E2:a'], ['E2:b', 'B:-']],
+              goal: { cases: [
+                { name: 'Nos wciśnięty', want: 'ryk i otwarte oczy', set: { S: { on: true } }, lit: { Z: true, E1: true, E2: true } },
+                { name: 'Nos puszczony', want: 'cisza, oczy otwarte', set: { S: { on: false } }, lit: { Z: false, E1: true, E2: true } }
+              ] }, hint: 'paszcza (brzęczyk) i nos jedno za drugim, osobną drogą do baterii', sol: [['B:+', 'S:a'], ['S:b', 'Z:a'], ['Z:b', 'B:-']]
+            }, 'Oczy mają swoją drogę, a paszcza swoją – przez nos. RAAAWR!'),
+            build('Zbuduj alarm skrzyni skarbów: gdy ktoś ją otworzy, wpadnie światło i ma zabrzęczeć brzęczyk.', {
+              scene: 'chest', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'F', t: 'ldr', at: [232, 130], name: 'Czujnik światła' }, { id: 'Z', t: 'buzz', at: [232, 222], name: 'Alarm' }],
+              goal: { cases: [
+                { name: 'Skrzynia otwarta (jasno)', want: 'alarm gra', set: { F: { dark: false } }, lit: { Z: true } },
+                { name: 'Skrzynia zamknięta (ciemno)', want: 'cisza', set: { F: { dark: true } }, lit: { Z: false } }
+              ] }, hint: 'czujnik światła i brzęczyk jedno za drugim', sol: [['B:+', 'F:a'], ['F:b', 'Z:a'], ['Z:b', 'B:-']]
+            }, 'W świetle fotorezystor przepuszcza prąd i alarm gra. W ciemności prawie nie przepuszcza – cisza.'),
+            build('Strażnik ciasteczek! Gdy ktoś w nocy otworzy słoik, wpadnie światło. Robot ma wtedy zabrzęczeć i zakręcić wiatraczkiem.', {
+              scene: 'jar', parts: [{ id: 'B', t: 'bat', at: [96, 268] }, { id: 'F', t: 'ldr', at: [96, 118], name: 'Czujnik w słoiku' }, { id: 'Z', t: 'buzz', at: [262, 192], name: 'Brzęczyk' }, { id: 'M', t: 'motor', skin: 'fan', at: [262, 38], name: 'Wiatraczek' }],
+              goal: { cases: [
+                { name: 'Słoik otwarty (jasno)', want: 'brzęczy i kręci', set: { F: { dark: false } }, lit: { Z: true, M: true } },
+                { name: 'Słoik zamknięty (ciemno)', want: 'robot czuwa w ciszy', set: { F: { dark: true } }, lit: { Z: false, M: false } }
+              ] }, hint: 'najpierw czujnik, potem brzęczyk i wiatraczek', sol: [['B:+', 'F:a'], ['F:b', 'Z:a'], ['Z:b', 'M:a'], ['M:b', 'B:-']]
+            }, 'Czujnik światła działa jak strażnik-przełącznik. Taki mechanizm to prawdziwy wynalazek!'),
             board('Dwie diody w szeregu: zapal obie jednym kabelkiem.', {
               fixed: [{ t: 'res', r: 100, legs: ['+2', 'a2'] }, { t: 'led', id: 'D1', legs: ['b2', 'b4'] }, { t: 'led', id: 'D2', col: '#3BA7FF', legs: ['c4', 'c6'] }],
               tray: [{ t: 'wire' }], goal: { lit: { D1: true, D2: true } }, hint: 'połącz kolumnę 6 z szyną −', v: 9, sol: [['d6', '-6']]

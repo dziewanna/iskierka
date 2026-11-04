@@ -160,9 +160,11 @@
   reg('dcSmooth', function () { return wave('dc'); });
   reg('ohm', function () {
     return svg('0 0 120 100',
-      '<path d="M60 8 L112 92 H8 Z" fill="#EDE8FF" stroke="#7C5CFF" stroke-width="3" stroke-linejoin="round"/>' +
-      '<path d="M31 52 H89 M60 52 V92" stroke="#7C5CFF" stroke-width="3"/>' +
-      '<g ' + FONT + ' text-anchor="middle" fill="#2A2153"><text x="60" y="44" font-size="22">U</text><text x="42" y="82" font-size="22">I</text><text x="78" y="82" font-size="22">R</text></g>', 'graph');
+      '<path d="M60 8 L112 92 H8 Z" fill="var(--card)" stroke="var(--violet)" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M31 52 H89 M60 52 V92" stroke="var(--violet)" stroke-width="3"/>' +
+      '<g ' + FONT + ' text-anchor="middle"><text x="60" y="38" font-size="20" class="q-U" style="fill:currentColor">U</text><text x="60" y="49" font-size="9" class="q-U" style="fill:currentColor">V</text>' +
+      '<text x="42" y="76" font-size="20" class="q-I" style="fill:currentColor">I</text><text x="42" y="87" font-size="9" class="q-I" style="fill:currentColor">A</text>' +
+      '<text x="78" y="76" font-size="20" class="q-R" style="fill:currentColor">R</text><text x="78" y="87" font-size="9" class="q-R" style="fill:currentColor">Ω</text></g>', 'graph');
   });
   reg('induction', function () {
     var w = '';
@@ -287,7 +289,8 @@
     board: '<rect x="3" y="7" width="26" height="18" rx="3"/><path d="M8 12.5 h.1 M12 12.5 h.1 M16 12.5 h.1 M20 12.5 h.1 M24 12.5 h.1 M8 19.5 h.1 M12 19.5 h.1 M16 19.5 h.1 M20 19.5 h.1 M24 19.5 h.1" stroke-width="3.2"/>',
     grid: '<rect x="4" y="4" width="7" height="7" rx="2" fill="currentColor"/><rect x="12.5" y="4" width="7" height="7" rx="2"/><rect x="21" y="4" width="7" height="7" rx="2" fill="currentColor"/><rect x="4" y="12.5" width="7" height="7" rx="2"/><rect x="12.5" y="12.5" width="7" height="7" rx="2" fill="currentColor"/><rect x="21" y="12.5" width="7" height="7" rx="2"/><rect x="4" y="21" width="7" height="7" rx="2" fill="currentColor"/><rect x="12.5" y="21" width="7" height="7" rx="2"/><rect x="21" y="21" width="7" height="7" rx="2" fill="currentColor"/>',
     robot: '<rect x="7" y="11" width="18" height="15" rx="4"/><path d="M16 11 V6"/><circle cx="16" cy="4.5" r="2" fill="currentColor"/><circle cx="12.5" cy="18" r="2" fill="currentColor"/><circle cx="19.5" cy="18" r="2" fill="currentColor"/>',
-    bands: '<rect x="3" y="11" width="26" height="10" rx="5"/><path d="M10 11 v10 M14.5 11 v10 M19 11 v10"/>'
+    bands: '<rect x="3" y="11" width="26" height="10" rx="5"/><path d="M10 11 v10 M14.5 11 v10 M19 11 v10"/>',
+    monster: '<path d="M6 28 V15 a10 10 0 0 1 20 0 V28 l-3.4 -3 -3.3 3 -3.3 -3 -3.3 3 -3.3 -3 Z"/><circle cx="12.5" cy="15" r="2.3" fill="currentColor"/><circle cx="19.5" cy="15" r="2.3" fill="currentColor"/><path d="M9.5 6 l1.8 3.5 M22.5 6 l-1.8 3.5"/>'
   });
   A.addIcons({
     lock: '<rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M8 10.5 V8 a4 4 0 0 1 8 0 v2.5" fill="none" stroke="currentColor" stroke-width="2.2"/>',

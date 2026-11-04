@@ -3,7 +3,8 @@
   'use strict';
   var prompt = null;
   var standalone = function () { try { return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } };
-  var web = /^https?:$/.test(location.protocol);
+  var framed = (function () { try { return window.self !== window.top; } catch (e) { return true; } })();
+  var web = /^https?:$/.test(location.protocol) && !framed;
   var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
   if (web && 'serviceWorker' in navigator) {
@@ -19,7 +20,7 @@
     if (prompt) return '<p>Zainstaluj Iskierkę na tym urządzeniu: dostaniesz ikonę na ekranie i grę bez internetu.</p><button class="btn small" data-act="install">Zainstaluj aplikację</button>';
     if (web && ios) return '<p>Na iPhonie i iPadzie: w Safari dotknij <b>Udostępnij</b>, a potem <b>Do ekranu początkowego</b>. Iskierka pojawi się jako aplikacja.</p>';
     if (web) return '<p>W menu przeglądarki wybierz <b>Zainstaluj aplikację</b> albo <b>Dodaj do ekranu głównego</b>.</p>';
-    return '<p>Iskierkę można zainstalować jak aplikację, gdy otworzysz ją ze strony internetowej (np. GitHub Pages).</p>';
+    return '<p>Iskierkę można zainstalować jak aplikację, gdy otworzysz ją bezpośrednio ze strony gry (np. GitHub Pages).</p>';
   }
   function refresh() { var box = document.getElementById('pwa-box'); if (box) box.innerHTML = html(); }
 

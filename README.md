@@ -43,6 +43,13 @@ w obu sklepach polityki prywatności – Iskierka nie zbiera żadnych danych, co
 - **Eksperymenty na żywych obwodach** (`js/circuit.js` naprawdę je przelicza): żarówki w szeregu świecą słabiej,
   zwarcie grzeje baterię, dioda działa w jedną stronę, woltomierz i amperomierz pokazują prawdziwe wartości,
   tranzystor zapala diodę, gdy zasłonisz czujnik światła. Każdy obwód da się przełączyć na schemat.
+- **Misje** – obwody na obrazkach: dziecko łączy złote zaciski kabelkami, żeby coś konkretnego zadziałało.
+  Potwór Mruczek otwiera oczy, puszcza oczko i ryczy po wciśnięciu nosa, skrzynia skarbów ma alarm na światło,
+  robot strzeże słoika z ciastkami, Wolcik potrzebuje dokładnie 9 V, a nocny strażnik otwiera oko, gdy robi się ciemno.
+  Gra sprawdza działanie w każdej sytuacji (nos wciśnięty i puszczony, dzień i noc), wykrywa zwarcie i przepaloną diodę.
+- **Symbol czy jednostka?** – tabela wielkość–symbol–jednostka w kolorach (U i V, I i A, R i Ω, P i W)
+  oraz trójkąt Ohma, w którym zasłania się literę palcem i od razu widać wzór z jednostkami.
+- **Śmieszne złe odpowiedzi** – na wiele z nich Iskierka odpowiada osobnym żartem.
 - **Warsztaty z łamigłówkami** (kwadratowe kółka na ścieżce):
   - *Płytka stykowa* – wkładasz opornik, diodę i kabelki w otwory, a obwód działa od razu.
   - *Wzorki świetlne* – zapalasz diody tak, żeby ułożyły obrazek (grupy przełączników albo ekran rzędy × kolumny).
@@ -66,6 +73,7 @@ Teksty są neutralne płciowo. Postęp zapisuje się w przeglądarce (localStora
 | `js/game.js` | silnik gry: ścieżka, lekcje, etapy, profil |
 | `js/ex-stage.js` | zadania: obliczenia, multimetr, potencjometr, kolejność, logika, bity |
 | `js/ex-puzzle.js` | łamigłówki: płytka stykowa, wzorki, baterie, oporniki, kolory |
+| `js/ex-build.js` | misje: obwody na obrazkach (potwór, skrzynia, słoik, robot, noc) |
 | `js/circuit.js` | symulator i rysowanie obwodów |
 | `js/art.js`, `js/art2.js` | wszystkie ilustracje (SVG rysowane kodem) |
 | `js/sound.js` | dźwięki generowane na żywo |
@@ -79,6 +87,8 @@ W pliku etapu dodaj linijkę do tablicy `ex` wybranej lekcji, np.:
 tf('Miedź przewodzi prąd.', true, 'Miedź to jeden z najlepszych przewodników.'),
 calc('Bateria 9 V, opornik 450 Ω. Jaki prąd (mA)?', 20, 'mA', 'I = U : R = 20 mA.'),
 volts('Robot potrzebuje 6 V.', 6, [1.5, 1.5, 1.5, 1.5, 4.5], 'Cztery paluszki dają 6 V.'),
+choice('Co świeci?', ['Żarówka', F('Księżyc w kieszeni', 'Piękne, ale kieszeń by się przepaliła!')], 0, 'Żarówka zamienia prąd w światło.'),
 ```
 
-Lekcja z `ws: true` jest warsztatem. Wszystkie funkcje są opisane w `js/kit.js`.
+Lekcja z `ws: true` jest warsztatem. `F('tekst', 'żart')` tworzy śmieszną złą odpowiedź z komentarzem Iskierki.
+Misje (`build`) są opisane na początku `js/ex-build.js`, pozostałe funkcje w `js/kit.js`.
