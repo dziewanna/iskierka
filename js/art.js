@@ -79,27 +79,70 @@
       '<path d="M66 22 q2 -7 6 -8" stroke="#B9303A" stroke-width="4" stroke-linecap="round" fill="none"/>'
   };
 
-  /* ---------- Iskierka (maskotka) ---------- */
-  function mascot(mood, acc, cls) {
+  /* ---------- Iskierka (maskotka) — dorasta razem z etapami ---------- */
+  var FORM = 1;
+  var FORMS = {
+    1: { vb: '0 0 120 124', cy: 74, rx: 42, ry: 39, feetY: 113, feet: '#F5A623', s: 1.35, grad: 'iskBody', glow: 'iskGlow', stroke: '#EBA21E',
+      tuft: '<path d="M67 4 L49 29 L59 29 L53 46 L74 20 L63 20 L71 4 Z" fill="#FFB020" stroke="#E8941A" stroke-width="2.5" stroke-linejoin="round"/>' },
+    2: { vb: '0 0 120 134', cy: 79, rx: 40, ry: 44, feetY: 123, feet: '#F08A5D', s: 1.24, grad: 'iskBody2', glow: 'iskGlow', stroke: '#E8941A',
+      tuft: '<path d="M44 12 L34 29 L41 29 L36 42 L51 22 L44 22 L49 12 Z" fill="#FFB020" stroke="#E8941A" stroke-width="2.3" stroke-linejoin="round"/>' +
+        '<path d="M70 1 L50 29 L61 29 L54 47 L78 18 L66 18 L75 1 Z" fill="#FFB020" stroke="#E8941A" stroke-width="2.5" stroke-linejoin="round"/>' },
+    3: { vb: '0 0 120 146', cy: 85, rx: 38, ry: 50, feetY: 135, feet: '#3BA7FF', s: 1.14, grad: 'iskBody3', glow: 'iskGlow3', stroke: '#E8A21F',
+      tuft: '<path d="M86 0 L46 30 L63 31 L40 53 L90 18 L71 17 L95 0 Z" fill="#D6F1FF" stroke="#3BA7FF" stroke-width="2.6" stroke-linejoin="round"/>' +
+        '<g stroke="#7CC8FF" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 62 l6 4 -5 3 7 5"/><path d="M114 50 l-6 4 5 3 -7 5"/></g>' }
+  };
+  var MDEFS = '<defs>' +
+    '<radialGradient id="iskBody2" cx=".38" cy=".28" r=".85"><stop offset="0" stop-color="#FFF0A8"/><stop offset=".5" stop-color="#FFCB45"/><stop offset="1" stop-color="#F29A1E"/></radialGradient>' +
+    '<radialGradient id="iskBody3" cx=".4" cy=".26" r=".85"><stop offset="0" stop-color="#FFFBE2"/><stop offset=".5" stop-color="#FFD84D"/><stop offset="1" stop-color="#F2AE2A"/></radialGradient>' +
+    '<radialGradient id="iskGlow3"><stop offset="0" stop-color="#8FD3FF" stop-opacity=".55"/><stop offset="1" stop-color="#8FD3FF" stop-opacity="0"/></radialGradient>' +
+    '</defs>';
+
+  function brows(s, mood) {
+    var dx = 10 * s, by = 77 - 8.8 * s, w = 3.6 * s, d;
+    var L = 60 - dx, R = 60 + dx;
+    if (mood === 'oops') {
+      d = 'M' + r(L - w) + ' ' + r(by + 1.2 * s) + ' L' + r(L + w) + ' ' + r(by - 1.6 * s) + ' M' + r(R - w) + ' ' + r(by - 1.6 * s) + ' L' + r(R + w) + ' ' + r(by + 1.2 * s);
+    } else if (mood === 'think') {
+      d = 'M' + r(L - w) + ' ' + r(by + .4 * s) + ' h' + r(2 * w) + ' M' + r(R - w) + ' ' + r(by - 1 * s) + ' q' + r(w) + ' ' + r(-2.6 * s) + ' ' + r(2 * w) + ' 0';
+    } else if (mood === 'sleep') {
+      d = 'M' + r(L - w) + ' ' + r(by + 1.5 * s) + ' h' + r(2 * w) + ' M' + r(R - w) + ' ' + r(by + 1.5 * s) + ' h' + r(2 * w);
+    } else {
+      var lift = (mood === 'wow' || mood === 'cheer') ? -2 * s : 0;
+      d = 'M' + r(L - w) + ' ' + r(by + lift + .8 * s) + ' q' + r(w) + ' ' + r(-2.2 * s) + ' ' + r(2 * w) + ' 0 M' + r(R - w) + ' ' + r(by + lift + .8 * s) + ' q' + r(w) + ' ' + r(-2.2 * s) + ' ' + r(2 * w) + ' 0';
+    }
+    return '<path d="' + d + '" stroke="' + INK + '" stroke-width="' + r(2 * s) + '" fill="none" stroke-linecap="round"/>';
+  }
+
+  function mascot(mood, acc, cls, form) {
     mood = mood || 'happy';
+    var F = FORMS[form || FORM] || FORMS[1], f = form || FORM;
     var up = mood === 'cheer' || mood === 'wow';
     var wave = mood === 'think';
-    var armL = up ? '<ellipse cx="17" cy="52" rx="8" ry="12" transform="rotate(35 17 52)" fill="#FFC93C" stroke="#E8A21F" stroke-width="2.5"/>'
-      : '<ellipse cx="20" cy="86" rx="8" ry="11.5" transform="rotate(20 20 86)" fill="#FFC93C" stroke="#E8A21F" stroke-width="2.5"/>';
-    var armR = (up || wave) ? '<ellipse cx="103" cy="52" rx="8" ry="12" transform="rotate(-35 103 52)" fill="#FFC93C" stroke="#E8A21F" stroke-width="2.5"/>'
-      : '<ellipse cx="100" cy="86" rx="8" ry="11.5" transform="rotate(-20 100 86)" fill="#FFC93C" stroke="#E8A21F" stroke-width="2.5"/>';
+    var ax = 60 - F.rx - 2, bx = 60 + F.rx + 2, ay = F.cy + F.ry * 0.3, ary = 11.5 + (f - 1) * 2;
+    var uy = F.cy - F.ry * 0.55;
+    var arm = function (x, y, rot) { return '<ellipse cx="' + r(x) + '" cy="' + r(y) + '" rx="8" ry="' + ary + '" transform="rotate(' + rot + ' ' + r(x) + ' ' + r(y) + ')" fill="#FFC93C" stroke="#E8A21F" stroke-width="2.5"/>'; };
+    var armL = up ? arm(ax - 3, uy, 35) : arm(ax, ay, 20);
+    var armR = (up || wave) ? arm(bx + 3, uy, -35) : arm(bx, ay, -20);
+    var top = F.cy - F.ry;
+    var feet = '<ellipse cx="45" cy="' + F.feetY + '" rx="11" ry="6.5" fill="' + F.feet + '"/><ellipse cx="75" cy="' + F.feetY + '" rx="11" ry="6.5" fill="' + F.feet + '"/>' +
+      (f > 1 ? '<path d="M35 ' + (F.feetY + 3) + ' h20 M65 ' + (F.feetY + 3) + ' h20" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".8"/>' : '');
+    var freckles = '';
+    if (f === 2) {
+      var s2 = F.s, fx = 60 - 10 * s2 - 5 * s2, gx = 60 + 10 * s2 + 5 * s2, fy = 77 + 2.5 * s2;
+      freckles = '<g fill="#E8941A" opacity=".7"><circle cx="' + r(fx - 2) + '" cy="' + r(fy) + '" r="1.1"/><circle cx="' + r(fx + 2) + '" cy="' + r(fy - 1) + '" r="1.1"/><circle cx="' + r(fx) + '" cy="' + r(fy + 2.4) + '" r="1.1"/>' +
+        '<circle cx="' + r(gx - 2) + '" cy="' + r(fy - 1) + '" r="1.1"/><circle cx="' + r(gx + 2) + '" cy="' + r(fy) + '" r="1.1"/><circle cx="' + r(gx) + '" cy="' + r(fy + 2.4) + '" r="1.1"/></g>';
+    }
     var body =
-      DEFS +
-      '<circle class="glow" cx="60" cy="72" r="60" fill="url(#iskGlow)"/>' +
-      '<path d="M67 4 L49 29 L59 29 L53 46 L74 20 L63 20 L71 4 Z" fill="#FFB020" stroke="#E8941A" stroke-width="2.5" stroke-linejoin="round"/>' +
-      armL + armR +
-      '<ellipse cx="45" cy="113" rx="11" ry="6.5" fill="#F5A623"/><ellipse cx="75" cy="113" rx="11" ry="6.5" fill="#F5A623"/>' +
-      '<ellipse cx="60" cy="74" rx="42" ry="39" fill="url(#iskBody)" stroke="#EBA21E" stroke-width="2.5"/>' +
-      '<ellipse cx="40" cy="53" rx="9" ry="5.5" transform="rotate(-35 40 53)" fill="#fff" opacity=".75"/><circle cx="52" cy="45" r="2.6" fill="#fff" opacity=".7"/>' +
-      face(60, 77, 1.35, mood) +
+      DEFS + MDEFS +
+      '<circle class="glow" cx="60" cy="' + (F.cy - 2) + '" r="60" fill="url(#' + F.glow + ')"/>' +
+      F.tuft + armL + armR + feet +
+      '<ellipse cx="60" cy="' + F.cy + '" rx="' + F.rx + '" ry="' + F.ry + '" fill="url(#' + F.grad + ')" stroke="' + F.stroke + '" stroke-width="2.5"/>' +
+      '<ellipse cx="' + (60 - F.rx * 0.48) + '" cy="' + (top + 18) + '" rx="9" ry="5.5" transform="rotate(-35 ' + (60 - F.rx * 0.48) + ' ' + (top + 18) + ')" fill="#fff" opacity=".75"/><circle cx="' + (60 - F.rx * 0.2) + '" cy="' + (top + 10) + '" r="2.6" fill="#fff" opacity=".7"/>' +
+      face(60, 77, F.s, mood) + (f > 1 ? brows(F.s, mood) : '') + freckles +
       (acc && ACC[acc] ? ACC[acc] : '');
-    return svg('0 0 120 124', body, 'mascot ' + (cls || ''));
+    return svg(F.vb, body, 'mascot form' + f + ' ' + (cls || ''));
   }
+  function setForm(f) { FORM = FORMS[f] ? f : 1; }
 
   /* ---------- postacie-podzespoły (viewBox 0 0 100 100) ---------- */
   function battery(mood) {
@@ -391,13 +434,21 @@
       case 'chest': return chest(false);
       case 'chestOpen': return chest(true);
       default:
-        if (key.indexOf('sym-') === 0) return sym(key);
+        if (EXTRA[key]) return EXTRA[key](o);
+        if (key.indexOf('res-') === 0) return resistor(o.mood, +key.slice(4));
+        if (key.indexOf('sym-') === 0 && sym(key).indexOf('undefined') < 0) return sym(key);
         if (ITEMS[key]) return svg('0 0 100 100', ITEMS[key]);
         return '';
     }
   }
 
+  var EXTRA = {};
+  function register(key, fn) { EXTRA[key] = fn; }
+  function addIcons(o) { for (var k in o) I[k] = o[k]; }
+  function addNodeIcons(o) { for (var k in o) NI[k] = o[k]; }
+
   window.ISK_ART = {
+    svg: svg, register: register, addIcons: addIcons, addNodeIcons: addNodeIcons, setForm: setForm, FORMS: FORMS, sym: sym,
     get: get, face: face, mascot: mascot, icon: icon, nodeIcon: nodeIcon, led: led, resistor: resistor,
     bandsFor: bandsFor, chargeBattery: chargeBattery, gauge: gauge, chest: chest, ACC: ACC
   };

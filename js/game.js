@@ -1,15 +1,22 @@
 /* ISKIERKA — silnik gry. */
 (function () {
   'use strict';
-  const ART = window.ISK_ART, CIR = window.ISK_CIRCUIT, SND = window.ISK_SOUND, DATA = window.ISK_DATA;
-  const UNITS = DATA.units, STICKERS = DATA.stickers, ACCS = DATA.accs;
+  const ART = window.ISK_ART, CIR = window.ISK_CIRCUIT, SND = window.ISK_SOUND;
+  const STAGES = window.ISK_STAGES || [];
+  const UNITS = [], STICKERS = [], ACCS = [];
+  STAGES.forEach((st, si) => {
+    st.units.forEach((u) => { u.si = si; UNITS.push(u); });
+    (st.stickers || []).forEach((x) => { x.si = si; STICKERS.push(x); });
+    (st.accs || []).forEach((x) => { x.si = si; ACCS.push(x); });
+  });
   const KEY = 'iskierka.v1';
   const MAX_HEARTS = 5, HEART_MS = 15 * 60 * 1000, CHARGE_TAPS = 12;
-  const LEVELS = [[0, 'Iskra'], [50, 'Bateryjka'], [120, 'Żaróweczka'], [220, 'Obwód'], [350, 'Dioda'], [500, 'Generator'], [700, 'Elektrownia']];
+  const LEVELS = [[0, 'Iskra'], [50, 'Bateryjka'], [120, 'Żaróweczka'], [220, 'Obwód'], [350, 'Dioda'], [500, 'Generator'], [700, 'Elektrownia'],
+    [950, 'Transformator'], [1250, 'Tranzystor'], [1600, 'Procesor'], [2000, 'Superkomputer']];
   const RES_VALUES = [10, 47, 100, 220, 470, 1000, 4700, 10000];
   const DEF = {
     name: '', xp: 0, hearts: MAX_HEARTS, heartsTs: 0, streak: 0, lastDay: null, today: null, todayXp: 0, goal: 20,
-    done: {}, perfect: {}, stickers: [], accs: [], wear: null, chests: {}, sound: true, onboarded: false, lessons: 0
+    done: {}, perfect: {}, stickers: [], accs: [], wear: null, chests: {}, sound: true, onboarded: false, lessons: 0, stage: 0, stageMax: 0
   };
 
   let S = null;          // stan gracza (zapisywany)
@@ -17,6 +24,7 @@
   let L = null;          // trwająca lekcja
   let popFor = null;     // indeks węzła z otwartym dymkiem
   let charge = null;     // stan minigry ładowania
+  let pendingGrow = null; // etap odblokowany przed chwilą (pokaż „dorastanie”)
 
   /* ---------- narzędzia ---------- */
   const $ = (s, r) => (r || document).querySelector(s);
@@ -55,14 +63,18 @@
 
   /* ---------- ścieżka: lista węzłów ---------- */
   const NODES = [];
-  UNITS.forEach((u, ui) => {
-    u.lessons.forEach((l, li) => NODES.push({ kind: 'lesson', id: l.id, u, ui, l, li }));
-    NODES.push({ kind: 'chest', id: 'chest-' + u.id, u, ui });
-    NODES.push({ kind: 'test', id: 'test-' + u.id, u, ui });
-  });
+  STAGES.forEach((st, si) => st.units.forEach((u, ui) => {
+    u.lessons.forEach((l, li) => NODES.push({ kind: 'lesson', id: l.id, u, si, ui, l, li }));
+    NODES.push({ kind: 'chest', id: 'chest-' + u.id, u, si, ui });
+    NODES.push({ kind: 'test', id: 'test-' + u.id, u, si, ui });
+  }));
   const isDone = (n) => (n.kind === 'chest' ? !!S.chests[n.u.id] : !!S.done[n.id]);
-  function currentIndex() { const i = NODES.findIndex((n) => !isDone(n)); return i < 0 ? NODES.length : i; }
-  function nodeState(n, i, cur) { if (isDone(n)) return 'done'; return i === cur ? 'current' : 'locked'; }
+  function currentIndexIn(si) { return NODES.findIndex((n) => n.si === si && !isDone(n)); }
+  function currentIndex() { const i = currentIndexIn(S.stage); return i < 0 ? NODES.length : i; }
+  function stageDone(si) { return currentIndexIn(si) < 0; }
+  function canStart(i) { const n = NODES[i]; if (!n) return false; if (isDone(n)) return true; return n.si <= S.stageMax && i === currentIndexIn(n.si); }
+  function nodeState(n, i, cur) { if (isDone(n)) return 'done'; return i === cur && n.si <= S.stageMax ? 'current' : 'locked'; }
+  function applyForm() { const st = STAGES[S.stageMax] || STAGES[0]; ART.setForm(st ? st.form : 1); }
 
   /* ---------- powłoka ---------- */
   const TABS = [['path', 'Nauka', 'path'], ['album', 'Album', 'sticker'], ['closet', 'Szafa', 'hanger'], ['me', 'Profil', 'user']];
@@ -100,13 +112,26 @@
     }
     return d;
   }
+  function stageBar() {
+    return '<div class="stages" role="tablist" aria-label="Etapy">' + STAGES.map((st, si) => {
+      const locked = si > S.stageMax, on = si === S.stage;
+      const total = NODES.filter((n) => n.si === si).length, done = NODES.filter((n) => n.si === si && isDone(n)).length;
+      return '<button class="stg' + (on ? ' on' : '') + (locked ? ' locked' : '') + '" role="tab" aria-selected="' + on + '" data-act="stage" data-s="' + si + '">' +
+        '<span class="stg-m">' + ART.mascot(locked ? 'sleep' : 'happy', null, '', st.form) + '</span>' +
+        '<span class="stg-t"><b>Etap ' + st.n + '</b><span>' + st.age + ' · ' + st.name + '</span>' +
+        '<i class="stg-bar"><i style="width:' + Math.round(done / total * 100) + '%"></i></i></span>' +
+        (locked ? '<span class="stg-lock">' + ART.icon('lock') + '</span>' : '') + '</button>';
+    }).join('') + '</div>';
+  }
   function renderPath() {
     const cur = currentIndex();
     const pct = Math.min(100, Math.round((S.todayXp / S.goal) * 100));
-    let h = '<div class="goalbar"><span class="lbl">Cel dnia</span><div class="mini-batt" style="--p:' + pct + '%"><i></i></div><span class="num">' + Math.min(S.todayXp, S.goal) + ' / ' + S.goal + ' iskier</span></div>';
-    let gi = 0;
-    UNITS.forEach((u, ui) => {
-      const nodes = NODES.filter((n) => n.ui === ui);
+    let h = stageBar() + '<div class="goalbar"><span class="lbl">Cel dnia</span><div class="mini-batt" style="--p:' + pct + '%"><i></i></div><span class="num">' + Math.min(S.todayXp, S.goal) + ' / ' + S.goal + ' iskier</span></div>';
+    const stage = STAGES[S.stage];
+    let gi = NODES.findIndex((n) => n.si === S.stage);
+    const stageStart = gi;
+    stage.units.forEach((u, ui) => {
+      const nodes = NODES.filter((n) => n.si === S.stage && n.ui === ui);
       const start = gi;
       const doneN = u.lessons.filter((l) => S.done[l.id]).length;
       h += '<section class="unit u-' + u.color + '" aria-label="Rozdział ' + (ui + 1) + ': ' + esc(u.title) + '">' +
@@ -114,7 +139,7 @@
         '<div class="side"><div class="charge" role="img" aria-label="Ukończone lekcje: ' + doneN + ' z ' + u.lessons.length + '">' + u.lessons.map((l) => '<i class="' + (S.done[l.id] ? 'on' : '') + '"></i>').join('') + '</div>' +
         '<button class="guide-btn" data-act="guide" data-u="' + ui + '">' + ART.icon('book') + 'Ściąga</button></div></div>';
       const H = 50 + nodes.length * STEP;
-      const pts = nodes.map((n, k) => [160 + AMP[(start + k) % AMP.length], 86 + k * STEP]);
+      const pts = nodes.map((n, k) => [160 + AMP[(start - stageStart + k) % AMP.length], 86 + k * STEP]);
       const first = [[pts[0][0], -8]];
       const litN = cur < start ? -1 : Math.min(cur - start, nodes.length - 1);
       const dAll = pathD(first.concat(pts));
@@ -126,12 +151,12 @@
       nodes.forEach((n, k) => {
         const i = start + k, st = nodeState(n, i, cur), x = pts[k][0], y = pts[k][1];
         let ic = n.kind === 'lesson' ? (st === 'done' ? 'check' : n.l.icon) : n.kind === 'chest' ? (st === 'done' ? 'chestOpen' : 'chest') : 'trophy';
-        const label = n.kind === 'lesson' ? 'Lekcja: ' + n.l.title : n.kind === 'chest' ? 'Skrzynia ze skarbem' : 'Sprawdzian rozdziału ' + (ui + 1);
+        const label = n.kind === 'lesson' ? (n.l.ws ? 'Warsztat: ' : 'Lekcja: ') + n.l.title : n.kind === 'chest' ? 'Skrzynia ze skarbem' : 'Sprawdzian rozdziału ' + (ui + 1);
         const stTxt = st === 'locked' ? ' (zablokowane)' : st === 'done' ? ' (ukończone)' : ' (następne)';
         const left = 'calc(50% + ' + (x - 160) + 'px)';
-        h += '<button class="node ' + st + (n.kind !== 'lesson' ? ' big' : '') + (n.kind === 'lesson' && S.perfect[n.id] ? ' perfect' : '') + '" style="left:' + left + ';top:' + y + 'px" data-act="node" data-i="' + i + '" aria-label="' + esc(label + stTxt) + '"' + (popFor === i ? ' aria-expanded="true"' : '') + '>' + ART.nodeIcon(ic) + '</button>';
+        h += '<button class="node ' + st + (n.kind !== 'lesson' ? ' big' : '') + (n.kind === 'lesson' && n.l.ws ? ' ws' : '') + (n.kind === 'lesson' && S.perfect[n.id] ? ' perfect' : '') + '" style="left:' + left + ';top:' + y + 'px" data-act="node" data-i="' + i + '" aria-label="' + esc(label + stTxt) + '"' + (popFor === i ? ' aria-expanded="true"' : '') + '>' + ART.nodeIcon(ic) + '</button>';
         if (st === 'current') {
-          h += '<div class="start-tip" style="left:' + left + ';top:' + (y - 46) + 'px">' + (n.kind === 'chest' ? 'Otwórz!' : n.kind === 'test' ? 'Sprawdzian' : (k === 0 && ui === 0 && !S.lessons ? 'Zacznij tu' : 'Start')) + '</div>';
+          h += '<div class="start-tip" style="left:' + left + ';top:' + (y - 46) + 'px">' + (n.kind === 'chest' ? 'Otwórz!' : n.kind === 'test' ? 'Sprawdzian' : (k === 0 && ui === 0 && !S.lessons ? 'Zacznij tu' : n.kind === 'lesson' && n.l.ws ? 'Warsztat' : 'Start')) + '</div>';
           const mx = x >= 160 ? x - 120 : x + 120;
           h += '<div class="path-mascot" style="left:calc(50% + ' + (mx - 160) + 'px);top:' + (y + 4) + 'px">' + ART.mascot('happy', S.wear) + '</div>';
         }
@@ -140,8 +165,13 @@
       h += '</div></section>';
       gi += nodes.length;
     });
-    if (cur >= NODES.length) {
-      h += '<div class="finale">' + ART.mascot('cheer', S.wear) + '<h2>Cała ścieżka ukończona!</h2><p>Możesz powtarzać lekcje i zbierać kolejne iskry.</p></div>';
+    if (S.stage > S.stageMax) {
+      h = stageBar() + '<div class="finale">' + ART.mascot('think', S.wear) + '<h2>Ten etap jeszcze śpi</h2><p>Ukończ poprzedni etap, a Iskierka urośnie i otworzy ten. Rodzic lub nauczyciel może go odblokować w profilu.</p></div>';
+    } else if (cur >= NODES.length) {
+      const nx = STAGES[S.stage + 1];
+      h += '<div class="finale">' + ART.mascot('cheer', S.wear) + (nx
+        ? '<h2>Etap ' + stage.n + ' ukończony!</h2><p>Czeka na Ciebie etap ' + nx.n + ' (' + nx.age + '): ' + nx.title + '.</p><button class="btn" data-act="stage" data-s="' + (S.stage + 1) + '" style="max-width:320px">Przejdź do etapu ' + nx.n + '</button>'
+        : '<h2>Cała ścieżka ukończona!</h2><p>Możesz powtarzać lekcje i zbierać kolejne iskry.</p>') + '</div>';
     } else {
       h += '<div class="finale"><p>Każda lekcja to 3–5 minut. Krok po kroku!</p></div>';
     }
@@ -155,7 +185,7 @@
     }
     let body;
     if (n.kind === 'lesson') {
-      body = '<div class="eyebrow">Lekcja ' + (n.li + 1) + ' z ' + n.u.lessons.length + '</div><h3>' + title + '</h3><p>' + (st === 'done' ? 'Powtórka utrwala wiedzę.' : (n.l.desc || '')) + '</p>' +
+      body = '<div class="eyebrow">' + (n.l.ws ? 'Warsztat · ' : 'Lekcja ') + (n.li + 1) + ' z ' + n.u.lessons.length + '</div><h3>' + title + '</h3><p>' + (st === 'done' ? 'Powtórka utrwala wiedzę.' : (n.l.desc || '')) + '</p>' +
         '<button class="btn" data-act="start" data-i="' + i + '">' + (st === 'done' ? 'Powtórz · +5 iskier' : 'Zaczynamy · +10 iskier') + '</button>';
     } else if (n.kind === 'chest') {
       body = '<h3>' + title + '</h3><p>' + (st === 'done' ? 'Ta skrzynia jest już otwarta.' : 'Coś w niej błyszczy… Otwórz ją!') + '</p>' +
@@ -176,13 +206,17 @@
   /* ---------- widok: album ---------- */
   function renderAlbum() {
     const got = STICKERS.filter((s) => S.stickers.includes(s.id)).length;
-    let h = '<div class="page-title"><h1>Album naklejek</h1><p>Zebrane: ' + got + ' z ' + STICKERS.length + '. Każdy nowy znajomy z lekcji trafia tutaj.</p></div><div class="album">';
-    STICKERS.forEach((s, k) => {
+    let h = '<div class="page-title"><h1>Album naklejek</h1><p>Zebrane: ' + got + ' z ' + STICKERS.length + '. Każdy nowy znajomy z lekcji trafia tutaj.</p></div>';
+    STAGES.forEach((stg, si) => {
+      h += '<h2 class="album-h">Etap ' + stg.n + ' · ' + stg.name + ' <span>' + stg.age + '</span></h2><div class="album">';
+      STICKERS.filter((x) => x.si === si).forEach((s) => { const k = STICKERS.indexOf(s);
       const has = S.stickers.includes(s.id), rot = ((k * 37) % 9) - 4;
       h += '<button class="stk ' + (has ? '' : 'locked') + '" data-act="sticker" data-id="' + s.id + '" aria-label="' + (has ? esc(s.name) : 'Nieodkryta naklejka') + '">' +
         '<span class="art-s ' + (has ? 'diecut' : '') + '" style="--rot:' + rot + 'deg">' + ART.get(s.art) + '</span><span class="nm">' + (has ? s.name : '???') + '</span></button>';
+      });
+      h += '</div>';
     });
-    $('#view').innerHTML = h + '</div>';
+    $('#view').innerHTML = h;
   }
 
   /* ---------- widok: szafa ---------- */
@@ -190,8 +224,9 @@
   function accHow(a) {
     const [kind, v] = a.from.split(':');
     if (kind === 'xp') return 'Za ' + v + ' iskier';
-    const ui = UNITS.findIndex((u) => u.id === v);
-    return 'Skrzynia w rozdziale ' + (ui + 1);
+    const u = UNITS.find((x) => x.id === v);
+    if (!u) return 'Skrzynia na ścieżce';
+    return 'Skrzynia: etap ' + STAGES[u.si].n + ', rozdział ' + (STAGES[u.si].units.indexOf(u) + 1);
   }
   function renderCloset() {
     let h = '<div class="page-title"><h1>Szafa Iskierki</h1><p>Dodatki zdobywasz ze skrzyń na ścieżce i za zebrane iskry.</p></div>' +
@@ -221,13 +256,19 @@
       '<div class="section"><h2>Jak masz na imię?</h2><div class="field"><label for="pname" class="sr-only">Imię</label><input id="pname" class="input" maxlength="20" autocomplete="off" value="' + esc(S.name) + '" placeholder="Wpisz imię"><button class="btn small" data-act="save-name">Zapisz</button></div></div>' +
       '<div class="section"><h2>Cel dnia</h2><div class="choicechips" role="radiogroup" aria-label="Cel dnia">' + goalChips() + '</div></div>' +
       '<div class="section"><div class="switchrow"><span>Dźwięki</span><button class="toggle" role="switch" aria-checked="' + S.sound + '" aria-label="Dźwięki" data-act="sound"></button></div></div>' +
+      '<div class="section"><h2>Etapy</h2><div class="stagelist">' + STAGES.map((st, si) => {
+        const total = NODES.filter((n) => n.si === si).length, done = NODES.filter((n) => n.si === si && isDone(n)).length;
+        return '<div class="sbox">' + ART.mascot(si <= S.stageMax ? 'happy' : 'sleep', null, '', st.form) + '<div><b>Etap ' + st.n + ' · ' + st.name + '</b><span>' + st.age + ' · ' + st.title + ' · ' + (si <= S.stageMax ? done + ' / ' + total : 'zablokowany') + '</span></div></div>';
+      }).join('') + '</div></div>' +
       '<div class="section"><h2>Dla rodziców i nauczycieli</h2><div class="parents">' +
-      '<p>Iskierka uczy podstaw elektroniki dzieci od 10 lat: czym jest prąd, jak działa obwód, przewodniki i izolatory, połączenia szeregowe i równoległe, zwarcie, opornik, dioda LED, czujniki i oszczędzanie energii.</p>' +
+      '<p>Iskierka uczy elektroniki w trzech etapach, a maskotka dorasta razem z dzieckiem. <b>Etap 1 (10+)</b>: prąd, obwód, bezpieczeństwo, przewodniki, połączenia, opornik, dioda LED, czujniki. <b>Etap 2 (12+)</b>: pomiary multimetrem, prawo Ohma, łączenie oporników, moc i energia, magnetyzm. <b>Etap 3 (14+)</b>: kondensator, prostowanie, tranzystor, logika cyfrowa i liczby binarne.</p>' +
       '<ul><li>Lekcja trwa 3–5 minut. Zaczyna się od karty wiedzy, potem są ćwiczenia z natychmiastową podpowiedzią. Błędne odpowiedzi wracają na końcu lekcji.</li>' +
       '<li>Obwody w grze są naprawdę przeliczane: żarówki w szeregu świecą słabiej, zwarcie gasi żarówkę, a dioda działa w jedną stronę.</li>' +
       '<li>Rozdział o bezpieczeństwie jest celowo na początku. Warto omówić go razem z dzieckiem.</li>' +
       '<li>Do pierwszych prawdziwych eksperymentów wystarczy bateria 4,5 V, żaróweczka 3,5 V i kilka kabelków z krokodylkami – zawsze pod okiem dorosłego.</li>' +
-      '<li>Postęp zapisuje się tylko w tej przeglądarce. Gra niczego nie wysyła.</li></ul></div>' +
+      '<li>Każdy rozdział ma warsztat z łamigłówkami: płytka stykowa, wzorki z diod, dobieranie baterii i oporników.</li>' +
+      '<li>Postęp zapisuje się tylko w tej przeglądarce. Gra niczego nie wysyła.</li></ul>' +
+      (S.stageMax < STAGES.length - 1 ? '<button class="btn ghost small" data-act="unlock-all">Odblokuj wszystkie etapy (dla starszych dzieci)</button>' : '') + '</div>' +
       '<button class="danger-link" data-act="reset">Zacznij od nowa (usuwa postęp)</button></div>';
     $('#view').innerHTML = h;
   }
@@ -254,12 +295,16 @@
     modal(ART.mascot('cheer') + '<h2>Cześć! Jestem Iskierka</h2>' +
       '<p>Razem odkryjemy, jak działa prąd: od baterii i żarówek, aż po diody LED i czujniki. Krótkie lekcje, dużo eksperymentów.</p>' +
       '<label for="oname" class="sr-only">Twoje imię</label><input id="oname" class="input" maxlength="20" autocomplete="off" placeholder="Twoje imię (nie musisz)">' +
+      '<div class="eyebrow">Ile masz lat?</div><div class="choicechips" id="oage" role="radiogroup" aria-label="Wiek">' + ageChips(S.stageMax) + '</div>' +
       '<div class="eyebrow">Ile chcesz się uczyć dziennie?</div><div class="choicechips" id="ogoal" role="radiogroup" aria-label="Cel dnia">' + goalChips(S.goal) + '</div>' +
       '<button class="btn" data-act="onboard">Zaczynamy!</button>', { locked: true, label: 'Powitanie', focus: '.btn' });
   }
+  function ageChips(sel) {
+    return STAGES.map((st, si) => '<button class="cc ' + (sel === si ? 'on' : '') + '" role="radio" aria-checked="' + (sel === si) + '" data-act="age" data-s="' + si + '">' + st.ageLabel + '</button>').join('');
+  }
   function guideModal(ui) {
-    const u = UNITS[ui];
-    modal('<div class="eyebrow">Ściąga · Rozdział ' + (ui + 1) + '</div><h2>' + u.title + '</h2><div class="guide"><ul>' +
+    const u = STAGES[S.stage].units[ui];
+    modal('<div class="eyebrow">Ściąga · Etap ' + STAGES[S.stage].n + ' · Rozdział ' + (ui + 1) + '</div><h2>' + u.title + '</h2><div class="guide"><ul>' +
       u.guide.map((g) => '<li>' + ART.icon('bolt') + '<span>' + g + '</span></li>').join('') +
       '</ul></div><button class="btn" data-act="close-modal">Zamknij</button>', { label: 'Ściąga' });
   }
@@ -307,7 +352,7 @@
   }
   function openChest(i) {
     const n = NODES[i];
-    if (!n || n.kind !== 'chest' || isDone(n) || i !== currentIndex()) return;
+    if (!n || n.kind !== 'chest' || isDone(n) || !canStart(i)) return;
     const acc = ACCS.find((a) => a.from === 'chest:' + n.u.id);
     S.chests[n.u.id] = true;
     if (acc && !S.accs.includes(acc.id)) S.accs.push(acc.id);
@@ -358,8 +403,7 @@
   function startNode(i) {
     const n = NODES[i];
     if (!n) return;
-    const cur = currentIndex();
-    if (!isDone(n) && i !== cur) return;
+    if (!canStart(i)) return;
     if (n.kind === 'chest') { openChest(i); return; }
     tick();
     if (S.hearts <= 0) { heartsInfo(); return; }
@@ -400,6 +444,7 @@
     if (ex.t === 'learn') btn = '<button class="btn" data-act="next" id="cta">Rozumiem!</button>';
     else if (ex.t === 'pairs') btn = '<button class="btn" id="cta" disabled>Dopasuj wszystkie pary</button>';
     else if (ex.t === 'sort') btn = '<button class="btn" id="cta" disabled>Posortuj wszystko</button>';
+    else if (f.auto) btn = '<button class="btn" id="cta" disabled>' + f.auto + '</button>';
     else btn = '<button class="btn" data-act="check" id="cta"' + (f.ready && !f.ready(ex, L.st) ? ' disabled' : '') + '>Sprawdź</button>';
     $('#lfin').innerHTML = btn;
     setProgress();
@@ -488,8 +533,11 @@
     else if (streakUp) rewards += '<div class="reward"><span class="big-ic">' + ART.icon('flame') + '</span><div><div class="tag">Seria</div><h3>' + S.streak + ' ' + plural(S.streak, 'dzień', 'dni', 'dni') + ' z rzędu</h3><p>Wróć jutro, żeby płomyk rósł.</p></div></div>';
     if (levelOf(S.xp) > lvBefore) rewards += '<div class="reward"><span class="big-ic">' + ART.icon('star') + '</span><div><div class="tag">Nowy poziom</div><h3>Poziom ' + (levelOf(S.xp) + 1) + ': ' + LEVELS[levelOf(S.xp)][1] + '</h3><p>Iskry płyną coraz szybciej!</p></div></div>';
     newAcc.forEach((a) => { rewards += '<div class="reward">' + ART.mascot('cheer', a.id) + '<div><div class="tag">Nowy dodatek</div><h3>' + a.name + '</h3><p>Znajdziesz go w szafie.</p></div></div>'; });
-    const lastTest = n.kind === 'test' && n.ui === UNITS.length - 1;
-    const head = n.kind === 'test' ? (lastTest ? 'Cała ścieżka ukończona!' : 'Rozdział zaliczony!') : (perfect ? 'Bez ani jednego błędu!' : 'Lekcja ukończona!');
+    const lastTest = n.kind === 'test' && stageDone(n.si);
+    if (lastTest && n.si === S.stageMax && n.si + 1 < STAGES.length) {
+      S.stageMax = n.si + 1; pendingGrow = n.si + 1; save();
+    }
+    const head = n.kind === 'test' ? (lastTest ? 'Etap ' + STAGES[n.si].n + ' ukończony!' : 'Rozdział zaliczony!') : (perfect ? 'Bez ani jednego błędu!' : 'Lekcja ukończona!');
     $('#lin').innerHTML = '<div class="done-screen">' + ART.mascot('cheer', S.wear, 'bounce') + '<h2>' + head + '</h2>' +
       '<div class="tiles"><div class="tile"><div class="tl">Iskry</div><div class="tv">+' + xp + '</div></div><div class="tile mint"><div class="tl">Celność</div><div class="tv">' + acc + '%</div></div><div class="tile violet"><div class="tl">Czas</div><div class="tv">' + time + '</div></div></div>' +
       rewards + '</div>';
@@ -505,6 +553,17 @@
     tab = 'path';
     render();
     requestAnimationFrame(() => scrollToCurrent(true));
+    if (pendingGrow != null) { const g = pendingGrow; pendingGrow = null; growModal(g); }
+  }
+  /* Iskierka dorasta */
+  function growModal(si) {
+    const st = STAGES[si], prev = STAGES[si - 1];
+    applyForm();
+    SND.play('win'); confetti(60);
+    modal('<div class="eyebrow">Etap ' + st.n + ' otwarty</div><h2>Iskierka dorasta!</h2>' +
+      '<div class="grow">' + ART.mascot('happy', S.wear, '', prev ? prev.form : 1) + '<span class="grow-arrow">' + ART.icon('arrow') + '</span>' + ART.mascot('cheer', S.wear, 'bounce', st.form) + '</div>' +
+      '<p>' + st.grow + '</p>' +
+      '<button class="btn" data-act="grow-go" data-s="' + si + '">Zobacz etap ' + st.n + '</button>', { label: 'Iskierka dorasta' });
   }
   function quit() {
     if (!L) return;
@@ -830,6 +889,19 @@
     st.k = k; SND.play('click'); EX.slider.update(ex, st);
   }
 
+  function lockedStageModal(si) {
+    const st = STAGES[si];
+    modal(ART.mascot('sleep', null, '', st.form) + '<h2>Etap ' + st.n + ' · ' + st.name + '</h2><p>' + st.age + ' · ' + st.title + '. Otworzy się, gdy ukończysz etap ' + STAGES[si - 1].n + '. Starsze dzieci mogą zacząć od razu – rodzic lub nauczyciel odblokuje go w profilu.</p><button class="btn" data-act="close-modal">OK</button>', { label: 'Etap zablokowany' });
+  }
+
+  /* ---------- wtyczki z dodatkowymi rodzajami zadań ---------- */
+  const ACTS = {}, INPUTS = {}, KEYS = [];
+  const API = {
+    EX, ACTS, INPUTS, KEYS, ART, CIR, SND, $, $$, esc, shuffle, num, plural, speaker, head, artBlock, cell, updateCta, feedback, confetti,
+    get L() { return L; }, get S() { return S; }
+  };
+  (window.ISK_PLUGINS || []).forEach((fn) => { try { fn(API); } catch (e) { console.error(e); } });
+
   /* =====================================================================
      ZDARZENIA
      ===================================================================== */
@@ -868,7 +940,7 @@
       }
       case 'onboard': {
         const v = ($('#oname') || {}).value || '';
-        S.name = v.trim().slice(0, 20); S.onboarded = true; save(); closeModal(); render(); scrollToCurrent(false); SND.play('pop'); break;
+        S.name = v.trim().slice(0, 20); S.onboarded = true; save(); applyForm(); closeModal(); render(); scrollToCurrent(false); SND.play('pop'); break;
       }
       case 'save-name': { S.name = ($('#pname').value || '').trim().slice(0, 20); save(); SND.play('pop'); renderMe(); break; }
       case 'sound': S.sound = !S.sound; SND.set(S.sound); save(); if (S.sound) SND.play('pop'); renderMe(); break;
@@ -876,7 +948,7 @@
         modal(ART.mascot('oops', S.wear) + '<h2>Zacząć od nowa?</h2><p>Znikną wszystkie iskry, naklejki i dodatki. Tego nie da się cofnąć.</p>' +
           '<button class="btn ghost" data-act="close-modal">Nie, zostawiam</button><button class="btn berry" data-act="reset-yes">Tak, zaczynam od nowa</button>', { label: 'Zacząć od nowa?' });
         break;
-      case 'reset-yes': S = fresh(); tick(); save(); closeModal(); tab = 'path'; render(); showOnboarding(); break;
+      case 'reset-yes': S = fresh(); tick(); save(); applyForm(); closeModal(); tab = 'path'; render(); showOnboarding(); break;
 
       /* serduszka */
       case 'charge-open': charge = { n: 0 }; chargeModal(); break;
@@ -919,7 +991,23 @@
         SND.play('tap'); EX.circuit.redraw(ex, L.st); break;
       }
       case 'rstep': rstep(+el.dataset.d); break;
-      default: break;
+      case 'stage': {
+        const si = +el.dataset.s;
+        if (si > S.stageMax) { lockedStageModal(si); break; }
+        S.stage = si; popFor = null; save(); SND.play('pop'); render(); $('#view').scrollTop = 0; requestAnimationFrame(() => scrollToCurrent(false)); break;
+      }
+      case 'age': {
+        const si = +el.dataset.s;
+        S.stageMax = si; S.stage = si; applyForm(); SND.play('tap');
+        const box = el.parentElement; if (box) box.innerHTML = ageChips(si);
+        const m = $('#modal .sheet > svg.mascot'); if (m) m.outerHTML = ART.mascot('cheer');
+        break;
+      }
+      case 'unlock-all':
+        S.stageMax = STAGES.length - 1; applyForm(); save(); SND.play('chest'); render();
+        break;
+      case 'grow-go': S.stage = +el.dataset.s; save(); closeModal(); render(); $('#view').scrollTop = 0; requestAnimationFrame(() => scrollToCurrent(false)); break;
+      default: if (ACTS[act]) ACTS[act](el); break;
     }
   }
 
@@ -934,6 +1022,7 @@
     handle(el.dataset.act, el);
   });
   document.addEventListener('input', (e) => {
+    if (INPUTS[e.target.id] && L && !L.checked) { INPUTS[e.target.id](e); return; }
     if (e.target.id === 'rsl' && L && !L.checked) {
       const st = L.st, k = +e.target.value;
       if (k !== st.k) { st.k = k; SND.play('click'); EX.slider.update(L.queue[L.i], st); }
@@ -958,6 +1047,7 @@
       if (b && !b.disabled) { e.preventDefault(); b.click(); }
       return;
     }
+    for (const k of KEYS) { if (k(e)) return; }
     if (/^[1-9]$/.test(e.key) && !L.checked) {
       const ex = L.queue[L.i];
       if (ex.t === 'choice' || ex.t === 'tf') { const k = +e.key - 1; if ($$('#lin .opt')[k]) pick(k); }
@@ -967,7 +1057,8 @@
   /* ---------- start ---------- */
   function boot(data) {
     S = data && data.S ? Object.assign(load(), data.S) : load();
-    tick(); save();
+    if (S.stage > S.stageMax) S.stage = S.stageMax;
+    tick(); save(); applyForm();
     SND.set(S.sound);
     renderShell(); render();
     requestAnimationFrame(() => scrollToCurrent(false));
@@ -979,5 +1070,5 @@
   if (hot && typeof hot.ready === 'function') hot.ready(boot); else boot((hot && hot.data) || {});
 
   /* uchwyt do testów automatycznych */
-  window.ISKIERKA = { get state() { return S; }, get lesson() { return L; }, nodes: NODES, start: startNode, current: currentIndex };
+  window.ISKIERKA = { get state() { return S; }, get lesson() { return L; }, nodes: NODES, stages: STAGES, start: startNode, current: currentIndex, currentIn: currentIndexIn };
 })();

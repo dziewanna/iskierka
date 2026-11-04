@@ -1,32 +1,13 @@
-/* ISKIERKA — treść kursu.
-   Tu dopisujesz rozdziały, lekcje i zadania. Rodzaje zadań:
-     learn   karta wiedzy (bez oceniania)
-     choice  wybór jednej odpowiedzi (tekst, obrazki albo obwody)
-     tf      prawda / fałsz
-     pairs   łączenie w pary
-     fill    uzupełnianie zdania słowami z banku
-     sort    sortowanie do dwóch koszyków
-     circuit eksperyment na żywym obwodzie (cel: które elementy mają działać)
-     slider  dobieranie opornika dla diody LED
-   W tekstach można używać <b>pogrubienia</b>. */
+/* ISKIERKA — ETAP 1 · Iskierka · 10+
+   Pierwsze iskry: prąd, bateria, bezpieczeństwo, obwód, połączenia, opornik, dioda, czujniki.
+   Funkcje do tworzenia zadań są w js/kit.js.
+   Pole sol przy płytkach stykowych to przykładowe rozwiązanie (otwory dla kolejnych części z pudełka). */
 (function () {
   'use strict';
-  var B = window.ISK_CIRCUIT.B;
-
-  function ext(a, b) { var k; for (k in (b || {})) a[k] = b[k]; return a; }
-  function learn(art, title, text, o) { return ext({ t: 'learn', art: art, title: title, text: text }, o); }
-  function choice(q, opts, ans, explain, o) { return ext({ t: 'choice', q: q, opts: opts, ans: ans, explain: explain }, o); }
-  function tf(q, ans, explain, o) { return ext({ t: 'tf', q: q, ans: ans, explain: explain }, o); }
-  function pairs(q, list, o) { return ext({ t: 'pairs', q: q, pairs: list }, o); }
-  function fill(parts, bank, ans, explain, o) { return ext({ t: 'fill', parts: parts, bank: bank, ans: ans, explain: explain }, o); }
-  function sort(q, bins, items, explain) { return { t: 'sort', q: q, bins: bins, items: items, explain: explain }; }
-  function circ(q, make, goal, explain, o) { return ext({ t: 'circuit', q: q, make: make, goal: goal, explain: explain }, o); }
-  function slider(q, cfg, explain) { return ext({ t: 'slider', q: q, explain: explain }, cfg); }
-
-  // skróty: żarówka bez podpisu i żarówka z literką
-  function L(o) { return ext({ t: 'lamp', id: 'A' }, o); }
-  function LL(id, o) { return ext({ t: 'lamp', id: id, label: id }, o); }
-  var YESNO = ['Tak', 'Nie'];
+  var K = window.ISK_KIT, B = K.B;
+  var learn = K.learn, choice = K.choice, tf = K.tf, pairs = K.pairs, fill = K.fill, sort = K.sort, circ = K.circ, slider = K.slider;
+  var board = K.board, pattern = K.pattern, volts = K.volts;
+  var L = K.L, LL = K.LL, YESNO = K.YESNO;
 
   var units = [
     /* ================= ROZDZIAŁ 1 ================= */
@@ -83,6 +64,17 @@
             tf('Woda i prąd to groźne połączenie.', true, 'Woda z kranu przewodzi prąd. Nie dotykaj urządzeń elektrycznych mokrymi rękami.'),
             choice('Kogoś poraził prąd i ta osoba dalej dotyka kabla. Co robisz?', ['Nie dotykam jej! Wołam dorosłego i dzwonię pod 112', 'Od razu ciągnę ją za rękę', 'Polewam ją wodą', 'Czekam, aż samo przejdzie'], 0, 'Gdy jej dotkniesz, prąd może porazić także Ciebie. Dorosły najpierw wyłącza prąd. Numer alarmowy to 112.'),
             tf('Małą okrągłą baterię guzikową można włożyć do buzi.', false, 'Nigdy! Połknięta bateria guzikowa jest bardzo groźna. Gdyby ktoś ją połknął – od razu do lekarza.')
+          ]
+        },
+        {
+          id: 'u1w', title: 'Zasil robota', icon: 'robot', ws: true, desc: 'Warsztat: składasz baterie jak klocki.',
+          ex: [
+            learn('battery', 'Baterie w szeregu', 'Gdy ustawisz baterie <b>jedna za drugą</b> (plus do minusa), ich napięcia się <b>sumują</b>: dwa paluszki po 1,5 V dają 3 V. Tak włożone są baterie w pilocie do telewizora!'),
+            volts('Robot Wolcik potrzebuje 3 V. Włóż baterie do koszyka!', 3, [1.5, 1.5, 1.5, 4.5], 'Dwa paluszki po 1,5 V to razem 3 V.'),
+            choice('Masz trzy paluszki 1,5 V ustawione jeden za drugim. Jakie jest razem napięcie?', ['4,5 V', '1,5 V', '3 V', '15 V'], 0, '1,5 + 1,5 + 1,5 = 4,5 V.'),
+            volts('Teraz Wolcik potrzebuje 6 V. Znajdziesz dwa sposoby?', 6, [1.5, 1.5, 1.5, 1.5, 4.5, 9], 'Cztery paluszki albo płaska bateria 4,5 V i jeden paluszek – oba sposoby dają 6 V.'),
+            volts('Super-Wolcik potrzebuje aż 12 V!', 12, [1.5, 1.5, 1.5, 4.5, 9, 9], 'Na przykład 9 V + 1,5 V + 1,5 V = 12 V.', { name: 'Super-Wolcik' }),
+            tf('Za wysokie napięcie może zepsuć urządzenie.', true, 'Dlatego zawsze sprawdzamy, ile woltów potrzebuje urządzenie.')
           ]
         }
       ]
@@ -199,6 +191,26 @@
             fill(['Przy zwarciu prąd płynie na ', 0, '.'], ['skróty', 'około', 'wakacje'], ['skróty'], 'Na skróty – z pominięciem odbiornika.'),
             choice('Do czego służy bezpiecznik w domu?', ['Wyłącza prąd, gdy dzieje się coś groźnego', 'Zwiększa prąd w gniazdkach', 'Ozdabia ścianę', 'Ładuje telefon'], 0, 'Bezpiecznik pilnuje instalacji. Przy zwarciu sam odcina prąd.')
           ]
+        },
+        {
+          id: 'u3w', title: 'Wzorki świetlne', icon: 'grid', ws: true, desc: 'Warsztat: zapal diody tak, żeby ułożyły obrazek.',
+          ex: [
+            learn('ledOn', 'Panel świetlny', 'Każdy przełącznik zapala swoją grupę diod – to osobne drogi, połączone <b>równolegle</b>. Kolorowe kropki na diodzie pokazują, które przełączniki ją zasilają. Ułóż wzorek z obrazka!'),
+            pattern('Zapal plusik.', { size: [3, 3], target: [[0, 1], [1, 0], [1, 1], [1, 2], [2, 1]], switches: [
+              { cells: [[0, 1], [1, 1], [2, 1]] }, { cells: [[1, 0], [1, 1], [1, 2]] }, { cells: [[0, 0], [0, 2], [2, 0], [2, 2]] }, { cells: [[0, 0], [1, 1], [2, 2]] }] },
+            'Pionowa i pozioma kreska razem tworzą plus.', { hint: 'szukaj kresek: pionowej i poziomej' }),
+            pattern('Teraz ułóż literę X.', { size: [3, 3], target: [[0, 0], [0, 2], [1, 1], [2, 0], [2, 2]], switches: [
+              { cells: [[0, 0], [1, 1], [2, 2]] }, { cells: [[0, 1], [1, 1], [2, 1]] }, { cells: [[0, 2], [1, 1], [2, 0]] }, { cells: [[1, 0], [1, 2]] }] },
+            'Dwie ukośne kreski tworzą X. Środkowa dioda jest w obu grupach.'),
+            pattern('Zapal serce dla Iskierki!', { size: [5, 5], target: [[0, 1], [0, 3], [1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [2, 0], [2, 1], [2, 2], [2, 3], [2, 4], [3, 1], [3, 2], [3, 3], [4, 2]], switches: [
+              { cells: [[0, 1], [0, 3]] }, { cells: [[1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [2, 0], [2, 1], [2, 2], [2, 3], [2, 4]] }, { cells: [[0, 0], [0, 4], [4, 0], [4, 4]] },
+              { cells: [[3, 1], [3, 2], [3, 3], [4, 2]] }, { cells: [[2, 2], [3, 2], [4, 1], [4, 2], [4, 3]] }] },
+            'Serce składa się z uszek, szerokiego środka i czubka na dole.', { hint: 'uważaj na grupy, które zapalają diody poza sercem' }),
+            learn('mascot', 'Ekran z diod', 'W prawdziwych ekranach LED diody łączy się w <b>rzędy (R)</b> i <b>kolumny (K)</b>. Dioda świeci, gdy włączony jest <b>jej rząd i jej kolumna</b> – oba naraz, jak dwa przełączniki w szeregu. Tak działają tablice na dworcach!', { mood: 'think' }),
+            pattern('Zapal tylko środkową diodę.', { mode: 'matrix', size: [3, 3], target: [[1, 1]] }, 'Rząd 2 i kolumna 2 spotykają się w środku.', { hint: 'włącz jeden rząd i jedną kolumnę' }),
+            pattern('Zapal cztery rogi.', { mode: 'matrix', size: [3, 3], target: [[0, 0], [0, 2], [2, 0], [2, 2]] }, 'Rzędy 1 i 3 oraz kolumny 1 i 3 krzyżują się dokładnie w rogach.', { hint: 'potrzebujesz dwóch rzędów i dwóch kolumn' }),
+            pattern('Zapal cały środkowy rząd.', { mode: 'matrix', size: [3, 3], target: [[1, 0], [1, 1], [1, 2]] }, 'Jeden rząd i wszystkie kolumny – i cały pasek świeci.')
+          ]
         }
       ]
     },
@@ -247,6 +259,29 @@
             slider('Teraz bateria ma 9 V. Znajdź opornik dla Leny!', { v: 9, vf: 2, start: 2, ok: [5, 20] }, 'Przy 9 V pasuje 470 Ω albo 1 kΩ. Większe napięcie – większy opornik.'),
             tf('Im większy opornik, tym jaśniej świeci dioda.', false, 'Odwrotnie! Większy opornik mocniej hamuje prąd, więc dioda świeci słabiej.'),
             choice('Dla ambitnych: prąd = napięcie : opór. Bateria ma 6 V, opornik 3 Ω. Jaki płynie prąd?', ['2 A', '18 A', '3 A', '9 A'], 0, '6 : 3 = 2. Płynie prąd 2 amperów. To jest prawo Ohma!')
+          ]
+        },
+        {
+          id: 'u4w', title: 'Płytka stykowa', icon: 'board', ws: true, desc: 'Warsztat: budujesz obwody jak prawdziwy elektronik.',
+          ex: [
+            learn('boardDemo', 'Płytka stykowa', 'Na płytce stykowej buduje się obwody <b>bez lutowania</b>. Pięć otworów w jednej kolumnie (a–e) łączy metalowa blaszka – na obrazku podświetliliśmy kolumnę 3. Długie rzędy <b>+</b> i <b>−</b> to <b>szyny zasilania</b>, podłączone do baterii.'),
+            choice('Które otwory są połączone z otworem a3?', ['b3, c3, d3 i e3', 'a4 i a5', 'Wszystkie w rzędzie a', 'Żadne'], 0, 'W płytce połączone są otwory w tej samej kolumnie – od a do e.', { art: 'boardDemo' }),
+            board('Dioda i opornik już stoją. Dodaj kabelek z kolumny 5 do szyny −, żeby dioda zaświeciła.', {
+              fixed: [{ t: 'res', r: 220, legs: ['+2', 'a2'] }, { t: 'led', id: 'D1', legs: ['c2', 'c5'] }],
+              tray: [{ t: 'wire' }], goal: { lit: { D1: true } }, hint: 'połącz dowolny otwór kolumny 5 z szyną −', sol: [['d5', '-5']]
+            }, 'Prąd płynie: szyna + → opornik → dioda → kabelek → szyna −.'),
+            board('Wstaw diodę tak, żeby świeciła. Dłuższa nóżka (+) idzie od strony opornika.', {
+              fixed: [{ t: 'res', r: 220, legs: ['+3', 'a3'] }, { t: 'wire', legs: ['a7', '-7'] }],
+              tray: [{ t: 'led', id: 'D1' }], goal: { lit: { D1: true } }, hint: 'plus diody w kolumnie 3, minus w kolumnie 7', sol: [['b3', 'b7']]
+            }, 'Dioda łączy kolumnę 3 (od plusa) z kolumną 7 (do minusa).'),
+            board('Zbuduj wszystko sam: opornik, dioda i kabelek.', {
+              tray: [{ t: 'res', r: 220 }, { t: 'led', id: 'D1' }, { t: 'wire' }], goal: { lit: { D1: true } }, hint: 'szyna + → opornik → dioda → kabelek → szyna −', sol: [['+2', 'a2'], ['b2', 'b5'], ['c5', '-5']]
+            }, 'Gotowe! To najczęstszy pierwszy obwód każdego elektronika.'),
+            board('Dwie diody, jeden kabelek do minusa. Zapal obie!', {
+              fixed: [{ t: 'res', r: 220, legs: ['+2', 'a2'] }, { t: 'res', r: 220, legs: ['+8', 'a8'] }, { t: 'wire', legs: ['e5', '-5'] }],
+              tray: [{ t: 'led', id: 'D1' }, { t: 'led', id: 'D2', col: '#22C3A4' }], goal: { lit: { D1: true, D2: true } }, hint: 'obie diody mogą mieć minus w kolumnie 5', sol: [['b2', 'b5'], ['b8', 'c5']]
+            }, 'Obie diody dzielą kolumnę 5, która prowadzi do szyny −.'),
+            tf('Na płytce stykowej trzeba wszystko lutować.', false, 'Elementy po prostu wciskasz w otwory. Można je wyjąć i zbudować coś nowego.')
           ]
         }
       ]
@@ -302,6 +337,23 @@
             tf('Zużyte baterie oddajemy do specjalnego pojemnika.', true, 'Tak! Z odzyskanych baterii można zrobić nowe rzeczy, a przyroda jest bezpieczna.'),
             learn('mascot', 'Gratulacje!', 'Znasz już podstawy elektroniki: obwody, przełączniki, diody i czujniki. Prawdziwi inżynierowie zaczynali tak samo – od baterii, kabelka i żaróweczki. Co zbudujesz jutro?', { mood: 'cheer' })
           ]
+        },
+        {
+          id: 'u5w', title: 'Warsztat wynalazcy', icon: 'wrench', ws: true, desc: 'Warsztat: dzwonki, wiatraczki i światełka.',
+          ex: [
+            board('Zbuduj dzwonek: brzęczyk już stoi, dodaj kabelki do obu szyn.', {
+              fixed: [{ t: 'buzz', id: 'Z1', legs: ['b3', 'b6'] }],
+              tray: [{ t: 'wire' }, { t: 'wire', col: '#2A2153' }], goal: { lit: { Z1: true } }, hint: 'kolumna 3 do szyny +, kolumna 6 do szyny −', sol: [['+3', 'a3'], ['a6', '-6']]
+            }, 'Bzzzz! Brzęczyk dostał prąd z obu stron.'),
+            volts('Wiatraczek potrzebuje 4,5 V. Ułóż baterie.', 4.5, [1.5, 1.5, 1.5, 9], 'Trzy paluszki po 1,5 V dają 4,5 V.', { name: 'Wiatraczek' }),
+            pattern('Zbuduj sygnalizator: zapal strzałkę w prawo.', { size: [3, 4], target: [[1, 0], [1, 1], [1, 2], [1, 3], [0, 2], [2, 2]], switches: [
+              { cells: [[1, 0], [1, 1], [1, 2], [1, 3]] }, { cells: [[0, 1], [2, 1]] }, { cells: [[0, 2], [2, 2]] }, { cells: [[0, 3], [2, 3]] }] },
+            'Trzon strzałki i grot razem pokazują kierunek.'),
+            board('Dwie diody w szeregu: zapal obie jednym kabelkiem.', {
+              fixed: [{ t: 'res', r: 100, legs: ['+2', 'a2'] }, { t: 'led', id: 'D1', legs: ['b2', 'b4'] }, { t: 'led', id: 'D2', col: '#3BA7FF', legs: ['c4', 'c6'] }],
+              tray: [{ t: 'wire' }], goal: { lit: { D1: true, D2: true } }, hint: 'połącz kolumnę 6 z szyną −', v: 9, sol: [['d6', '-6']]
+            }, 'Diody stoją jedna za drugą, więc prąd przechodzi przez obie.')
+          ]
         }
       ]
     }
@@ -330,5 +382,8 @@
     { id: 'beret', name: 'Beret artysty', from: 'xp:250', desc: 'Za zebranie 250 iskier. Elektronika też jest sztuką!' }
   ];
 
-  window.ISK_DATA = { units: units, stickers: stickers, accs: accs };
+  window.ISK_STAGES.push({
+    id: 'e1', n: 1, name: 'Iskierka', form: 1, age: '10+', ageLabel: '10–11 lat', title: 'Pierwsze iskry',
+    grow: '', units: units, stickers: stickers, accs: accs
+  });
 })();
