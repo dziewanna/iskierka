@@ -257,6 +257,7 @@
       '</div>' +
       '<div class="section"><h2>Jak masz na imię?</h2><div class="field"><label for="pname" class="sr-only">Imię</label><input id="pname" class="input" maxlength="20" autocomplete="off" value="' + esc(S.name) + '" placeholder="Wpisz imię"><button class="btn small" data-act="save-name">Zapisz</button></div></div>' +
       '<div class="section"><h2>Cel dnia</h2><div class="choicechips" role="radiogroup" aria-label="Cel dnia">' + goalChips() + '</div></div>' +
+      '<div class="section"><h2>Aplikacja</h2><div class="parents" id="pwa-box">' + (window.ISK_PWA ? window.ISK_PWA.html() : '') + '</div></div>' +
       '<div class="section"><div class="switchrow"><span>Dźwięki</span><button class="toggle" role="switch" aria-checked="' + S.sound + '" aria-label="Dźwięki" data-act="sound"></button></div></div>' +
       '<div class="section"><h2>Etapy</h2><div class="stagelist">' + STAGES.map((st, si) => {
         const total = NODES.filter((n) => n.si === si).length, done = NODES.filter((n) => n.si === si && isDone(n)).length;

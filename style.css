@@ -778,3 +778,9 @@ svg.board { display: block; width: 100%; max-width: 420px; height: auto; margin:
 
 svg.graph { color: var(--ink); }
 .opt-art svg.graph { max-width: 100%; }
+
+/* uruchomiona jako aplikacja: odsuń treść od wycięcia i paska na dole ekranu */
+@media (display-mode: standalone) {
+  body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+}
+#pwa-box .btn { justify-self: start; }

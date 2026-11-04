@@ -17,6 +17,25 @@ a w profilu jest przycisk „Odblokuj wszystkie etapy”.
 Kliknij dwa razy `index.html`. Gra działa w przeglądarce, bez instalacji i bez internetu
 (z internetem wczytają się ładniejsze czcionki).
 
+## Aplikacja na telefon i komputer
+
+Iskierka jest aplikacją instalowaną ze strony (PWA): ma własną ikonę, otwiera się na pełnym ekranie
+i działa bez internetu.
+
+1. Opublikuj grę przez GitHub Pages: **Settings → Pages → Build and deployment → Source: Deploy from a branch →
+   Branch: `main`, folder `/ (root)` → Save**. Po minucie gra będzie pod adresem `https://dziewanna.github.io/iskierka/`.
+2. Otwórz ten adres na telefonie:
+   - **Android (Chrome):** pojawi się „Zainstaluj aplikację” (albo menu ⋮ → *Zainstaluj aplikację*). Przycisk jest też w grze, w zakładce Profil.
+   - **iPhone/iPad (Safari):** *Udostępnij* → *Do ekranu początkowego*.
+   - **Komputer (Chrome, Edge):** ikona instalacji na końcu paska adresu.
+
+Przy każdej nowej wersji zmień numer `CACHE` w `sw.js` (np. `iskierka-v2`), żeby zainstalowane aplikacje pobrały nowe pliki.
+
+**Sklepy z aplikacjami:** z adresu GitHub Pages można zbudować paczkę do Google Play w darmowym narzędziu
+[PWABuilder](https://www.pwabuilder.com) (konto dewelopera Google Play kosztuje jednorazowo 25 USD).
+App Store wymaga konta Apple Developer (99 USD rocznie) i komputera Mac. Aplikacje dla dzieci wymagają
+w obu sklepach polityki prywatności – Iskierka nie zbiera żadnych danych, co bardzo to ułatwia.
+
 ## Rodzaje zadań
 
 - **Nauka:** karta wiedzy, wybór odpowiedzi, prawda/fałsz, pary, uzupełnianie zdań, sortowanie,
@@ -50,6 +69,7 @@ Teksty są neutralne płciowo. Postęp zapisuje się w przeglądarce (localStora
 | `js/circuit.js` | symulator i rysowanie obwodów |
 | `js/art.js`, `js/art2.js` | wszystkie ilustracje (SVG rysowane kodem) |
 | `js/sound.js` | dźwięki generowane na żywo |
+| `js/pwa.js`, `sw.js`, `manifest.webmanifest`, `icons/` | instalacja jako aplikacja i tryb offline |
 
 ## Jak dopisać zadanie
 
