@@ -199,7 +199,9 @@
   function scrollToCurrent(smooth) {
     const v = $('#view'), c = $('#view .node.current');
     if (!v || !c) return;
-    const off = c.getBoundingClientRect().top - v.getBoundingClientRect().top - v.clientHeight / 2 + 35;
+    const rel = c.getBoundingClientRect().top - v.getBoundingClientRect().top;
+    if (rel > 60 && rel < v.clientHeight - 140) return; // już widać – nie przewijaj
+    const off = rel - v.clientHeight / 2 + 35;
     try { v.scrollBy({ top: off, behavior: smooth && !reduced() ? 'smooth' : 'auto' }); } catch (e) { v.scrollTop += off; }
   }
 
@@ -830,6 +832,7 @@
     if (p.t === 'sw' || p.t === 'gap') p.on = !p.on;
     else if (p.t === 'lamp') p.out = !p.out;
     else if (p.t === 'led' || p.t === 'bat') p.flip = !p.flip;
+    else if (p.t === 'ldr') p.dark = !p.dark;
     SND.play('click');
     const after = CIR.solve(st.c);
     let lit = false, buzz = false;

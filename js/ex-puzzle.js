@@ -266,7 +266,7 @@
     var zone = Math.abs(sum - e.target) < 0.01 ? 'ok' : sum < e.target ? 'lo' : 'hi';
     var msg = zone === 'ok' ? 'Działa! Napięcie się zgadza.' : zone === 'lo' ? (sum ? 'Za słabo – robot ledwo się rusza.' : 'Koszyk jest pusty.') : 'Za mocno! Robot się przegrzewa.';
     var holder = st.in.map(function (i, k) {
-      return '<button class="vb in" data-act="vout" data-k="' + k + '"' + (done ? ' disabled' : '') + ' aria-label="Wyjmij baterię ' + num(e.tray[i]) + ' V">' + battMini(e.tray[i]) + '<span>' + num(e.tray[i]) + ' V</span></button>' + (k < st.in.length - 1 ? '<span class="vplus">+</span>' : '');
+      return '<button class="vb placed" data-act="vout" data-k="' + k + '"' + (done ? ' disabled' : '') + ' aria-label="Wyjmij baterię ' + num(e.tray[i]) + ' V">' + battMini(e.tray[i]) + '<span>' + num(e.tray[i]) + ' V</span></button>' + (k < st.in.length - 1 ? '<span class="vplus">+</span>' : '');
     }).join('') || '<span class="tray-empty">Dotknij baterii poniżej, żeby ją włożyć</span>';
     var tray = e.tray.map(function (v, i) {
       if (st.in.indexOf(i) >= 0) return '';
@@ -298,7 +298,7 @@
   function rcHTML(e, st, done) {
     var tot = rTotal(e, st), ok = Math.abs(tot - e.target) <= e.target * (e.tol || 0.02);
     var chain = st.in.map(function (i, k) {
-      return '<button class="rcb in" data-act="rcout" data-k="' + k + '"' + (done ? ' disabled' : '') + ' aria-label="Wyjmij opornik">' + ART.resistor('happy', e.tray[i]) + '<span>' + CIR.fmtR(e.tray[i]) + '</span></button>';
+      return '<button class="rcb placed" data-act="rcout" data-k="' + k + '"' + (done ? ' disabled' : '') + ' aria-label="Wyjmij opornik">' + ART.resistor('happy', e.tray[i]) + '<span>' + CIR.fmtR(e.tray[i]) + '</span></button>';
     }).join(e.mode === 'parallel' ? '' : '<span class="vplus">+</span>') || '<span class="tray-empty">Dotknij oporników poniżej</span>';
     var tray = e.tray.map(function (v, i) {
       if (st.in.indexOf(i) >= 0) return '';
