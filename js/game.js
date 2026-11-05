@@ -62,7 +62,7 @@
       if (last && S.done['test-' + last.id]) S.stageMax++; else break;
     }
   }
-  function who(gen) { const st = STAGES[S.stageMax] || STAGES[0]; return gen ? (st.gen || st.name) : st.name; }
+  function who(gen) { const st = STAGES[S.stage] || STAGES[0]; return gen ? (st.gen || st.name) : st.name; }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* tryb prywatny */ } }
   function tick() {
     const now = Date.now();
@@ -89,7 +89,8 @@
   function stageDone(si) { return currentIndexIn(si) < 0; }
   function canStart(i) { const n = NODES[i]; if (!n) return false; if (isDone(n)) return true; return n.si <= S.stageMax && i === currentIndexIn(n.si); }
   function nodeState(n, i, cur) { if (isDone(n)) return 'done'; return i === cur && n.si <= S.stageMax ? 'current' : 'locked'; }
-  function applyForm() { const st = STAGES[S.stageMax] || STAGES[0]; ART.setForm(st ? st.form : 1); }
+  /* maskotka wygląda tak, jak w oglądanym etapie: Iskierka, Skra albo Iskrosława */
+  function applyForm() { const st = STAGES[L ? L.node.si : S.stage] || STAGES[0]; ART.setForm(st ? st.form : 1); }
 
   /* ---------- powłoka ---------- */
   const TABS = [['path', 'Nauka', 'path'], ['games', 'Gry', 'game'], ['album', 'Album', 'sticker'], ['closet', 'Szafa', 'hanger'], ['me', 'Profil', 'user']];
@@ -117,7 +118,7 @@
     else renderMe();
   }
   /* wygląd etapu: etapy dla dorosłych mają styl ołówkowej karykatury */
-  function setLook(si) { const st = STAGES[si]; const lk = (st && st.look) || ''; if ((document.documentElement.dataset.look || '') !== lk) { if (lk) document.documentElement.dataset.look = lk; else delete document.documentElement.dataset.look; } }
+  function setLook(si) { const st = STAGES[si]; ART.setForm(st ? st.form : 1); const lk = (st && st.look) || ''; if ((document.documentElement.dataset.look || '') !== lk) { if (lk) document.documentElement.dataset.look = lk; else delete document.documentElement.dataset.look; } }
   function render() { setLook(L ? L.node.si : S.stage); renderTop(); renderTabs(); renderView(); }
 
   /* ---------- widok: ścieżka ---------- */

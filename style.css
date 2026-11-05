@@ -1030,3 +1030,86 @@ svg.gag { width: 92px; height: 92px; flex: none; overflow: visible; }
 [data-look="pencil"] .pop .btn { --b: var(--ink); --b2: var(--line); --bi: var(--card); }
 [data-look="pencil"] .pop.locked .btn { --b: var(--locked); --bi: var(--ink-2); }
 [data-look="pencil"] .calc-disp { background: var(--card); color: var(--ink); border: 2px solid var(--line); border-radius: var(--sk); }
+
+/* =====================================================================
+   ETAPY MŁODZIEŻOWE: RETRO KRESKÓWKA Z LAT 60.
+   <html data-look="pop"> (etapy 3–4): płaskie nasycone kolory, gruby czarny kontur,
+   twardy cień, psychodeliczne koła w tle, zaokrąglone litery w nagłówkach.
+   ===================================================================== */
+:root[data-look="pop"] {
+  --paper: #FFF4C7; --paper-2: #FFEA95; --dot: transparent; --card: #FFFFFF;
+  --ink: #15111F; --ink-2: #4E4766; --line: #15111F; --locked: #F3E9C4; --locked-2: #D7C998; --wire: #E6D9A6;
+  --spark: #FFD21F; --spark-2: #15111F; --spark-ink: #15111F;
+  --sky: #2F4BFF; --sky-2: #15111F; --sky-soft: #E2E7FF;
+  --copper: #FF8A00; --copper-2: #15111F; --violet: #FF3D7F; --violet-2: #15111F;
+  --mint: #00C2A8; --mint-2: #15111F; --mint-soft: #D2F6EF; --mint-t: #006B5B;
+  --berry: #FF3D7F; --berry-2: #15111F; --berry-soft: #FFE0EA; --berry-t: #B0003F;
+  --pipe: #4E4766; --shadow: #15111F; --electron: #FFFFFF; --pop-head: #FF3D7F;
+  --f-display: "Shrikhand", "Baloo 2", cursive;
+  --pk: 22px 7px 22px 7px;
+  --rings: repeating-radial-gradient(circle at 112% -14%, transparent 0 46px, rgba(255, 61, 127, .11) 46px 74px, transparent 74px 102px, rgba(0, 194, 168, .11) 102px 130px, transparent 130px 158px, rgba(47, 75, 255, .08) 158px 186px);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-look="pop"]:not([data-theme="light"]) {
+    --paper: #1D1236; --paper-2: #2A1A4C; --card: #2B1B50; --ink: #FFF6DA; --ink-2: #C9BDF0; --line: #FFD21F;
+    --locked: #2E2152; --locked-2: #463670; --wire: #3E2E68; --shadow: #0B0716; --sky-soft: #1E2A66; --mint-soft: #0F3A35; --mint-t: #5BEBD2;
+    --berry-soft: #45163A; --berry-t: #FF8AB0; --spark-2: #0B0716; --pop-head: #FF6FA0; color-scheme: dark;
+  }
+}
+:root[data-look="pop"][data-theme="dark"] {
+  --paper: #1D1236; --paper-2: #2A1A4C; --card: #2B1B50; --ink: #FFF6DA; --ink-2: #C9BDF0; --line: #FFD21F;
+  --locked: #2E2152; --locked-2: #463670; --wire: #3E2E68; --shadow: #0B0716; --sky-soft: #1E2A66; --mint-soft: #0F3A35; --mint-t: #5BEBD2;
+  --berry-soft: #45163A; --berry-t: #FF8AB0; --spark-2: #0B0716; --pop-head: #FF6FA0; color-scheme: dark;
+}
+[data-look="pop"] body { background-image: var(--rings); background-attachment: fixed; }
+[data-look="pop"] h1, [data-look="pop"] h2, [data-look="pop"] h3 { font-weight: 400; letter-spacing: .01em; }
+[data-look="pop"] .page-title h1, [data-look="pop"] .learn h2, [data-look="pop"] .done-screen h2, [data-look="pop"] .modal h2 {
+  color: var(--pop-head); -webkit-text-stroke: 1.2px #15111F; paint-order: stroke fill;
+}
+[data-look="pop"] .brand { font-weight: 400; }
+[data-look="pop"] .btn {
+  --b2: #15111F; border: 3px solid #15111F; border-radius: 18px; box-shadow: 4px 4px 0 #15111F; font-weight: 400; font-size: 21px; letter-spacing: .02em;
+}
+[data-look="pop"] .btn:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 #15111F; }
+[data-look="pop"] .btn.mint { --bi: #15111F; }
+[data-look="pop"] .btn.ghost { --b: var(--card); --bi: var(--ink); border-color: var(--line); }
+[data-look="pop"] .opt, [data-look="pop"] .bubble, [data-look="pop"] .goalbar, [data-look="pop"] .stg, [data-look="pop"] .gcard, [data-look="pop"] .lvl,
+[data-look="pop"] .art.card, [data-look="pop"] .cir-card, [data-look="pop"] .start-tip, [data-look="pop"] .tab.on, [data-look="pop"] .calc-disp {
+  border: 3px solid var(--line); border-radius: var(--pk); box-shadow: 4px 4px 0 var(--shadow);
+}
+[data-look="pop"] .speaker .bubble::before { border-color: var(--line); border-width: 3px; }
+[data-look="pop"] .opt.sel { background: #FFE98A; border-color: var(--line); }
+[data-look="pop"] .opt.right { background: var(--mint-soft); }
+[data-look="pop"] .opt.wrong { background: var(--berry-soft); }
+[data-look="pop"] .stg.on { background: var(--paper-2); }
+[data-look="pop"] .calc-disp { background: #D2F6EF; color: #15111F; }
+/* nagłówek rozdziału: płaski kolor, czarny kontur i paski op-art */
+[data-look="pop"] .banner {
+  border: 3px solid #15111F; border-radius: 26px 8px 26px 8px; box-shadow: 5px 5px 0 #15111F;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .16) 0 12px, transparent 12px 24px), var(--u);
+}
+[data-look="pop"] .banner::after { background: #15111F; }
+[data-look="pop"] .banner h2 { font-size: 27px; }
+[data-look="pop"] .u-sky { --u-ink: #FFFFFF; }
+[data-look="pop"] .u-berry { --u-ink: #15111F; }
+[data-look="pop"] .guide-btn { border: 2px solid currentColor; background: transparent; }
+/* ścieżka: kółka z czarnym konturem, ukończone w psychodeliczne pierścienie */
+[data-look="pop"] .node { border: 3px solid #15111F; box-shadow: 0 6px 0 #15111F; }
+[data-look="pop"] .node.done { background: repeating-radial-gradient(circle, #FFD21F 0 6px, #FF8A00 6px 10px, #FF3D7F 10px 14px); color: #15111F; box-shadow: 0 6px 0 #15111F; }
+[data-look="pop"] .node.done svg.ni { background: #FFD21F; border-radius: 50%; padding: 3px; border: 2px solid #15111F; }
+[data-look="pop"] .node.locked { background: var(--locked); border-color: var(--locked-2); box-shadow: 0 6px 0 var(--locked-2); }
+[data-look="pop"] .node.current::before { border-color: #FF3D7F; }
+[data-look="pop"] .wire .lit { stroke: #FF3D7F; }
+[data-look="pop"] .wire .glow { display: none; }
+[data-look="pop"] .mini-batt { border: 2px solid var(--line); }
+[data-look="pop"] .mini-batt i { background: repeating-linear-gradient(90deg, #FF3D7F 0 8px, #FF8A00 8px 16px, #FFD21F 16px 24px); }
+[data-look="pop"] .stg-bar i { background: #FF3D7F; }
+[data-look="pop"] .pop { border: 3px solid #15111F; border-radius: 26px 8px 26px 8px; box-shadow: 5px 5px 0 #15111F; }
+[data-look="pop"] .pop .btn { --b: #FFFFFF; --bi: #15111F; }
+[data-look="pop"] .l-foot.ok, [data-look="pop"] .l-foot.bad { border-top: 3px solid var(--line); }
+/* ilustracje jak naklejki: twardy cień i mocniejsze kolory */
+[data-look="pop"] .learn .art > svg:not(.mascot), [data-look="pop"] .opt-art svg:not(.mascot), [data-look="pop"] .sheet > svg:not(.mascot) {
+  filter: saturate(1.25) drop-shadow(3px 3px 0 #15111F);
+}
+[data-look="pop"] svg.mascot .glow { display: none; }

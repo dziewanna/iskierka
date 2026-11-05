@@ -303,7 +303,7 @@
   ];
 
   window.ISK_STAGES.push({
-    id: 'e2', n: 3, name: 'Skra', gen: 'Skry', form: 2,
+    id: 'e2', n: 3, name: 'Skra', gen: 'Skry', form: 2, look: 'pop',
     topics: 'symbole i jednostki, multimetr, prawo Ohma, łączenie oporników, kod kolorów, moc i energia, magnetyzm, silnik i transformator', level: 'średni', title: 'Fizyka prądu',
     grow: 'Mów mi <b>Skra</b>. „Iskierka” to było w podstawówce. W etapie 3 mierzymy i liczymy jak fizycy: multimetr, prawo Ohma, moc, energia i magnesy. Bez spiny – ogarniemy.',
     units: units, stickers: stickers, accs: accs

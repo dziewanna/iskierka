@@ -3,8 +3,14 @@
 Gra edukacyjna w stylu kursów językowych z krótkimi lekcjami. Maskotka **dorasta razem z graczem**:
 najpierw jest małą Iskierką, potem nastoletnią Skrą, a w etapach dla dorosłych – Iskrosławą:
 zblazowaną damą z okularami „kocie oko”, kokiem z ołówkiem, workami pod oczami i wiecznym kubkiem kawy.
-Razem z nią dorasta humor (od „hihi” do „Ha. Ha.”) i wygląd: etapy 5–6 mają styl ołówkowej karykatury –
-papier, grafitowa kreska, kreskowanie, odręczne litery i przygaszone kolory.
+Razem z nią dorasta humor (od „hihi” do „Ha. Ha.”) i wygląd całej gry:
+
+- etapy 1–2 – słodki, miękki styl z gradientami;
+- etapy 3–4 – retro kreskówka z lat 60.: płaskie nasycone kolory, gruby czarny kontur, twardy cień,
+  psychodeliczne koła w tle, nagłówki krojem Shrikhand; Skra ma kreskówkowe oczy, trampki i cwaniacki uśmieszek;
+- etapy 5–6 – ołówkowa karykatura: papier, grafitowa kreska, kreskowanie, odręczne litery i przygaszone kolory.
+
+Każdy etap pokazuje swoją wersję maskotki, także gdy wraca się do wcześniejszych etapów.
 
 | Etap | Poziom | Maskotka | Co jest w środku |
 | --- | --- | --- | --- |
@@ -36,7 +42,7 @@ i działa bez internetu.
    - **iPhone/iPad (Safari):** *Udostępnij* → *Do ekranu początkowego*.
    - **Komputer (Chrome, Edge):** ikona instalacji na końcu paska adresu.
 
-Przy każdej nowej wersji zmień numer `CACHE` w `sw.js` (np. `iskierka-v9`), żeby zainstalowane aplikacje pobrały nowe pliki.
+Przy każdej nowej wersji zmień numer `CACHE` w `sw.js` (np. `iskierka-v10`), żeby zainstalowane aplikacje pobrały nowe pliki.
 
 **Sklepy z aplikacjami:** z adresu GitHub Pages można zbudować paczkę do Google Play w darmowym narzędziu
 [PWABuilder](https://www.pwabuilder.com) (konto dewelopera Google Play kosztuje jednorazowo 25 USD).

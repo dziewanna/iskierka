@@ -262,7 +262,7 @@
   ];
 
   window.ISK_STAGES.push({
-    id: 'e3', n: 4, name: 'Skra', gen: 'Skry', form: 3,
+    id: 'e3', n: 4, name: 'Skra', gen: 'Skry', form: 3, look: 'pop',
     topics: 'kondensator i stała RC, diody i prostowanie, zasilacz, tranzystor, czujnik zmierzchu, bramki logiczne, liczby binarne', level: 'zaawansowany', title: 'Elektronika na serio',
     grow: 'Skra, level up! Nowa fryzura, ten sam charakter. W etapie 4 wchodzi prawdziwa elektronika: kondensatory, tranzystory i logika, z której zbudowane są komputery.',
     units: units, stickers: stickers, accs: accs

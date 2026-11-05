@@ -1,6 +1,6 @@
 /* ISKIERKA — tryb offline (service worker).
    Przy każdej nowej wersji gry zmień numer w CACHE, żeby telefony pobrały nowe pliki. */
-const CACHE = 'iskierka-v8';
+const CACHE = 'iskierka-v9';
 const FILES = [
   './', './index.html', './style.css', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png',
