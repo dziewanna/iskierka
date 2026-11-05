@@ -3,9 +3,9 @@
    a dziecko łączy ich złote zaciski kabelkami. Obwód liczy się na żywo w js/circuit.js.
 
    build(q, {
-     scene: 'monster' | 'chest' | 'jar' | 'robot' | 'night',
+     scene: 'monster' | 'chest' | 'jar' | 'robot' | 'night' | 'stairs' | 'coffee',
      parts: [{ id, t, at: [x, y], skin, name, v, r, vmin, on, dark }],
-       t: bat | lamp | led | buzz | motor | sw | ldr | res | npn
+       t: bat | lamp | led | buzz | motor | sw | ldr | res | npn | spdt (przełącznik schodowy: zaciski C, A, B; flip: true odwraca go w lustrze)
        skin: eye (lamp/led jako oko), mouth (brzęczyk jako paszcza), fan (silniczek z wiatraczkiem), nose (przycisk-nos)
      wires: [['B:+', 'E1:a']]          — kabelki, które już są (nie da się ich usunąć)
      goal: { lit: { E1: true }, noBurn: true }
@@ -37,10 +37,11 @@
     nose: [['a', -26, 12], ['b', 26, 12]],
     ldr: [['a', -13, 30], ['b', 13, 30]],
     res: [['a', -34, 0], ['b', 34, 0]],
-    npn: [['C', 12, -34], ['B', -34, 0], ['E', 12, 34]]
+    npn: [['C', 12, -34], ['B', -34, 0], ['E', 12, 34]],
+    spdt: [['C', -34, 8], ['A', 34, -8], ['B', 34, 22]]
   };
   function skin(p) { return p.skin === 'eye' && p.t === 'led' ? 'eyeLed' : (p.skin || p.t); }
-  function terms(p) { return (TERM[skin(p)] || TERM[p.t]).map(function (t) { return { id: p.id + ':' + t[0], key: t[0], x: p.at[0] + t[1], y: p.at[1] + t[2], p: p }; }); }
+  function terms(p) { var fx = p.flip ? -1 : 1; return (TERM[skin(p)] || TERM[p.t]).map(function (t) { return { id: p.id + ':' + t[0], key: t[0], x: p.at[0] + fx * t[1], y: p.at[1] + t[2], p: p }; }); }
   function allTerms(e) { var out = []; e.parts.forEach(function (p) { out = out.concat(terms(p)); }); return out; }
   function termAt(e, id) { return allTerms(e).find(function (t) { return t.id === id; }); }
 
@@ -58,6 +59,9 @@
         case 'led': q = { t: 'led', id: p.id, n: [T('+'), T('-')] }; break;
         case 'buzz': case 'motor': case 'coil': q = { t: p.t, id: p.id, n: [T('a'), T('b')] }; break;
         case 'sw': q = { t: 'sw', id: p.id, n: [T('a'), T('b')], on: !!s.on }; break;
+        case 'spdt': // przełącznik schodowy: wspólny zacisk C łączy się z A albo z B
+          parts.push({ t: 'sw', id: p.id + '~A', n: [T('C'), T('A')], on: !s.on });
+          q = { t: 'sw', id: p.id + '~B', n: [T('C'), T('B')], on: !!s.on }; break;
         case 'ldr': q = { t: 'ldr', id: p.id, n: [T('a'), T('b')], dark: !!s.dark }; break;
         case 'res': q = { t: 'res', n: [T('a'), T('b')], r: p.r || 220 }; break;
         case 'npn': q = { t: 'npn', id: p.id, n: [T('C'), T('E')], base: T('B') }; break;
@@ -137,6 +141,16 @@
           legs([[-22, 8, 'L', -30, 8], [22, 8, 'L', 30, 8]]);
         break;
       }
+      case 'spdt': {
+        var up = !(rs && rs.on), f = p.flip ? -1 : 1;
+        out = '<g transform="scale(' + f + ' 1)"><rect x="-24" y="-20" width="48" height="50" rx="10" fill="#F4F1FF" stroke="#B9B4D6" stroke-width="2.5"/>' +
+          '<circle cx="-16" cy="8" r="4" fill="#6E6A9C"/><circle cx="16" cy="-8" r="4" fill="#6E6A9C"/><circle cx="16" cy="22" r="4" fill="#6E6A9C"/>' +
+          '<path d="M-16 8 L' + (up ? '16 -8' : '16 22') + '" stroke="#FF8A3D" stroke-width="6" stroke-linecap="round"/>' +
+          legs([[-20, 8, 'L', -34, 8], [20, -8, 'L', 34, -8], [20, 22, 'L', 34, 22]]) + '</g>' +
+          '<g ' + FONT + ' font-size="10" fill="currentColor"><text x="' + (-28 * f) + '" y="-2" text-anchor="middle">C</text><text x="' + (40 * f) + '" y="-14" text-anchor="middle">A</text><text x="' + (40 * f) + '" y="36" text-anchor="middle">B</text></g>' +
+          '<text x="0" y="-26" text-anchor="middle" ' + FONT + ' font-size="9" fill="currentColor">' + (p.name || 'pstryk') + '</text>';
+        break;
+      }
       case 'nose': {
         var non = rs && rs.on;
         out = legs([[-12, 8, 'L', -26, 12], [12, 8, 'L', 26, 12]]) +
@@ -193,6 +207,16 @@
       '<rect x="212" y="70" width="100" height="74" rx="20" fill="#9FD8FF" stroke="#4FA9E8" stroke-width="3"/><rect x="224" y="82" width="76" height="50" rx="12" fill="#2A2153"/>' +
       '<circle cx="246" cy="104" r="7" fill="#7CF3D2"/><circle cx="278" cy="104" r="7" fill="#7CF3D2"/><path d="M252 120 q10 6 20 0" stroke="#7CF3D2" stroke-width="3" fill="none" stroke-linecap="round"/>' +
       '<rect x="222" y="148" width="80" height="92" rx="16" fill="#7C5CFF" stroke="#5A3BE6" stroke-width="3"/><rect x="230" y="242" width="22" height="20" rx="5" fill="#5A3BE6"/><rect x="272" y="242" width="22" height="20" rx="5" fill="#5A3BE6"/>',
+ stairs: '<rect x="-20" y="-20" width="380" height="340" rx="18" fill="#F3EEE4"/><path d="M-20 -20 H360 V24 H-20 Z" fill="#E4DCCB"/>' +
+      '<path d="M-20 300 L-20 262 L40 262 L40 232 L100 232 L100 202 L160 202 L160 172 L220 172 L220 142 L280 142 L280 112 L360 112 L360 300 Z" fill="#C9A27A" stroke="#8A6A48" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M40 262 H-20 M100 232 H40 M160 202 H100 M220 172 H160 M280 142 H220" stroke="#B08559" stroke-width="5"/>' +
+      '<path d="M0 248 L320 96" stroke="#6E4A2A" stroke-width="5" stroke-linecap="round"/><path d="M40 230 V258 M100 200 V228 M160 170 V198 M220 140 V168 M280 110 V138" stroke="#6E4A2A" stroke-width="3"/>' +
+      '<path d="M175 -20 V20" stroke="#3B3561" stroke-width="3"/><path d="M152 22 h46 l-8 -10 h-30 z" fill="#3B3561"/>' +
+      '<g fill="#3B3561"><ellipse cx="300" cy="104" rx="16" ry="8"/><path d="M288 100 q-6 -16 6 -18 q4 8 0 14 z"/><circle cx="306" cy="96" r="6"/><path d="M304 91 l2 -6 3 6 M309 91 l2 -6 3 6"/></g>',
+    coffee: '<rect x="176" y="22" width="150" height="196" rx="18" fill="#3B3561" stroke="#2A2153" stroke-width="3"/><rect x="190" y="36" width="122" height="44" rx="8" fill="#2A2153"/>' +
+      '<text x="251" y="64" text-anchor="middle" ' + FONT + ' font-size="15" fill="#7CF3D2">KAWA?</text><rect x="214" y="180" width="74" height="16" rx="6" fill="#6E6A9C"/>' +
+      '<rect x="178" y="250" width="146" height="14" rx="6" fill="#6E6A9C"/><path d="M226 216 h50 l-6 34 h-38 z" fill="#FFFFFF" stroke="#C9C2E6" stroke-width="2.5"/><path d="M276 224 q14 2 10 14 q-3 8 -12 6" fill="none" stroke="#C9C2E6" stroke-width="3"/>' +
+      '<path d="M240 204 q-6 -8 0 -16 M258 204 q-6 -8 0 -16" stroke="#B9B4D6" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
     robot: '<rect x="128" y="74" width="150" height="96" rx="26" fill="#9FD8FF" stroke="#4FA9E8" stroke-width="3"/><rect x="144" y="90" width="118" height="64" rx="16" fill="#2A2153"/>' +
       '<circle cx="180" cy="120" r="9" fill="#7CF3D2"/><circle cx="226" cy="120" r="9" fill="#7CF3D2"/>' +
       '<rect x="146" y="176" width="114" height="92" rx="20" fill="#7C5CFF" stroke="#5A3BE6" stroke-width="3"/>' +
@@ -243,7 +267,7 @@
     e.parts.forEach(function (p) {
       var ss = sim.state[p.id], rs = st.state[p.id] || {};
       var body = '<g transform="translate(' + p.at[0] + ' ' + p.at[1] + ')">' + glyph(p, ss, rs) + '</g>';
-      var tap = o.interactive && (p.t === 'sw' || p.t === 'ldr');
+      var tap = o.interactive && (p.t === 'sw' || p.t === 'ldr' || p.t === 'spdt');
       if (tap) body = '<g class="tap" data-act="mtog" data-id="' + p.id + '" role="button" tabindex="0" aria-label="' + (p.name || (p.t === 'ldr' ? 'Czujnik światła' : 'Przełącznik')) + '"><circle class="halo" cx="' + p.at[0] + '" cy="' + p.at[1] + '" r="28"/>' + body + '</g>';
       parts += body;
     });
@@ -303,12 +327,13 @@
   }
   var HINT_BTN = ['Podpowiedź', 'Pokaż następny kabelek', 'Pokaż całe rozwiązanie'];
   var ZACISK = { mouth: 1, nose: 1, sw: 1, res: 1 };
-  function partName(p) { return p.name || ({ lamp: 'Żarówka', led: 'Dioda', buzz: 'Brzęczyk', motor: 'Silniczek', sw: 'Przełącznik', ldr: 'Czujnik światła', res: 'Opornik', npn: 'Tranzystor', bat: 'Bateria' })[p.t] || p.id; }
+  function partName(p) { return p.name || ({ lamp: 'Żarówka', led: 'Dioda', buzz: 'Brzęczyk', motor: 'Silniczek', sw: 'Przełącznik', ldr: 'Czujnik światła', res: 'Opornik', npn: 'Tranzystor', bat: 'Bateria', spdt: 'Przełącznik schodowy' })[p.t] || p.id; }
   function legName(id, e) {
     var t = termAt(e, id); if (!t) return id;
     var p = t.p, k = t.key;
     if (p.t === 'bat') return '<b>' + (k === '+' ? 'plus' : 'minus') + '</b> ' + (p.name ? '(' + p.name.toLowerCase() + ')' : 'baterii');
     if (p.t === 'npn') return '<b>' + ({ C: 'kolektor (C)', B: 'baza (B)', E: 'emiter (E)' })[k] + '</b> tranzystora';
+    if (p.t === 'spdt') return '<b>' + partName(p) + '</b> (zacisk ' + k + (k === 'C' ? ' – wspólny' : '') + ')';
     if (k === '+' || k === '-') return '<b>' + partName(p) + '</b> (nóżka ' + (k === '+' ? '+' : '−') + ')';
     var z = ZACISK[skin(p)] ? (k === 'a' ? 'lewy zacisk' : 'prawy zacisk') : (k === 'a' ? 'lewa nóżka' : 'prawa nóżka');
     return '<b>' + partName(p) + '</b> (' + z + ')';
@@ -358,7 +383,7 @@
   EX.build = {
     render: function (e, st) {
       st.wires = []; st.sel = null; st.state = {}; st.hint = 0; st.ok = null;
-      e.parts.forEach(function (p) { if (p.t === 'sw') st.state[p.id] = { on: !!p.on }; if (p.t === 'ldr') st.state[p.id] = { dark: !!p.dark }; });
+      e.parts.forEach(function (p) { if (p.t === 'sw' || p.t === 'spdt') st.state[p.id] = { on: !!p.on }; if (p.t === 'ldr') st.state[p.id] = { dark: !!p.dark }; });
       return '<div class="eyebrow">Misja</div>' + api.speaker(e.q) +
         '<div class="cir-card mission-card"><div id="msvg"></div><div class="cstat" id="mstat" role="status"></div><div id="mcoach"></div><p class="bhint" id="mhint"></p><div id="mroute"></div><div class="mtools" id="mtools"></div></div><div id="mcases"></div>';
     },
@@ -407,7 +432,7 @@
     var L = cur(); if (!L) return;
     var e = ex(), p = e.parts.find(function (x) { return x.id === el.dataset.id; }), s = L.st.state[p.id];
     var before = CIR.solve(circuitOf(e, L.st));
-    if (p.t === 'sw') s.on = !s.on; else s.dark = !s.dark;
+    if (p.t === 'sw' || p.t === 'spdt') s.on = !s.on; else s.dark = !s.dark;
     api.SND.play('click'); soundAfter(before, CIR.solve(circuitOf(e, L.st)));
     draw(e, L.st);
   };

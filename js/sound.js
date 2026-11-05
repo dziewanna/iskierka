@@ -64,7 +64,17 @@
     buzz: function () { tone(415, 0, 0.3, 'square', 0.05); },
     win: function () { [523, 659, 784, 1047, 1319].forEach(function (f, i) { tone(f, i * 0.09, 0.22, 'triangle', 0.14); }); tone(1568, 0.5, 0.5, 'sine', 0.1); },
     chest: function () { [880, 1175, 1397, 1760, 2093].forEach(function (f, i) { tone(f, i * 0.07, 0.2, 'sine', 0.1); }); },
-    charge: function (n) { tone(300 + (n || 0) * 55, 0, 0.08, 'triangle', 0.11); }
+    charge: function (n) { tone(300 + (n || 0) * 55, 0, 0.08, 'triangle', 0.11); },
+    /* odgłosy do minigier */
+    laser: function () { tone(1800, 0, 0.12, 'sawtooth', 0.035, 700); },
+    fail: function () { tone(392, 0, 0.16, 'triangle', 0.12); tone(330, 0.15, 0.16, 'triangle', 0.12); tone(262, 0.3, 0.32, 'triangle', 0.12, 200); },
+    kwa: function () { tone(720, 0, 0.1, 'sawtooth', 0.07, 480); tone(680, 0.13, 0.14, 'sawtooth', 0.07, 400); },
+    pyk: function () { tone(1500, 0, 0.03, 'square', 0.06); tone(320, 0.03, 0.18, 'triangle', 0.14, 950); },
+    psik: function () { tone(700, 0, 0.16, 'sawtooth', 0.04, 1500); tone(2600, 0.2, 0.2, 'sawtooth', 0.05, 500); },
+    fiu: function () { tone(900, 0, 0.55, 'sine', 0.08, 2300); },
+    boom: function () { tone(160, 0, 0.45, 'triangle', 0.2, 45); tone(90, 0.02, 0.4, 'sine', 0.15, 40); },
+    disco: function () { [523, 659, 784, 659, 523, 659, 784, 1047].forEach(function (f, i) { tone(f, i * 0.08, 0.08, 'square', 0.04); }); },
+    miau: function () { tone(600, 0, 0.12, 'sine', 0.09, 900); tone(900, 0.12, 0.25, 'sine', 0.09, 500); }
   };
   window.ISK_SOUND = {
     play: function (name, arg) { if (!enabled) return; try { if (S[name]) S[name](arg); } catch (e) { /* bez dźwięku */ } },

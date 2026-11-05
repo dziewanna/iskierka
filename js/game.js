@@ -16,7 +16,7 @@
   const RES_VALUES = [10, 47, 100, 220, 470, 1000, 4700, 10000];
   const DEF = {
     name: '', xp: 0, hearts: MAX_HEARTS, heartsTs: 0, streak: 0, lastDay: null, today: null, todayXp: 0, goal: 20,
-    done: {}, perfect: {}, stickers: [], accs: [], wear: null, chests: {}, sound: true, onboarded: false, lessons: 0, stage: 0, stageMax: 0
+    done: {}, perfect: {}, stickers: [], accs: [], wear: null, chests: {}, sound: true, onboarded: false, lessons: 0, stage: 0, stageMax: 0, v: 2
   };
 
   let S = null;          // stan gracza (zapisywany)
@@ -46,8 +46,23 @@
   function load() {
     let s = null;
     try { const raw = localStorage.getItem(KEY); if (raw) s = JSON.parse(raw); } catch (e) { s = null; }
+    if (s && !s.v) {
+      // wersja 1 miała 3 etapy; dawny etap 1 jest teraz podzielony na etapy 1 i 2
+      const map = [0, 2, 3];
+      s.stageMax = map[s.stageMax || 0] || 0; s.stage = map[s.stage || 0] || 0; s.v = 2;
+      if (s.games) Object.keys(s.games).forEach((k) => { if (!s.games[k] || !s.games[k].lv) delete s.games[k]; });
+    }
     return Object.assign(fresh(), s || {});
   }
+  /* jeśli sprawdzian kończący etap jest zaliczony, następny etap musi być otwarty */
+  function healStages() {
+    let k = 0;
+    while (k++ < STAGES.length && S.stageMax < STAGES.length - 1) {
+      const us = STAGES[S.stageMax].units, last = us[us.length - 1];
+      if (last && S.done['test-' + last.id]) S.stageMax++; else break;
+    }
+  }
+  function who(gen) { const st = STAGES[S.stageMax] || STAGES[0]; return gen ? (st.gen || st.name) : st.name; }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* tryb prywatny */ } }
   function tick() {
     const now = Date.now();
@@ -167,7 +182,7 @@
       gi += nodes.length;
     });
     if (S.stage > S.stageMax) {
-      h = stageBar() + '<div class="finale">' + ART.mascot('think', S.wear) + '<h2>Ten etap jeszcze śpi</h2><p>Ukończ poprzedni etap, a Iskierka urośnie i otworzy ten. Rodzic lub nauczyciel może go odblokować w profilu.</p></div>';
+      h = stageBar() + '<div class="finale">' + ART.mascot('think', S.wear) + '<h2>Ten etap jeszcze śpi</h2><p>Ukończ poprzedni etap, a ' + who() + ' otworzy ten. Rodzic lub nauczyciel może go odblokować w profilu.</p></div>';
     } else if (cur >= NODES.length) {
       const nx = STAGES[S.stage + 1];
       h += '<div class="finale">' + ART.mascot('cheer', S.wear) + (nx
@@ -177,12 +192,14 @@
       h += '<div class="finale"><p>Każda lekcja to 3–5 minut. Krok po kroku!</p></div>';
     }
     $('#view').innerHTML = h;
+    const sb = $('.stg.on'), bar = $('.stages');
+    if (sb && bar) { const a = sb.getBoundingClientRect(), c = bar.getBoundingClientRect(); if (a.right > c.right || a.left < c.left) bar.scrollLeft += a.left - c.left - 8; }
   }
   function popover(n, i, st, y) {
     const top = y + 48;
     const title = n.kind === 'lesson' ? n.l.title : n.kind === 'chest' ? 'Skrzynia ze skarbem' : 'Sprawdzian';
     if (st === 'locked') {
-      return '<div class="pop locked" style="top:' + top + 'px" role="dialog" aria-label="' + esc(title) + '"><h3>' + title + '</h3><p>Najpierw ukończ wcześniejsze lekcje. Iskierka czeka na Ciebie przy świecącym kółku!</p><button class="btn" disabled>Zablokowane</button></div>';
+      return '<div class="pop locked" style="top:' + top + 'px" role="dialog" aria-label="' + esc(title) + '"><h3>' + title + '</h3><p>Najpierw ukończ wcześniejsze lekcje. ' + who() + ' czeka na Ciebie przy świecącym kółku!</p><button class="btn" disabled>Zablokowane</button></div>';
     }
     let body;
     if (n.kind === 'lesson') {
@@ -232,7 +249,7 @@
     return 'Skrzynia: etap ' + STAGES[u.si].n + ', rozdział ' + (STAGES[u.si].units.indexOf(u) + 1);
   }
   function renderCloset() {
-    let h = '<div class="page-title"><h1>Szafa Iskierki</h1><p>Dodatki zdobywasz ze skrzyń na ścieżce i za zebrane iskry.</p></div>' +
+    let h = '<div class="page-title"><h1>Szafa ' + who(true) + '</h1><p>Dodatki zdobywasz ze skrzyń na ścieżce i za zebrane iskry.</p></div>' +
       '<div class="closet-stage">' + ART.mascot(S.wear ? 'cheer' : 'happy', S.wear) + '<div class="podium"></div></div><div class="closet">';
     ACCS.forEach((a) => {
       const ok = accUnlocked(a), on = S.wear === a.id;
@@ -267,7 +284,8 @@
         return '<div class="sbox">' + ART.mascot(si <= S.stageMax ? 'happy' : 'sleep', null, '', st.form) + '<div><b>Etap ' + st.n + ' · ' + st.name + '</b><span>' + st.level + ' · ' + st.title + ' · ' + (si <= S.stageMax ? done + ' / ' + total : 'zablokowany') + '</span></div></div>';
       }).join('') + '</div></div>' +
       '<div class="section"><h2>Dla rodziców i nauczycieli</h2><div class="parents">' +
-      '<p>Iskierka prowadzi od zupełnych podstaw do elektroniki na serio – bez względu na wiek. Każdy zaczyna od etapu 1, a kto zna już podstawy, może zdać test przeskoczenia. Maskotka dorasta razem z graczem. <b>Etap 1 · podstawy</b>: prąd, obwód, bezpieczeństwo, przewodniki, połączenia, opornik, dioda LED, czujniki. <b>Etap 2 · średni</b>: pomiary, prawo Ohma, oporniki, moc i energia, magnetyzm. <b>Etap 3 · zaawansowany</b>: kondensator, prostowanie, tranzystor, logika cyfrowa.</p>' +
+      '<p>Iskierka prowadzi od zupełnych podstaw do elektroniki na serio – bez względu na wiek. Każdy zaczyna od etapu 1, a kto zna już podstawy, może zdać test przeskoczenia. Maskotka dorasta razem z graczem: najpierw jest małą Iskierką, potem nastoletnią Skrą, a w etapach dla dorosłych – Iskrosławą. Razem z nią zmienia się poczucie humoru.</p>' +
+      '<ul class="topics">' + STAGES.map((st) => '<li><b>Etap ' + st.n + ' · ' + st.level + '</b>: ' + (st.topics || st.title) + '</li>').join('') + '</ul>' +
       '<ul><li>Lekcja trwa 3–5 minut. Zaczyna się od karty wiedzy, potem są ćwiczenia z natychmiastową podpowiedzią. Błędne odpowiedzi wracają na końcu lekcji.</li>' +
       '<li>Obwody w grze są naprawdę przeliczane: żarówki w szeregu świecą słabiej, zwarcie gasi żarówkę, a dioda działa w jedną stronę.</li>' +
       '<li>Rozdział o bezpieczeństwie jest celowo na początku. Warto omówić go razem z dzieckiem.</li>' +
@@ -349,7 +367,7 @@
     { locked: true, label: 'Ładowanie', focus: done ? '.btn' : '.charge-big' });
   }
   function outOfHearts() {
-    modal(ART.mascot('sleep', S.wear) + '<h2>Brak energii!</h2><p>Iskierka potrzebuje chwilki odpoczynku. Naładuj baterię i graj dalej!</p>' +
+    modal(ART.mascot('sleep', S.wear) + '<h2>Brak energii!</h2><p>' + who() + ' potrzebuje chwilki odpoczynku. Naładuj baterię i graj dalej!</p>' +
       '<button class="btn spark" data-act="charge-open">Naładuj baterię</button><button class="btn ghost" data-act="quit-yes">Zakończ lekcję</button>', { locked: true, label: 'Brak energii' });
   }
   function openChest(i) {
@@ -362,7 +380,7 @@
     const xpAcc = unlockXpAccs();
     save(); popFor = null;
     SND.play('chest'); confetti();
-    modal(ART.chest(true) + '<h2>Skarb!</h2><p>W skrzyni było 15 iskier' + (acc ? ' i nowy dodatek dla Iskierki' : '') + '.</p>' +
+    modal(ART.chest(true) + '<h2>Skarb!</h2><p>W skrzyni było 15 iskier' + (acc ? ' i nowy dodatek dla ' + who(true) : '') + '.</p>' +
       (acc ? '<div class="reward">' + ART.mascot('cheer', acc.id) + '<div><div class="tag">Nowy dodatek</div><h3>' + acc.name + '</h3><p>' + acc.desc + '</p></div></div>' : '') +
       xpAcc.map((a) => '<div class="reward">' + ART.mascot('cheer', a.id) + '<div><div class="tag">Za iskry</div><h3>' + a.name + '</h3><p>' + a.desc + '</p></div></div>').join('') +
       (acc ? '<div class="row"><button class="btn" data-act="wear" data-id="' + acc.id + '">Załóż</button><button class="btn ghost" data-act="close-modal">Super!</button></div>' : '<button class="btn" data-act="close-modal">Super!</button>'), { label: 'Skarb' });
@@ -481,6 +499,9 @@
   const GOOD = ['Super!', 'Brawo!', 'Iskrząco!', 'Świetnie!', 'Ekstra!', 'Tak trzymaj!', 'Genialnie!'];
   const BAD = ['Ups!', 'Prawie!', 'Nie tym razem', 'Spokojnie, jeszcze raz'];
   const FUNNY = ['Hihi, nie tym razem!', 'Ha! Dobry żart', 'Uroczo, ale nie', 'Iskierka chichocze'];
+  const TEEN = { good: ['Sztos!', 'Ogień!', 'Czysto!', 'Elegancko!', 'Pro!'], bad: ['Ups!', 'Prawie!', 'Bywa', 'Luz, jeszcze raz'], funny: ['XD, ale nie', 'Dobre, ale nie', 'Skra parska śmiechem'] };
+  const ADULT = { good: ['Profesjonalnie.', 'Elegancko!', 'No proszę!', 'Jak z podręcznika', 'Bez zarzutu'], bad: ['Bywa.', 'Prawie.', 'Kawa i jeszcze raz', 'Nie tym razem'], funny: ['Kreatywnie. Błędnie, ale kreatywnie', 'Iskrosława unosi brew', 'Ładne. Nie.', 'Doceniam poczucie humoru'] };
+  function tone() { const f = L && L.node && STAGES[L.node.si] ? STAGES[L.node.si].form : 1; return f >= 4 ? ADULT : f >= 2 ? TEEN : null; }
   function feedback(ok, ex, ans, o) {
     o = o || {};
     if (L.placement) { o.noHeart = true; o.noRequeue = true; }
@@ -493,7 +514,8 @@
       if (!o.noRequeue) L.queue.push(ex);
     }
     const pick = (a) => a[Math.floor(Math.random() * a.length)];
-    const title = ok ? pick(GOOD) : o.funny ? pick(FUNNY) : (o.partial ? 'Prawie!' : pick(BAD));
+    const T = tone();
+    const title = ok ? pick(T ? T.good : GOOD) : o.funny ? pick(T ? T.funny : FUNNY) : (o.partial ? 'Prawie!' : pick(T ? T.bad : BAD));
     const combo = ok && L.combo >= 3 ? '<span class="combo">Seria ' + L.combo + '!</span>' : '';
     $('#lfoot').className = 'l-foot gut ' + (ok ? 'ok' : 'bad');
     $('#lfin').innerHTML = '<div class="fb" role="status">' + ART.mascot(ok || o.funny ? 'cheer' : 'oops', S.wear) + '<div><h3>' + title + combo + '</h3>' +
@@ -600,10 +622,12 @@
     const st = STAGES[si], prev = STAGES[si - 1];
     applyForm();
     SND.play('win'); confetti(60);
-    modal('<div class="eyebrow">Etap ' + st.n + ' otwarty</div><h2>Iskierka dorasta!</h2>' +
-      '<div class="grow">' + ART.mascot('happy', S.wear, '', prev ? prev.form : 1) + '<span class="grow-arrow">' + ART.icon('arrow') + '</span>' + ART.mascot('cheer', S.wear, 'bounce', st.form) + '</div>' +
+    const same = prev && prev.form === st.form;
+    const head = same ? 'Nowy etap!' : prev && prev.name !== st.name ? prev.name + ' dorasta!' : st.name + ' dorasta!';
+    modal('<div class="eyebrow">Etap ' + st.n + ' otwarty</div><h2>' + head + '</h2>' +
+      '<div class="grow">' + (same ? '' : ART.mascot('happy', S.wear, '', prev ? prev.form : 1) + '<span class="grow-arrow">' + ART.icon('arrow') + '</span>') + ART.mascot('cheer', S.wear, 'bounce', st.form) + '</div>' +
       '<p>' + st.grow + '</p>' +
-      '<button class="btn" data-act="grow-go" data-s="' + si + '">Zobacz etap ' + st.n + '</button>', { label: 'Iskierka dorasta' });
+      '<button class="btn" data-act="grow-go" data-s="' + si + '">Zobacz etap ' + st.n + '</button>', { label: head });
   }
   function quit() {
     if (!L) return;
@@ -1098,6 +1122,7 @@
   /* ---------- start ---------- */
   function boot(data) {
     S = data && data.S ? Object.assign(load(), data.S) : load();
+    healStages();
     if (S.stage > S.stageMax) S.stage = S.stageMax;
     tick(); save(); applyForm();
     SND.set(S.sound);

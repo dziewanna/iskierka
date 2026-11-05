@@ -1,7 +1,7 @@
 {
   "name": "Iskierka – elektronika dla dzieci",
   "short_name": "Iskierka",
-  "description": "Urocza gra do nauki elektroniki w trzech etapach: 10+, 12+ i 14+.",
+  "description": "Gra do nauki elektroniki w sześciu etapach: od zupełnych podstaw do automatyki dla dorosłych.",
   "lang": "pl",
   "start_url": "./",
   "scope": "./",

@@ -435,8 +435,18 @@
     { id: 'beret', name: 'Beret artysty', from: 'xp:250', desc: 'Za zebranie 250 iskier. Elektronika też jest sztuką!' }
   ];
 
+  /* Etap 1 to rozdziały 1–3, etap 2 to rozdziały 4–5 (opornik, dioda i wynalazki). */
+  var late = function (x) { return /^u[45]/.test(x.lesson || '') || /chest:u[45]/.test(x.from || ''); };
   window.ISK_STAGES.push({
-    id: 'e1', n: 1, name: 'Iskierka', form: 1, level: 'podstawy', title: 'Pierwsze iskry',
-    grow: '', units: units, stickers: stickers, accs: accs
+    id: 'e1', n: 1, name: 'Iskierka', gen: 'Iskierki', form: 1, level: 'podstawy', title: 'Pierwsze iskry',
+    topics: 'prąd i bateria, bezpieczeństwo, obwód, przewodniki i izolatory, symbole, szeregowo i równolegle, zwarcie',
+    grow: '', units: units.slice(0, 3),
+    stickers: stickers.filter(function (x) { return !late(x); }), accs: accs.filter(function (x) { return !late(x); })
+  });
+  window.ISK_STAGES.push({
+    id: 'e1b', n: 2, name: 'Iskierka', gen: 'Iskierki', form: 1, level: 'podstawy 2', title: 'Opornik, dioda i wynalazki',
+    topics: 'opornik, dioda LED, płytka stykowa, brzęczyk i silniczek, czujniki, zielona energia',
+    grow: 'Etap 2! Poznamy opornik i diodę, zbudujemy obwody na płytce stykowej i wymyślimy własne wynalazki z czujnikami. Na końcu tego etapu czeka mnie wielka zmiana…',
+    units: units.slice(3), stickers: stickers.filter(late), accs: accs.filter(late)
   });
 })();

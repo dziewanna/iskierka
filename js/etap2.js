@@ -1,4 +1,4 @@
-/* ISKIERKA — ETAP 2 · Iskra · poziom średni
+/* ISKIERKA — ETAP 3 · Skra · średni
    Fizyka prądu: pomiary, prawo Ohma, łączenie oporników, moc i energia, magnetyzm.
    Funkcje do tworzenia zadań są w js/kit.js. */
 (function () {
@@ -33,12 +33,12 @@
         {
           id: 'e2u1l0', title: 'Symbol czy jednostka?', icon: 'calc', desc: 'Dlaczego prąd to I, a wynik podajemy w A?',
           ex: [
-            learn('mascot', 'Hej, to ja – Iskra!', 'Urosłam i teraz będziemy liczyć jak prawdziwi fizycy. Na start rozplączemy coś, co myli prawie wszystkich: <b>symbole</b> i <b>jednostki</b>.', { mood: 'cheer' }),
+            learn('mascot', 'Siema, tu Skra!', 'Urosłam, zmieniłam ksywkę i teraz liczymy jak prawdziwi fizycy. Na start rozplączemy coś, co myli prawie wszystkich: <b>symbole</b> i <b>jednostki</b>.', { mood: 'cheer' }),
             learn('qtable', 'Imię i miara', 'Każda wielkość ma <b>symbol</b> – literę, której używamy we <b>wzorze</b> – i <b>jednostkę</b>, w której podajemy <b>wynik</b>. Znasz to z czasu: we wzorze piszemy <b>t</b>, a wynik to np. 5 <b>s</b>. Z prądem jest tak samo: wzór mówi <b>I</b>, a wynik mówi <b>A</b>. Kolory pomagają: symbol i jego jednostka mają ten sam kolor.'),
             learn('mascot', 'Sztuczki na zapamiętanie', '<b>I</b> jak <b>I</b>ntensywność – po francusku natężenie prądu to „intensité”, tak pisał André-Marie Ampère. <b>R</b> jak <b>R</b>ezystancja, czyli opór. <b>P</b> jak <b>P</b>ower – po angielsku moc. <b>U</b> jak <b>U</b>pychanie elektronów – napięcie upycha je w przewód. To tylko sztuczka, ale działa!', { mood: 'think' }),
             grid('Uzupełnij tabelę: symbol we wzorze i jednostkę w wyniku.', { cols: ['Wielkość', 'Symbol', 'Jednostka'], rows: [['Napięcie', 'U', 'V'], ['Natężenie prądu', 'I', 'A'], ['Opór', 'R', 'Ω'], ['Moc', 'P', 'W']], blanks: [1, 2] }, 'Symbol to litera we wzorze, a jednostka jedzie do wyniku.'),
             tf('Ω to symbol oporu we wzorze.', false, 'Ω (om) to jednostka. We wzorze opór zapisujemy literą R.'),
-            choice('We wzorze I = U : R litera I oznacza…', ['natężenie prądu', 'jednostkę amper', 'opornik', F('Iskierkę', 'Miło! Ale tym razem I to natężenie prądu.')], 0, 'I to symbol natężenia prądu. Wynik podamy w amperach (A).'),
+            choice('We wzorze I = U : R litera I oznacza…', ['natężenie prądu', 'jednostkę amper', 'opornik', F('Iskrę… znaczy Skrę', 'Miło, ale I to natężenie prądu. Ja jestem S – i to też nie jednostka.')], 0, 'I to symbol natężenia prądu. Wynik podamy w amperach (A).'),
             choice('W wyniku „I = 0,5 A” litera A oznacza…', ['jednostkę – amper', 'symbol napięcia', 'opór', F('Pana Ampera, który wpadł na lekcję', 'Hihi! Ampère był fizykiem, a jego nazwisko stało się jednostką: amper.')], 0, 'A to amper – jednostka, w której podajemy natężenie prądu.'),
             pairs('Połącz symbol z jego jednostką', [['U', 'V'], ['I', 'A'], ['R', 'Ω'], ['P', 'W']], { big: true })
           ]
@@ -303,8 +303,9 @@
   ];
 
   window.ISK_STAGES.push({
-    id: 'e2', n: 2, name: 'Iskra', form: 2, level: 'poziom średni', title: 'Fizyka prądu',
-    grow: 'Urosłam! Teraz jestem <b>Iskrą</b>. W etapie 2 mierzymy i liczymy jak fizycy: multimetr, prawo Ohma, moc, energia i magnesy.',
+    id: 'e2', n: 3, name: 'Skra', gen: 'Skry', form: 2,
+    topics: 'symbole i jednostki, multimetr, prawo Ohma, łączenie oporników, kod kolorów, moc i energia, magnetyzm, silnik i transformator', level: 'średni', title: 'Fizyka prądu',
+    grow: 'Mów mi <b>Skra</b>. „Iskierka” to było w podstawówce. W etapie 3 mierzymy i liczymy jak fizycy: multimetr, prawo Ohma, moc, energia i magnesy. Bez spiny – ogarniemy.',
     units: units, stickers: stickers, accs: accs
   });
 })();

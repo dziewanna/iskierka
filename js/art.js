@@ -9,8 +9,57 @@
   function r(n) { return Math.round(n * 100) / 100; }
 
   /* ---------- buźka wspólna dla wszystkich postaci ---------- */
+  /* dorosła buźka: powieki do połowy, kreska „kocie oko”, oczko, przewracanie oczami */
+  var PLUM = '#7A2E6E', LIP = '#A61E4D';
+  function adultFace(cx, cy, s, mood, o) {
+    var ink = o.ink || INK, dx = 10 * s, out = '', rx = 3.9 * s, ry = 4.3 * s;
+    var lid = function (x, side) {
+      return '<path d="M' + r(x - rx) + ' ' + r(cy - .4 * s) + ' A' + r(rx) + ' ' + r(ry) + ' 0 0 0 ' + r(x + rx) + ' ' + r(cy - .4 * s) + ' Z" fill="' + ink + '"/>' +
+        '<path d="M' + r(x - rx - 1.2 * s) + ' ' + r(cy - .6 * s) + ' Q' + r(x) + ' ' + r(cy - 2.8 * s) + ' ' + r(x + rx + 1.2 * s) + ' ' + r(cy - .6 * s) + ' l' + r(side * 3.4 * s) + ' ' + r(-2.6 * s) + '" fill="none" stroke="' + ink + '" stroke-width="' + r(2.1 * s) + '" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<circle cx="' + r(x + 1.3 * s) + '" cy="' + r(cy + 1.2 * s) + '" r="' + r(1.1 * s) + '" fill="#fff"/>';
+    };
+    var wing = function (x, side) { return '<path d="M' + r(x + side * (rx + .6 * s)) + ' ' + r(cy - .8 * s) + ' l' + r(side * 3.2 * s) + ' ' + r(-2.6 * s) + '" stroke="' + ink + '" stroke-width="' + r(1.9 * s) + '" stroke-linecap="round"/>'; };
+    var L = cx - dx, R = cx + dx;
+    if (mood === 'sleep') {
+      out += '<path d="M' + r(L - 12 * s) + ' ' + r(cy - 1 * s) + ' H' + r(L - 6 * s) + ' M' + r(R + 6 * s) + ' ' + r(cy - 1 * s) + ' H' + r(R + 12 * s) + '" stroke="' + PLUM + '" stroke-width="' + r(2 * s) + '"/>' +
+        '<rect x="' + r(L - 7.5 * s) + '" y="' + r(cy - 5.5 * s) + '" width="' + r(2 * dx + 15 * s) + '" height="' + r(10 * s) + '" rx="' + r(5 * s) + '" fill="' + PLUM + '"/>' +
+        '<path d="M' + r(L - 3.5 * s) + ' ' + r(cy) + ' q' + r(3.5 * s) + ' ' + r(2.6 * s) + ' ' + r(7 * s) + ' 0 M' + r(R - 3.5 * s) + ' ' + r(cy) + ' q' + r(3.5 * s) + ' ' + r(2.6 * s) + ' ' + r(7 * s) + ' 0" fill="none" stroke="#FFB3D6" stroke-width="' + r(1.4 * s) + '" stroke-linecap="round"/>';
+    } else if (mood === 'cheer') {
+      out += lid(L, -1) + '<path d="M' + r(R - 4.2 * s) + ' ' + r(cy + .4 * s) + ' q' + r(4.2 * s) + ' ' + r(-4.6 * s) + ' ' + r(8.4 * s) + ' 0" fill="none" stroke="' + ink + '" stroke-width="' + r(2.3 * s) + '" stroke-linecap="round"/>' + wing(R, 1);
+    } else if (mood === 'wow') {
+      [L, R].forEach(function (x, k) {
+        out += '<ellipse cx="' + r(x) + '" cy="' + r(cy) + '" rx="' + r(rx) + '" ry="' + r(5.2 * s) + '" fill="' + ink + '"/><circle cx="' + r(x + 1.3 * s) + '" cy="' + r(cy - 1.7 * s) + '" r="' + r(1.5 * s) + '" fill="#fff"/>' + wing(x, k ? 1 : -1);
+      });
+    } else if (mood === 'oops') {
+      [L, R].forEach(function (x) {
+        out += '<ellipse cx="' + r(x) + '" cy="' + r(cy) + '" rx="' + r(4.3 * s) + '" ry="' + r(4.8 * s) + '" fill="#fff" stroke="' + ink + '" stroke-width="' + r(1.5 * s) + '"/><circle cx="' + r(x + .6 * s) + '" cy="' + r(cy - 2.4 * s) + '" r="' + r(2.2 * s) + '" fill="' + ink + '"/>';
+      });
+    } else {
+      out += '<g class="blink">' + lid(L, -1) + lid(R, 1) + '</g>';
+    }
+    out += '<ellipse cx="' + r(L - 6.5 * s) + '" cy="' + r(cy + 6.5 * s) + '" rx="' + r(4.4 * s) + '" ry="' + r(2 * s) + '" fill="#FF8C7A" opacity=".45"/>' +
+      '<ellipse cx="' + r(R + 6.5 * s) + '" cy="' + r(cy + 6.5 * s) + '" rx="' + r(4.4 * s) + '" ry="' + r(2 * s) + '" fill="#FF8C7A" opacity=".45"/>';
+    var my = cy + 7 * s, lw = r(2 * s);
+    if (mood === 'cheer') {
+      out += '<path d="M' + r(cx - 6 * s) + ' ' + r(my - 1 * s) + ' q' + r(6 * s) + ' ' + r(9 * s) + ' ' + r(12 * s) + ' 0 z" fill="' + LIP + '"/><path d="M' + r(cx - 4 * s) + ' ' + r(my - .4 * s) + ' h' + r(8 * s) + '" stroke="#fff" stroke-width="' + r(1.6 * s) + '" stroke-linecap="round"/>';
+    } else if (mood === 'wow') {
+      out += '<ellipse cx="' + r(cx) + '" cy="' + r(my + 1.5 * s) + '" rx="' + r(2.6 * s) + '" ry="' + r(3.2 * s) + '" fill="' + LIP + '"/>';
+    } else if (mood === 'oops') {
+      out += '<path d="M' + r(cx - 4.5 * s) + ' ' + r(my + 1.6 * s) + ' h' + r(9 * s) + '" stroke="' + LIP + '" stroke-width="' + lw + '" stroke-linecap="round"/>';
+    } else if (mood === 'think') {
+      out += '<path d="M' + r(cx - 2 * s) + ' ' + r(my + 2 * s) + ' q' + r(3.5 * s) + ' ' + r(.4 * s) + ' ' + r(6.5 * s) + ' ' + r(-2.6 * s) + '" fill="none" stroke="' + LIP + '" stroke-width="' + lw + '" stroke-linecap="round"/>';
+    } else if (mood === 'sleep') {
+      out += '<path d="M' + r(cx - 2.5 * s) + ' ' + r(my + 1.5 * s) + ' q' + r(2.5 * s) + ' ' + r(1.4 * s) + ' ' + r(5 * s) + ' 0" fill="none" stroke="' + LIP + '" stroke-width="' + lw + '" stroke-linecap="round"/>';
+    } else {
+      out += '<path d="M' + r(cx - 4.8 * s) + ' ' + r(my) + ' q' + r(3.6 * s) + ' ' + r(3.8 * s) + ' ' + r(7 * s) + ' ' + r(1.1 * s) + ' q' + r(1.6 * s) + ' ' + r(-.7 * s) + ' ' + r(2.6 * s) + ' ' + r(-2.6 * s) + '" fill="none" stroke="' + LIP + '" stroke-width="' + lw + '" stroke-linecap="round"/>';
+    }
+    if (o.mole !== false) out += '<circle cx="' + r(cx + 7.8 * s) + '" cy="' + r(my + 3.2 * s) + '" r="' + r(.85 * s) + '" fill="' + ink + '"/>';
+    return out;
+  }
+
   function face(cx, cy, s, mood, o) {
     s = s || 1; mood = mood || 'happy'; o = o || {};
+    if (o.adult) return adultFace(cx, cy, s, mood, o);
     var ink = o.ink || INK, hl = o.hl || '#fff';
     var dx = 10 * s, out = '';
     if (mood === 'sleep') {
@@ -89,16 +138,35 @@
         '<path d="M70 1 L50 29 L61 29 L54 47 L78 18 L66 18 L75 1 Z" fill="#FFB020" stroke="#E8941A" stroke-width="2.5" stroke-linejoin="round"/>' },
     3: { vb: '0 0 120 146', cy: 85, rx: 38, ry: 50, feetY: 135, feet: '#3BA7FF', s: 1.14, grad: 'iskBody3', glow: 'iskGlow3', stroke: '#E8A21F',
       tuft: '<path d="M86 0 L46 30 L63 31 L40 53 L90 18 L71 17 L95 0 Z" fill="#D6F1FF" stroke="#3BA7FF" stroke-width="2.6" stroke-linejoin="round"/>' +
-        '<g stroke="#7CC8FF" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 62 l6 4 -5 3 7 5"/><path d="M114 50 l-6 4 5 3 -7 5"/></g>' }
+        '<g stroke="#7CC8FF" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 62 l6 4 -5 3 7 5"/><path d="M114 50 l-6 4 5 3 -7 5"/></g>' },
+    /* Iskrosława: kok z ołówkiem, spinka-błyskawica, kawa i okulary „kocie oko” */
+    4: { vb: '0 0 120 166', cy: 94, rx: 36, ry: 54, feetY: 157, feet: PLUM, s: 1.08, fy: 82, grad: 'iskBody4', glow: 'iskGlow4', stroke: '#D98F1E', adult: true, accT: 'translate(60 82) scale(.8) translate(-60 -77)',
+      tuft: '<circle cx="62" cy="34" r="15" fill="#FFB52E" stroke="#D98F1E" stroke-width="2.5"/><path d="M53 33 q6 -9 15 -3 q3 6 -5 8" fill="none" stroke="#E8941A" stroke-width="2.2" stroke-linecap="round"/>' +
+        '<g transform="rotate(-24 62 32)"><rect x="35" y="29" width="46" height="6.5" rx="1" fill="#FFD23F" stroke="#B9852A" stroke-width="1.5"/><rect x="31" y="29" width="6" height="6.5" rx="1.5" fill="#FF8FB1" stroke="#B9852A" stroke-width="1.5"/>' +
+        '<path d="M81 29 L90 32.25 L81 35.5 Z" fill="#F3D9A4" stroke="#B9852A" stroke-width="1.2" stroke-linejoin="round"/><path d="M87 31.2 L90 32.25 L87 33.3 Z" fill="#3B3561"/></g>' +
+        '<path d="M44 40 L39 48 L43 48 L40 55 L47 45 L43 45 L46 40 Z" fill="' + PLUM + '" stroke="#5A1F52" stroke-width="1.2" stroke-linejoin="round"/>' }
   };
   var MDEFS = '<defs>' +
     '<radialGradient id="iskBody2" cx=".38" cy=".28" r=".85"><stop offset="0" stop-color="#FFF0A8"/><stop offset=".5" stop-color="#FFCB45"/><stop offset="1" stop-color="#F29A1E"/></radialGradient>' +
     '<radialGradient id="iskBody3" cx=".4" cy=".26" r=".85"><stop offset="0" stop-color="#FFFBE2"/><stop offset=".5" stop-color="#FFD84D"/><stop offset="1" stop-color="#F2AE2A"/></radialGradient>' +
     '<radialGradient id="iskGlow3"><stop offset="0" stop-color="#8FD3FF" stop-opacity=".55"/><stop offset="1" stop-color="#8FD3FF" stop-opacity="0"/></radialGradient>' +
+    '<radialGradient id="iskBody4" cx=".4" cy=".25" r=".9"><stop offset="0" stop-color="#FFF0C4"/><stop offset=".5" stop-color="#FFC23A"/><stop offset="1" stop-color="#E58A17"/></radialGradient>' +
+    '<radialGradient id="iskGlow4"><stop offset="0" stop-color="#E7A3FF" stop-opacity=".5"/><stop offset="1" stop-color="#E7A3FF" stop-opacity="0"/></radialGradient>' +
     '</defs>';
 
-  function brows(s, mood) {
-    var dx = 10 * s, by = 77 - 8.8 * s, w = 3.6 * s, d;
+  function brows(s, mood, fy, adult) {
+    var dx = 10 * s, by = (fy || 77) - 8.8 * s, w = 3.6 * s, d;
+    if (adult) {
+      var L0 = 60 - dx, R0 = 60 + dx, bw = 4.6 * s, b2 = by - 1.2 * s;
+      var arch = function (x, lift) { return 'M' + r(x - bw) + ' ' + r(b2 + 1.4 * s + lift) + ' Q' + r(x - 1 * s) + ' ' + r(b2 - 2.8 * s + lift) + ' ' + r(x + bw) + ' ' + r(b2 + .4 * s + lift); };
+      var archR = function (x, lift) { return 'M' + r(x - bw) + ' ' + r(b2 + .4 * s + lift) + ' Q' + r(x + 1 * s) + ' ' + r(b2 - 2.8 * s + lift) + ' ' + r(x + bw) + ' ' + r(b2 + 1.4 * s + lift); };
+      if (mood === 'think') d = 'M' + r(L0 - bw) + ' ' + r(b2 + 1 * s) + ' h' + r(2 * bw) + ' ' + archR(R0, -3.4 * s);
+      else if (mood === 'oops') d = arch(L0, -2.2 * s) + ' ' + archR(R0, -2.2 * s);
+      else if (mood === 'cheer') d = arch(L0, -2.4 * s) + ' M' + r(R0 - bw) + ' ' + r(b2 + 2.2 * s) + ' q' + r(bw) + ' ' + r(-1.6 * s) + ' ' + r(2 * bw) + ' 0';
+      else if (mood === 'sleep') d = 'M' + r(L0 - bw) + ' ' + r(b2 - 1.6 * s) + ' h' + r(2 * bw) + ' M' + r(R0 - bw) + ' ' + r(b2 - 1.6 * s) + ' h' + r(2 * bw);
+      else d = arch(L0, mood === 'wow' ? -2 * s : 0) + ' ' + archR(R0, mood === 'wow' ? -2 * s : 0);
+      return '<path d="' + d + '" stroke="#5A1F52" stroke-width="' + r(1.7 * s) + '" fill="none" stroke-linecap="round"/>';
+    }
     var L = 60 - dx, R = 60 + dx;
     if (mood === 'oops') {
       d = 'M' + r(L - w) + ' ' + r(by + 1.2 * s) + ' L' + r(L + w) + ' ' + r(by - 1.6 * s) + ' M' + r(R - w) + ' ' + r(by - 1.6 * s) + ' L' + r(R + w) + ' ' + r(by + 1.2 * s);
@@ -113,6 +181,15 @@
     return '<path d="' + d + '" stroke="' + INK + '" stroke-width="' + r(2 * s) + '" fill="none" stroke-linecap="round"/>';
   }
 
+  /* sylwetka jak kropla: węższa u góry, pełniejsza na dole */
+  function dropPath(x, cy, rx, ry) {
+    var t = cy - ry, b = cy + ry;
+    return 'M' + x + ' ' + t + ' C' + r(x + rx * .7) + ' ' + t + ' ' + r(x + rx) + ' ' + r(cy - ry * .45) + ' ' + r(x + rx) + ' ' + r(cy + ry * .22) +
+      ' C' + r(x + rx) + ' ' + r(cy + ry * .78) + ' ' + r(x + rx * .58) + ' ' + b + ' ' + x + ' ' + b +
+      ' C' + r(x - rx * .58) + ' ' + b + ' ' + r(x - rx) + ' ' + r(cy + ry * .78) + ' ' + r(x - rx) + ' ' + r(cy + ry * .22) +
+      ' C' + r(x - rx) + ' ' + r(cy - ry * .45) + ' ' + r(x - rx * .7) + ' ' + t + ' ' + x + ' ' + t + ' Z';
+  }
+
   function mascot(mood, acc, cls, form) {
     mood = mood || 'happy';
     var F = FORMS[form || FORM] || FORMS[1], f = form || FORM;
@@ -124,8 +201,32 @@
     var armL = up ? arm(ax - 3, uy, 35) : arm(ax, ay, 20);
     var armR = (up || wave) ? arm(bx + 3, uy, -35) : arm(bx, ay, -20);
     var top = F.cy - F.ry;
-    var feet = '<ellipse cx="45" cy="' + F.feetY + '" rx="11" ry="6.5" fill="' + F.feet + '"/><ellipse cx="75" cy="' + F.feetY + '" rx="11" ry="6.5" fill="' + F.feet + '"/>' +
+    var fY = F.feetY;
+    var feet = F.adult
+      ? '<path d="M49 140 L47 ' + (fY - 4) + ' M71 140 L73 ' + (fY - 4) + '" stroke="#D98F1E" stroke-width="4" stroke-linecap="round"/>' +
+        '<g fill="' + F.feet + '"><path d="M32 ' + fY + ' Q34 ' + (fY - 8) + ' 45 ' + (fY - 8) + ' Q53 ' + (fY - 8) + ' 54 ' + fY + ' Z"/><path d="M88 ' + fY + ' Q86 ' + (fY - 8) + ' 75 ' + (fY - 8) + ' Q67 ' + (fY - 8) + ' 66 ' + fY + ' Z"/></g>' +
+        '<path d="M52 ' + fY + ' L53 ' + (fY + 6) + ' M68 ' + fY + ' L67 ' + (fY + 6) + '" stroke="' + F.feet + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M36 ' + (fY - 3) + ' q4 -3 9 -3" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".6"/>'
+      : '<ellipse cx="45" cy="' + F.feetY + '" rx="11" ry="6.5" fill="' + F.feet + '"/><ellipse cx="75" cy="' + F.feetY + '" rx="11" ry="6.5" fill="' + F.feet + '"/>' +
       (f > 1 ? '<path d="M35 ' + (F.feetY + 3) + ' h20 M65 ' + (F.feetY + 3) + ' h20" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".8"/>' : '');
+    var fy = F.fy || 77, extra = '';
+    if (F.adult) {
+      // kubek kawy w prawej ręce (przy radości – toast!)
+      var hi = up || wave, mx = hi ? bx + 6 : bx + 5, myy = hi ? uy - 16 : ay + 10;
+      extra += '<g transform="translate(' + r(mx) + ' ' + r(myy) + ')"><path d="M7 -3 q7 0 7 6 q0 6 -7 6" fill="none" stroke="#fff" stroke-width="3"/><path d="M7 -3 q7 0 7 6 q0 6 -7 6" fill="none" stroke="#C9C2E6" stroke-width="1.2"/>' +
+        '<rect x="-8" y="-8" width="16" height="19" rx="3.5" fill="#fff" stroke="#C9C2E6" stroke-width="1.5"/><rect x="-8" y="-1" width="16" height="5" fill="' + PLUM + '"/>' +
+        '<path d="M-3 -13 q-2 -3 0 -6 M3 -13 q-2 -3 0 -6" stroke="#B9B4D6" stroke-width="1.6" fill="none" stroke-linecap="round"/></g>';
+      var wearsEyes = acc === 'glasses' || acc === 'goggles' || acc === 'shades' || acc === 'monocle' || acc === 'visor' || acc === 'loupe';
+      if (!wearsEyes && mood !== 'sleep') {
+        var ex = 10 * F.s, gy = fy;
+        var frame = function (x, side) {
+          var o = x + side * 9.5, i = x - side * 7.5;
+          return '<path d="M' + r(i) + ' ' + r(gy - 4.5) + ' Q' + r(x) + ' ' + r(gy - 7.5) + ' ' + r(o) + ' ' + r(gy - 8.5) + ' Q' + r(o + side * 1.5) + ' ' + r(gy + 6.5) + ' ' + r(x) + ' ' + r(gy + 7) + ' Q' + r(i - side * .5) + ' ' + r(gy + 6) + ' ' + r(i) + ' ' + r(gy - 4.5) + ' Z"/>';
+        };
+        extra += '<g fill="#fff" fill-opacity=".16" stroke="' + PLUM + '" stroke-width="2.4" stroke-linejoin="round">' + frame(60 - ex, -1) + frame(60 + ex, 1) + '</g>' +
+          '<path d="M' + r(60 - ex + 7.5) + ' ' + r(gy - 3) + ' q' + r(ex - 7.5) + ' -3 ' + r(2 * (ex - 7.5)) + ' 0" stroke="' + PLUM + '" stroke-width="2.2" fill="none"/>';
+      }
+    }
     var freckles = '';
     if (f === 2) {
       var s2 = F.s, fx = 60 - 10 * s2 - 5 * s2, gx = 60 + 10 * s2 + 5 * s2, fy = 77 + 2.5 * s2;
@@ -136,10 +237,11 @@
       DEFS + MDEFS +
       '<circle class="glow" cx="60" cy="' + (F.cy - 2) + '" r="60" fill="url(#' + F.glow + ')"/>' +
       F.tuft + armL + armR + feet +
-      '<ellipse cx="60" cy="' + F.cy + '" rx="' + F.rx + '" ry="' + F.ry + '" fill="url(#' + F.grad + ')" stroke="' + F.stroke + '" stroke-width="2.5"/>' +
+      (F.adult ? '<path d="' + dropPath(60, F.cy, F.rx, F.ry) + '" fill="url(#' + F.grad + ')" stroke="' + F.stroke + '" stroke-width="2.5"/>'
+        : '<ellipse cx="60" cy="' + F.cy + '" rx="' + F.rx + '" ry="' + F.ry + '" fill="url(#' + F.grad + ')" stroke="' + F.stroke + '" stroke-width="2.5"/>') +
       '<ellipse cx="' + (60 - F.rx * 0.48) + '" cy="' + (top + 18) + '" rx="9" ry="5.5" transform="rotate(-35 ' + (60 - F.rx * 0.48) + ' ' + (top + 18) + ')" fill="#fff" opacity=".75"/><circle cx="' + (60 - F.rx * 0.2) + '" cy="' + (top + 10) + '" r="2.6" fill="#fff" opacity=".7"/>' +
-      face(60, 77, F.s, mood) + (f > 1 ? brows(F.s, mood) : '') + freckles +
-      (acc && ACC[acc] ? ACC[acc] : '');
+      face(60, fy, F.s, mood, { adult: F.adult }) + (f > 1 ? brows(F.s, mood, fy, F.adult) : '') + freckles + extra +
+      (acc && ACC[acc] ? (F.accT ? '<g transform="' + F.accT + '">' + ACC[acc] + '</g>' : ACC[acc]) : '');
     return svg(F.vb, body, 'mascot form' + f + ' ' + (cls || ''));
   }
   function setForm(f) { FORM = FORMS[f] ? f : 1; }

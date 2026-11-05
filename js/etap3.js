@@ -1,4 +1,4 @@
-/* ISKIERKA — ETAP 3 · Błyskawica · zaawansowany
+/* ISKIERKA — ETAP 4 · Skra · zaawansowany
    Elektronika na serio: kondensator, diody i prostowanie, tranzystor, logika cyfrowa.
    Funkcje do tworzenia zadań są w js/kit.js. */
 (function () {
@@ -26,7 +26,7 @@
         {
           id: 'e3u1l1', title: 'Kondensator Kaja', icon: 'cap', sticker: 'capChar', desc: 'Mały zbiornik ładunku.',
           ex: [
-            learn('mascot', 'Błyskawica melduje się!', 'Znowu urosłam! Przed nami prawdziwa elektronika: kondensatory, tranzystory i logika, z której zbudowane są komputery. Będzie trudniej – i ciekawiej.', { mood: 'cheer' }),
+            learn('mascot', 'Skra, wersja 2.0', 'Nowa fryzura, ten sam charakter. Przed nami prawdziwa elektronika: kondensatory, tranzystory i logika, z której zbudowane są komputery. Będzie trudniej – i ciekawiej.', { mood: 'cheer' }),
             learn('capChar', 'Kondensator Kaja', 'Kaja ma w środku dwie metalowe okładki przedzielone izolatorem. Gdy podłączysz napięcie, na okładkach gromadzi się <b>ładunek</b>. Kaja jest jak mały, szybki zbiornik energii.', { friend: true }),
             choice('W czym mierzymy pojemność kondensatora?', ['W faradach (F)', 'W omach (Ω)', 'W watach (W)', 'W hercach (Hz)'], 0, 'Jednostka uczci Michaela Faradaya. 1 F to bardzo dużo, więc zwykle spotkasz µF i nF.'),
             calc('Zamień: 0,001 F = ? µF', 1000, 'µF', 'Mikro to milionowa część: 0,001 · 1 000 000 = 1000 µF.', { hint: '1 F = 1 000 000 µF' }),
@@ -238,7 +238,7 @@
             pattern('Zapal ramkę wokół ekranu… a może się nie da? Zapal przynajmniej cztery rogi.', { mode: 'matrix', size: [4, 4], target: [[0, 0], [0, 3], [3, 0], [3, 3]] }, 'Całej ramki nie da się zapalić naraz – dlatego ekrany przełączają rzędy po kolei, bardzo szybko.'),
             binary('Pokaż na ośmiu bitach liczbę 42.', 8, 42, '42 = 32 + 8 + 2, czyli 00101010.', { hide: true }),
             logic('Alarm (Y) ma się włączyć, gdy drzwi są otwarte (A) AND alarm jest uzbrojony (B), ale NIE wtedy, gdy wpisano kod (C). Włącz alarm.', G('AND', G('AND', V('A'), V('B')), G('NOT', V('C'))), { out: 1 }, 'A = 1, B = 1, C = 0. Tak myśli prawdziwy system alarmowy.', { hint: 'kod (C) musi być 0' }),
-            learn('mascot', 'Wielki finał!', 'Przeszliśmy razem drogę od żaróweczki do logiki komputerów. Kolejny krok to <b>mikrokontrolery i programowanie</b> – tam Twoje obwody zaczną myśleć same!', { mood: 'cheer' })
+            learn('mascot', 'Wielki finał etapu 4!', 'Przeszliśmy drogę od żaróweczki do logiki komputerów. Dalej czekają tematy z dorosłego życia: prąd w mieszkaniu, akumulatory, słońce na dachu i mikrokontrolery. Poprowadzi Cię moja starsza wersja. Uprzedzam: pije dużo kawy.', { mood: 'cheer' })
           ]
         }
       ]
@@ -262,8 +262,9 @@
   ];
 
   window.ISK_STAGES.push({
-    id: 'e3', n: 3, name: 'Błyskawica', form: 3, level: 'zaawansowany', title: 'Elektronika na serio',
-    grow: 'Znowu urosłam – teraz jestem <b>Błyskawicą</b>! Przed nami prawdziwa elektronika: kondensatory, tranzystory i logika, z której zbudowane są komputery.',
+    id: 'e3', n: 4, name: 'Skra', gen: 'Skry', form: 3,
+    topics: 'kondensator i stała RC, diody i prostowanie, zasilacz, tranzystor, czujnik zmierzchu, bramki logiczne, liczby binarne', level: 'zaawansowany', title: 'Elektronika na serio',
+    grow: 'Skra, level up! Nowa fryzura, ten sam charakter. W etapie 4 wchodzi prawdziwa elektronika: kondensatory, tranzystory i logika, z której zbudowane są komputery.',
     units: units, stickers: stickers, accs: accs
   });
 })();
