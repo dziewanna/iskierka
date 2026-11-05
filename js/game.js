@@ -116,7 +116,9 @@
     else if (tab === 'closet') renderCloset();
     else renderMe();
   }
-  function render() { renderTop(); renderTabs(); renderView(); }
+  /* wygląd etapu: etapy dla dorosłych mają styl ołówkowej karykatury */
+  function setLook(si) { const st = STAGES[si]; const lk = (st && st.look) || ''; if ((document.documentElement.dataset.look || '') !== lk) { if (lk) document.documentElement.dataset.look = lk; else delete document.documentElement.dataset.look; } }
+  function render() { setLook(L ? L.node.si : S.stage); renderTop(); renderTabs(); renderView(); }
 
   /* ---------- widok: ścieżka ---------- */
   const STEP = 106, AMP = [0, 54, 84, 54, 0, -54, -84, -54];
@@ -448,6 +450,7 @@
   function openLesson(n, queue, extra) {
     L = Object.assign({ node: n, i: 0, queue, replay: false, mistakes: 0, checks: 0, oks: 0, combo: 0, start: Date.now(), st: {}, checked: false, finished: false }, extra || {});
     popFor = null;
+    setLook(n.si);
     const el = $('#lesson');
     el.innerHTML =
       '<div class="l-top gut"><div class="in"><button class="icon-btn" data-act="quit" aria-label="Zakończ lekcję">' + ART.icon('close') + '</button>' +
@@ -500,7 +503,7 @@
   const BAD = ['Ups!', 'Prawie!', 'Nie tym razem', 'Spokojnie, jeszcze raz'];
   const FUNNY = ['Hihi, nie tym razem!', 'Ha! Dobry żart', 'Uroczo, ale nie', 'Iskierka chichocze'];
   const TEEN = { good: ['Sztos!', 'Ogień!', 'Czysto!', 'Elegancko!', 'Pro!'], bad: ['Ups!', 'Prawie!', 'Bywa', 'Luz, jeszcze raz'], funny: ['XD, ale nie', 'Dobre, ale nie', 'Skra parska śmiechem'] };
-  const ADULT = { good: ['Profesjonalnie.', 'Elegancko!', 'No proszę!', 'Jak z podręcznika', 'Bez zarzutu'], bad: ['Bywa.', 'Prawie.', 'Kawa i jeszcze raz', 'Nie tym razem'], funny: ['Kreatywnie. Błędnie, ale kreatywnie', 'Iskrosława unosi brew', 'Ładne. Nie.', 'Doceniam poczucie humoru'] };
+  const ADULT = { good: ['No proszę.', 'Może być.', 'Zaskakująco dobrze.', 'Poprawnie. Nudno, ale poprawnie.', 'Bez zarzutu. Ziew.', 'Widziałam gorsze. Dużo gorsze.'], bad: ['Ech.', 'Nie.', '*westchnienie*', 'Kawa i jeszcze raz.', 'Serio?'], funny: ['Zabawne. Prawie się uśmiechnęłam.', 'Ha. Ha.', 'Iskrosława przewraca oczami.', 'Doceniam wysiłek. Odpowiedź – nie.'] };
   function tone() { const f = L && L.node && STAGES[L.node.si] ? STAGES[L.node.si].form : 1; return f >= 4 ? ADULT : f >= 2 ? TEEN : null; }
   function feedback(ok, ex, ans, o) {
     o = o || {};
@@ -518,7 +521,7 @@
     const title = ok ? pick(T ? T.good : GOOD) : o.funny ? pick(T ? T.funny : FUNNY) : (o.partial ? 'Prawie!' : pick(T ? T.bad : BAD));
     const combo = ok && L.combo >= 3 ? '<span class="combo">Seria ' + L.combo + '!</span>' : '';
     $('#lfoot').className = 'l-foot gut ' + (ok ? 'ok' : 'bad');
-    $('#lfin').innerHTML = '<div class="fb" role="status">' + ART.mascot(ok || o.funny ? 'cheer' : 'oops', S.wear) + '<div><h3>' + title + combo + '</h3>' +
+    $('#lfin').innerHTML = '<div class="fb" role="status">' + ART.mascot(ok || (o.funny && T !== ADULT) ? 'cheer' : 'oops', S.wear) + '<div><h3>' + title + combo + '</h3>' +
       (!ok && ans ? '<p class="ans">' + (ex.t === 'circuit' || ex.t === 'slider' ? 'Wskazówka: ' : 'Poprawnie: ') + ans + '</p>' : '') +
       (o.note ? '<p class="' + (o.funny ? 'fun' : 'ans') + '">' + o.note + '</p>' : '') +
       (ex.explain && (ok || ex.t !== 'circuit') ? '<p>' + ex.explain + '</p>' : '') +
@@ -623,7 +626,7 @@
     applyForm();
     SND.play('win'); confetti(60);
     const same = prev && prev.form === st.form;
-    const head = same ? 'Nowy etap!' : prev && prev.name !== st.name ? prev.name + ' dorasta!' : st.name + ' dorasta!';
+    const head = same ? (st.look === 'pencil' ? 'Nowy etap. Cóż.' : 'Nowy etap!') : prev && prev.name !== st.name ? prev.name + ' dorasta!' : st.name + ' dorasta!';
     modal('<div class="eyebrow">Etap ' + st.n + ' otwarty</div><h2>' + head + '</h2>' +
       '<div class="grow">' + (same ? '' : ART.mascot('happy', S.wear, '', prev ? prev.form : 1) + '<span class="grow-arrow">' + ART.icon('arrow') + '</span>') + ART.mascot('cheer', S.wear, 'bounce', st.form) + '</div>' +
       '<p>' + st.grow + '</p>' +

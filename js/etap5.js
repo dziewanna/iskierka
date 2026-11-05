@@ -32,7 +32,7 @@
         {
           id: 'a5u1l1', title: 'Trzy żyły w ścianie', icon: 'plug', desc: 'L, N, PE i gniazdko od środka.',
           ex: [
-            learn('mascot', 'Iskrosława. Dla przyjaciół Sława.', 'Urosłam. Mam okulary, kubek kawy i zero cierpliwości do kabli z marketu. Teraz tematy z dorosłego życia: prąd w mieszkaniu, akumulatory i słońce na dachu. Konkretnie, bez lania wody. Wody i prądu w ogóle nie mieszamy.', { mood: 'cheer' }),
+            learn('mascot', 'Iskrosława. Dla przyjaciół Sława.', 'Urosłam. Nie róbmy z tego wydarzenia. Teraz tematy z dorosłego życia: prąd w mieszkaniu, akumulatory i słońce na dachu. Konkretnie i bez entuzjazmu – entuzjazm został w etapie 2. Wody i prądu nie mieszamy. Kawy i prądu – owszem.'),
             learn('wires3', 'Trzy żyły w ścianie', 'W przewodzie do gniazdka biegną trzy żyły: <b>L</b> – faza (brązowa, czarna albo szara), <b>N</b> – przewód neutralny (niebieski) i <b>PE</b> – przewód ochronny (żółto-zielony). Napięcie 230 V jest między L a N. PE łączy metalowe obudowy z uziemieniem.'),
             choice('Który przewód jest ochronny (PE)?', ['Żółto-zielony', 'Niebieski', 'Brązowy', F('Ten, który najlepiej pasuje do zasłon', 'Gust doceniam, ale PE zawsze jest żółto-zielony.')], 0, 'Żółto-zielony zarezerwowano wyłącznie dla przewodu ochronnego.'),
             K.pairs('Połącz przewód z kolorem izolacji', [['L – faza', 'brązowy'], ['N – neutralny', 'niebieski'], ['PE – ochronny', 'żółto-zielony']]),
@@ -215,9 +215,9 @@
   ];
 
   window.ISK_STAGES.push({
-    id: 'e5', n: 5, name: 'Iskrosława', gen: 'Iskrosławy', form: 4, level: 'dla dorosłych', title: 'Prąd w dorosłym życiu',
+    id: 'e5', n: 5, name: 'Iskrosława', gen: 'Iskrosławy', form: 4, look: 'pencil', level: 'dla dorosłych', title: 'Prąd w dorosłym życiu',
     topics: 'instalacja w mieszkaniu (L, N, PE), bezpiecznik i różnicówka, budżet mocy i rachunki, światło schodowe, akumulatory Li-Ion i ładowarki, fotowoltaika i falownik',
-    grow: 'Poznaj <b>Iskrosławę</b>. Dla przyjaciół – Sława. Okulary, kawa, kredyt na czajnik. Teraz bierzemy się za prąd w dorosłym życiu: instalację w mieszkaniu, akumulatory i słońce na dachu.',
+    grow: 'Poznaj <b>Iskrosławę</b>. Dla przyjaciół – Sława. Przyjaciół ma niewielu. Okulary, kawa i mina „widziałam już wszystko”. Teraz prąd w dorosłym życiu: mieszkanie, akumulatory, słońce na dachu. Bez fajerwerków. Fajerwerki to zwarcie.',
     units: units, stickers: stickers, accs: accs
   });
 })();

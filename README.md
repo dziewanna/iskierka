@@ -1,8 +1,10 @@
 # Iskierka ⚡ — elektronika od zera, dla każdego
 
 Gra edukacyjna w stylu kursów językowych z krótkimi lekcjami. Maskotka **dorasta razem z graczem**:
-najpierw jest małą Iskierką, potem nastoletnią Skrą, a w etapach dla dorosłych – Iskrosławą
-(okulary „kocie oko”, kok z ołówkiem, kubek kawy). Razem z nią dorasta humor: od „hihi” do mrugnięcia okiem.
+najpierw jest małą Iskierką, potem nastoletnią Skrą, a w etapach dla dorosłych – Iskrosławą:
+zblazowaną damą z okularami „kocie oko”, kokiem z ołówkiem, workami pod oczami i wiecznym kubkiem kawy.
+Razem z nią dorasta humor (od „hihi” do „Ha. Ha.”) i wygląd: etapy 5–6 mają styl ołówkowej karykatury –
+papier, grafitowa kreska, kreskowanie, odręczne litery i przygaszone kolory.
 
 | Etap | Poziom | Maskotka | Co jest w środku |
 | --- | --- | --- | --- |
@@ -34,7 +36,7 @@ i działa bez internetu.
    - **iPhone/iPad (Safari):** *Udostępnij* → *Do ekranu początkowego*.
    - **Komputer (Chrome, Edge):** ikona instalacji na końcu paska adresu.
 
-Przy każdej nowej wersji zmień numer `CACHE` w `sw.js` (np. `iskierka-v8`), żeby zainstalowane aplikacje pobrały nowe pliki.
+Przy każdej nowej wersji zmień numer `CACHE` w `sw.js` (np. `iskierka-v9`), żeby zainstalowane aplikacje pobrały nowe pliki.
 
 **Sklepy z aplikacjami:** z adresu GitHub Pages można zbudować paczkę do Google Play w darmowym narzędziu
 [PWABuilder](https://www.pwabuilder.com) (konto dewelopera Google Play kosztuje jednorazowo 25 USD).

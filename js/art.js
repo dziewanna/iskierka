@@ -140,7 +140,7 @@
       tuft: '<path d="M86 0 L46 30 L63 31 L40 53 L90 18 L71 17 L95 0 Z" fill="#D6F1FF" stroke="#3BA7FF" stroke-width="2.6" stroke-linejoin="round"/>' +
         '<g stroke="#7CC8FF" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 62 l6 4 -5 3 7 5"/><path d="M114 50 l-6 4 5 3 -7 5"/></g>' },
     /* Iskrosława: kok z ołówkiem, spinka-błyskawica, kawa i okulary „kocie oko” */
-    4: { vb: '0 0 120 166', cy: 94, rx: 36, ry: 54, feetY: 157, feet: PLUM, s: 1.08, fy: 82, grad: 'iskBody4', glow: 'iskGlow4', stroke: '#D98F1E', adult: true, accT: 'translate(60 82) scale(.8) translate(-60 -77)',
+    4: { vb: '0 0 120 166', cy: 94, rx: 36, ry: 54, feetY: 157, feet: PLUM, s: 1.08, fy: 82, grad: 'iskBody4', glow: 'iskGlow4', stroke: '#D98F1E', adult: true, pencil: true, accT: 'translate(60 82) scale(.8) translate(-60 -77)',
       tuft: '<circle cx="62" cy="34" r="15" fill="#FFB52E" stroke="#D98F1E" stroke-width="2.5"/><path d="M53 33 q6 -9 15 -3 q3 6 -5 8" fill="none" stroke="#E8941A" stroke-width="2.2" stroke-linecap="round"/>' +
         '<g transform="rotate(-24 62 32)"><rect x="35" y="29" width="46" height="6.5" rx="1" fill="#FFD23F" stroke="#B9852A" stroke-width="1.5"/><rect x="31" y="29" width="6" height="6.5" rx="1.5" fill="#FF8FB1" stroke="#B9852A" stroke-width="1.5"/>' +
         '<path d="M81 29 L90 32.25 L81 35.5 Z" fill="#F3D9A4" stroke="#B9852A" stroke-width="1.2" stroke-linejoin="round"/><path d="M87 31.2 L90 32.25 L87 33.3 Z" fill="#3B3561"/></g>' +
@@ -193,6 +193,7 @@
   function mascot(mood, acc, cls, form) {
     mood = mood || 'happy';
     var F = FORMS[form || FORM] || FORMS[1], f = form || FORM;
+    if (F.pencil) return pencilMascot(F, f, mood, acc, cls);
     var up = mood === 'cheer' || mood === 'wow';
     var wave = mood === 'think';
     var ax = 60 - F.rx - 2, bx = 60 + F.rx + 2, ay = F.cy + F.ry * 0.3, ary = 11.5 + (f - 1) * 2;
@@ -244,6 +245,97 @@
       (acc && ACC[acc] ? (F.accT ? '<g transform="' + F.accT + '">' + ACC[acc] + '</g>' : ACC[acc]) : '');
     return svg(F.vb, body, 'mascot form' + f + ' ' + (cls || ''));
   }
+  /* ---------- Iskrosława jako ołówkowa karykatura: zblazowana, z kawą ----------
+     Kreska grafitowa z podwójnym konturem, żółty „akwarelowy” podkład, kreskowanie po cieniu.
+     Bez ciężkich filtrów SVG – rysunek ma działać płynnie na telefonie.
+     Kolor kreski bierze się z CSS (--pncl-ink), więc działa też w ciemnym motywie. */
+  var PINK = 'style="stroke:var(--pncl-ink,#2B2926)"', PFILL = 'style="fill:var(--pncl-ink,#2B2926)"';
+  var WASH = '#F2D98A', BRICK = '#B5452B', PAPER = '#FFFDF6', LINE = '#2B2926';
+  var PDEFS = '<defs>' +
+    '<filter id="pnclAcc"><feColorMatrix type="saturate" values=".35"/></filter>' +
+    '<pattern id="pnclHatch" width="4.5" height="4.5" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><path d="M0 2 H4.5" stroke="' + LINE + '" stroke-width=".75" opacity=".5"/></pattern>' +
+    '<clipPath id="pnclBody"><path d="' + dropPath(60, 94, 36, 54) + '"/></clipPath>' +
+    '</defs>';
+  function pencilFace(mood, wearsEyes) {
+    var y = 82, out = '';
+    var lid = { happy: .4, cheer: -.6, wow: -3.6, oops: -3, think: 1, sleep: 0 }[mood];
+    if (lid == null) lid = .4;
+    var look = { happy: [-1.4, .8], cheer: [0, .6], wow: [0, 0], oops: [.4, -2.6], think: [2.4, .6] }[mood] || [0, 0];
+    if (mood === 'sleep') {
+      out += '<path d="M36 80 H42 M78 80 H84" stroke="' + BRICK + '" stroke-width="1.6"/><rect x="41" y="75" width="38" height="11" rx="5.5" fill="' + BRICK + '" stroke="' + LINE + '" stroke-width="1.3"/>' +
+        '<path d="M45 81 q4 2.6 8 0 M67 81 q4 2.6 8 0" stroke="#F3D9C9" stroke-width="1.2" fill="none" stroke-linecap="round"/>' +
+        '<g ' + PFILL + ' font-family="Caveat, Patrick Hand, cursive" font-size="13" font-weight="700"><text x="88" y="60">z</text><text x="95" y="50" font-size="16">Z</text></g>';
+    } else {
+      [49, 71].forEach(function (x, k) {
+        var side = k ? 1 : -1, ly = y + lid;
+        out += '<ellipse cx="' + x + '" cy="' + y + '" rx="5.4" ry="4.1" fill="' + PAPER + '" stroke="' + LINE + '" stroke-width=".9"/>' +
+          '<circle cx="' + r(x + look[0]) + '" cy="' + r(y + look[1]) + '" r="' + (mood === 'wow' ? 2.4 : 2) + '" fill="' + LINE + '"/>' +
+          '<path d="M' + (x - 6) + ' ' + r(ly) + ' Q' + x + ' ' + r(ly - 1.8) + ' ' + (x + 6) + ' ' + r(ly) + ' L' + (x + 6) + ' ' + (y - 7) + ' L' + (x - 6) + ' ' + (y - 7) + ' Z" fill="' + WASH + '"/>' +
+          '<path d="M' + (x - 6.2) + ' ' + r(ly) + ' Q' + x + ' ' + r(ly - 1.8) + ' ' + (x + 6.2) + ' ' + r(ly) + ' l' + (side * 2.6) + ' ' + -2.2 + '" fill="none" stroke="' + LINE + '" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>' +
+          '<path d="M' + (x - 4.4) + ' ' + (y + 5.4) + ' q4.4 2.2 8.8 0" fill="none" stroke="' + LINE + '" stroke-width=".8" opacity=".55" stroke-linecap="round"/>';
+      });
+    }
+    // brwi
+    var br = {
+      happy: 'M43 72.6 q6 -1.4 12 -.2 M65 72.4 q6 -1.2 12 .5',
+      cheer: 'M43 71 q6 -2.6 12 -.6 M65 72.6 q6 -1 12 .4',
+      wow: 'M43 69.6 q6 -3 12 -.6 M65 69.4 q6 -2.6 12 .6',
+      oops: 'M43 70.6 q6 -2.4 12 .4 M65 71 q6 -2.6 12 -.4',
+      think: 'M43 73.4 q6 -.4 12 0 M65 69 q5 -3.6 12 -.4',
+      sleep: 'M44 71.4 q6 -1 11 0 M65 71.4 q5 -1 11 0'
+    }[mood] || 'M43 72.6 q6 -1.4 12 -.2 M65 72.4 q6 -1.2 12 .5';
+    out += '<path d="' + br + '" fill="none" stroke="' + LINE + '" stroke-width="1.5" stroke-linecap="round"/>';
+    // nos karykatury
+    out += '<path d="M60.5 84 q-2 5.6 1.4 7 q1.4 .4 2.2 -.6" fill="none" stroke="' + LINE + '" stroke-width="1.2" stroke-linecap="round"/>';
+    // usta
+    var m = {
+      cheer: '<path d="M53.5 95.4 q5.4 3.8 11 -.9" fill="none" stroke="' + BRICK + '" stroke-width="1.7" stroke-linecap="round"/>',
+      wow: '<ellipse cx="59.5" cy="97" rx="1.9" ry="2.3" fill="' + BRICK + '"/>',
+      oops: '<path d="M54.5 96.2 h9.5" stroke="' + BRICK + '" stroke-width="1.7" stroke-linecap="round"/>',
+      think: '<path d="M60 96 q2.4 -1.6 5 -.2" fill="none" stroke="' + BRICK + '" stroke-width="1.7" stroke-linecap="round"/>',
+      sleep: '<ellipse cx="59.5" cy="96.6" rx="2.2" ry="1.4" fill="' + BRICK + '"/>'
+    }[mood] || '<path d="M53.8 96.4 q1.2 -.9 2.4 -.5 q4 .9 8.4 -.6" fill="none" stroke="' + BRICK + '" stroke-width="1.7" stroke-linecap="round"/>';
+    out += m + '<circle cx="67.4" cy="98.6" r=".8" fill="' + LINE + '"/>';
+    if (!wearsEyes && mood !== 'sleep') {
+      var fr = function (x, side) { var o = x + side * 10, i = x - side * 7.6; return '<path d="M' + i + ' 78 Q' + x + ' 74.6 ' + o + ' 73.4 Q' + (o + side * 1.2) + ' 88.6 ' + x + ' 88.6 Q' + (i - side * .6) + ' 88 ' + i + ' 78 Z"/>'; };
+      out += '<g fill="none" stroke="' + LINE + '" stroke-width="1.6" stroke-linejoin="round">' + fr(49, -1) + fr(71, 1) + '<path d="M56.6 79 q3.4 -2.4 6.8 0"/></g>';
+    }
+    return out;
+  }
+  function pencilMascot(F, f, mood, acc, cls) {
+    var ins = 'style="stroke:var(--pncl-line,#2B2926)"', up = mood === 'cheer' || mood === 'wow', half = mood === 'think';
+    var wearsEyes = acc === 'glasses' || acc === 'goggles' || acc === 'shades' || acc === 'monocle' || acc === 'visor' || acc === 'loupe';
+    var out = PDEFS + '<g>';
+    // nogi i czerwone szpilki
+    out += '<path d="M51 144 L48 154 M69 144 L72 154" ' + ins + ' stroke-width="2.2" stroke-linecap="round" fill="none"/>' +
+      '<path d="M37 158 Q38 151 47 151 Q53 151 53 157 Z M83 158 Q82 151 73 151 Q67 151 67 157 Z" fill="' + BRICK + '" stroke="' + LINE + '" stroke-width="1.1" stroke-linejoin="round"/>' +
+      '<path d="M52 157 L52.6 163 M68 157 L67.4 163" stroke="' + BRICK + '" stroke-width="2" stroke-linecap="round"/>';
+    // lewa ręka na biodrze
+    out += '<path d="M27 98 Q14 104 16 114 Q18 120 28 118" ' + ins + ' stroke-width="2.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+    // prawa ręka z kubkiem
+    var hx = up ? 108 : half ? 104 : 106, hy = up ? 72 : half ? 92 : 112;
+    out += '<path d="M93 ' + (up ? 92 : 100) + ' Q' + (up ? 108 : 104) + ' ' + (up ? 88 : half ? 102 : 104) + ' ' + (hx - 4) + ' ' + (hy + 4) + '" ' + ins + ' stroke-width="2.3" fill="none" stroke-linecap="round"/>';
+    // kok z ołówkiem (za głową)
+    out += '<circle cx="62" cy="33" r="13.5" fill="' + WASH + '" stroke="' + LINE + '" stroke-width="1.5"/><path d="M54 33 q6 -9 15 -3 q3 6 -5 8 M57 26 q5 -3 10 0" fill="none" stroke="' + LINE + '" stroke-width="1" opacity=".7"/>' +
+      '<g transform="rotate(-24 62 31)"><path d="M33 28.5 H81 V34.5 H33 Z" fill="#E9C25A" stroke="' + LINE + '" stroke-width="1.1"/><path d="M33 28.5 h-4 v6 h4" fill="#E9A3A3" stroke="' + LINE + '" stroke-width="1.1"/>' +
+      '<path d="M81 28.5 L90 31.5 L81 34.5" fill="' + PAPER + '" stroke="' + LINE + '" stroke-width="1.1" stroke-linejoin="round"/><path d="M87.4 30.6 L90 31.5 L87.4 32.4 Z" fill="' + LINE + '"/></g>';
+    // ciało: podkład, kreskowanie po cieniu, podwójny kontur
+    var body = dropPath(60, 94, 36, 54);
+    out += '<path d="' + body + '" fill="' + WASH + '"/>' +
+      '<g clip-path="url(#pnclBody)"><ellipse cx="86" cy="112" rx="26" ry="50" fill="url(#pnclHatch)"/><ellipse cx="58" cy="150" rx="40" ry="10" fill="url(#pnclHatch)"/></g>' +
+      '<path d="' + body + '" fill="none" stroke="' + LINE + '" stroke-width="1.9"/>' +
+      '<path d="' + body + '" fill="none" stroke="' + LINE + '" stroke-width=".8" opacity=".45" transform="translate(1.1 .7)"/>' +
+      '<path d="M36 64 q4 -12 12 -16" fill="none" stroke="#FFFDF6" stroke-width="2.4" stroke-linecap="round" opacity=".9"/>';
+    out += pencilFace(mood, wearsEyes);
+    // kubek
+    out += '<g transform="translate(' + hx + ' ' + hy + ')' + (up ? ' rotate(-12)' : '') + '"><path d="M7 -2 q7 0 7 6 q0 6 -7 6" fill="none" stroke="' + LINE + '" stroke-width="1.4"/>' +
+      '<path d="M-8 -7 h16 v16 q0 4 -4 4 h-8 q-4 0 -4 -4 Z" fill="' + PAPER + '" stroke="' + LINE + '" stroke-width="1.4"/><path d="M-8 0 h16" stroke="' + BRICK + '" stroke-width="3"/>' +
+      '<path d="M-3 -11 q-2 -3 0 -6 q2 -3 0 -6 M3 -11 q-2 -3 0 -6" fill="none" ' + ins + ' stroke-width=".9" opacity=".7" stroke-linecap="round"/></g>';
+    out += '</g>';
+    if (acc && ACC[acc]) out += '<g filter="url(#pnclAcc)"><g transform="' + F.accT + '">' + ACC[acc] + '</g></g>';
+    return svg(F.vb, out, 'mascot form' + f + ' pencil ' + (cls || ''));
+  }
+
   function setForm(f) { FORM = FORMS[f] ? f : 1; }
 
   /* ---------- postacie-podzespoły (viewBox 0 0 100 100) ---------- */

@@ -6,11 +6,14 @@
   var FONT = 'font-family="Baloo 2, sans-serif" font-weight="800"';
   var AD = { adult: true };
   function F(cx, cy, s, mood) { return face(cx, cy, s, mood || 'happy', AD); }
+  /* dorośli bohaterowie w przygaszonych, „akwarelowych” kolorach */
+  var PF = '<defs><filter id="pnclChar"><feColorMatrix type="saturate" values=".55"/></filter></defs>';
+  function pencil(vb, body) { return svg(vb, PF + '<g filter="url(#pnclChar)">' + body + '</g>', 'ill pncl'); }
 
   /* ---------- bohaterowie ---------- */
   // Różnicówka Renata: moduł na szynie, dźwigienka, przycisk TEST, okulary do czytania na łańcuszku
   reg('rcd', function (o) {
-    return svg('0 0 100 100',
+    return pencil('0 0 100 100',
       '<rect x="12" y="44" width="76" height="9" fill="#C9CCE3"/>' +
       '<rect x="22" y="6" width="56" height="88" rx="7" fill="#FAFAFE" stroke="#B9B4D6" stroke-width="2.5"/>' +
       '<rect x="40" y="10" width="20" height="18" rx="4" fill="#E7E3F6" stroke="#B9B4D6" stroke-width="2"/><rect x="44" y="11" width="12" height="9" rx="2.5" fill="#3B6FE0"/>' +
@@ -23,7 +26,7 @@
   reg('liion', function (o) {
     var lv = o.level == null ? 4 : o.level, bars = '';
     for (var i = 0; i < 4; i++) bars += '<rect x="71" y="' + (70 - i * 11) + '" width="9" height="8" rx="2" fill="' + (i < lv ? '#22C3A4' : '#E7E3F6') + '"/>';
-    return svg('0 0 100 100',
+    return pencil('0 0 100 100',
       '<rect x="40" y="4" width="20" height="8" rx="2.5" fill="#C9CCE3" stroke="#9EA3C7" stroke-width="2"/>' +
       '<rect x="27" y="10" width="46" height="86" rx="11" fill="#1FB5A8" stroke="#128A80" stroke-width="2.5"/>' +
       '<rect x="27" y="22" width="46" height="5" fill="#128A80" opacity=".5"/>' +
@@ -37,7 +40,7 @@
   reg('inverter', function (o) {
     var fins = '';
     for (var i = 0; i < 8; i++) fins += '<rect x="' + (19 + i * 8) + '" y="5" width="4.5" height="16" rx="1.5" fill="#9AA3C2"/>';
-    return svg('0 0 100 100',
+    return pencil('0 0 100 100',
       fins + '<rect x="14" y="18" width="72" height="76" rx="10" fill="#E9ECF6" stroke="#9AA3C2" stroke-width="2.5"/>' +
       '<rect x="24" y="66" width="52" height="20" rx="4" fill="#2A2153"/><path d="M28 76 q6 -12 12 0 t12 0 t12 0 t8 -4" stroke="#7CF3D2" stroke-width="2.2" fill="none"/>' +
       '<circle cx="78" cy="26" r="3" fill="#22C3A4"/>' + F(50, 40, .8, o.mood) +
@@ -85,7 +88,7 @@
       '<text x="72" y="126" text-anchor="middle" fill="#6A6292">CC: stały prąd</text><text x="166" y="126" text-anchor="middle" fill="#6A6292">CV: stałe napięcie</text></g>', 'graph');
   });
   reg('swollen', function (o) {
-    return svg('0 0 100 100',
+    return pencil('0 0 100 100',
       '<path d="M22 20 Q50 6 78 20 Q92 50 78 82 Q50 96 22 82 Q8 50 22 20 Z" fill="#D9D6EA" stroke="#9EA3C7" stroke-width="2.5"/>' +
       '<path d="M30 24 q8 -6 18 -6" stroke="#fff" stroke-width="4" opacity=".7" fill="none" stroke-linecap="round"/>' +
       '<rect x="40" y="10" width="20" height="6" rx="2" fill="#E8B04B"/>' + face(50, 52, .9, o.mood || 'oops') +
@@ -114,7 +117,7 @@
   reg('mcu', function (o) {
     var pins = '';
     for (var i = 0; i < 6; i++) pins += '<rect x="' + (24 + i * 9.5) + '" y="8" width="4" height="10" rx="1" fill="#C9CCE3"/><rect x="' + (24 + i * 9.5) + '" y="82" width="4" height="10" rx="1" fill="#C9CCE3"/>';
-    return svg('0 0 100 100', pins +
+    return pencil('0 0 100 100', pins +
       '<rect x="16" y="16" width="68" height="68" rx="8" fill="#2A2153" stroke="#1C1839" stroke-width="2.5"/><circle cx="26" cy="26" r="3" fill="#4A4578"/>' +
       face(50, 48, .86, o.mood || 'happy', { adult: true, ink: '#FFFFFF', mole: false }) +
       '<text x="50" y="76" text-anchor="middle" ' + FONT + ' font-size="8" fill="#8F8CC9">µC</text>');
@@ -122,7 +125,7 @@
 
   // Przekaźnik Przemek: niebieska kostka z cewką, styki COM/NO/NC i krawat
   reg('relay', function (o) {
-    return svg('0 0 100 100',
+    return pencil('0 0 100 100',
       '<path d="M30 92 V99 M44 92 V99 M56 92 V99 M70 92 V99" stroke="#A5A9C9" stroke-width="3.5" stroke-linecap="round"/>' +
       '<rect x="16" y="8" width="68" height="84" rx="9" fill="#3B6FE0" stroke="#2A54B8" stroke-width="2.5"/>' +
       '<rect x="22" y="14" width="56" height="16" rx="4" fill="#5C8BF0"/><text x="50" y="26" text-anchor="middle" ' + FONT + ' font-size="8" fill="#EAF1FF">5V · 230V~</text>' +
@@ -132,7 +135,7 @@
   });
   // Lutownica Lucyna: gorący grot, komplementy przyjmuje, dotyku nie
   reg('solder', function (o) {
-    return svg('0 0 100 100',
+    return pencil('0 0 100 100',
       '<path d="M50 72 V90" stroke="#C9CCE3" stroke-width="5" stroke-linecap="round"/><path d="M50 90 V97" stroke="#FF8A3D" stroke-width="3" stroke-linecap="round"/>' +
       '<circle cx="50" cy="97" r="4" fill="#FFD23F" opacity=".6"/>' +
       '<rect x="32" y="6" width="36" height="68" rx="16" fill="#E5484D" stroke="#B9303A" stroke-width="2.5"/>' +

@@ -23,7 +23,7 @@
         {
           id: 'e6u1l1', title: 'Mikrokontroler Mirek', icon: 'chip', sticker: 'mcu', desc: 'Mały komputer, który nie bierze urlopu.',
           ex: [
-            learn('mascot', 'Nowy etap. Nowa kawa.', 'Etap 6: mikrokontrolery i automatyka. Elektronika, która myśli – czyli robi dokładnie to, co jej każesz. W przeciwieństwie do niektórych.', { mood: 'cheer' }),
+            learn('mascot', 'Nowy etap. Ta sama kawa.', 'Etap 6: mikrokontrolery i automatyka. Elektronika, która robi dokładnie to, co jej każesz. Jedyna taka w moim otoczeniu.', { mood: 'think' }),
             learn('mcu', 'Mikrokontroler Mirek', 'Mirek to mały komputer w jednym układzie: procesor, pamięć i piny. Siedzi w pralce, pilocie, ekspresie do kawy i w każdej płytce Arduino. Pracuje całą dobę, nie bierze urlopu i nie narzeka. Jedyny taki w biurze.', { friend: true }),
             choice('Co jest w środku mikrokontrolera?', ['Procesor, pamięć i piny wejść/wyjść', 'Tylko bateria', 'Mały wiatraczek', F('Malutki człowieczek z kalkulatorem', 'Urocza wizja. Ale to procesor, pamięć i piny.')], 0, 'Cały komputer w jednej kostce.'),
             pairs('Połącz pojęcia', [['HIGH', 'na pinie jest napięcie'], ['LOW', 'na pinie jest 0 V'], ['wejście', 'czyta przycisk lub czujnik'], ['wyjście', 'zapala diodę lub steruje tranzystorem']]),
@@ -184,9 +184,9 @@
   ];
 
   window.ISK_STAGES.push({
-    id: 'e6', n: 6, name: 'Iskrosława', gen: 'Iskrosławy', form: 4, level: 'dla dorosłych+', title: 'Automatyka i mikrokontrolery',
+    id: 'e6', n: 6, name: 'Iskrosława', gen: 'Iskrosławy', form: 4, look: 'pencil', level: 'dla dorosłych+', title: 'Automatyka i mikrokontrolery',
     topics: 'mikrokontroler i piny, program w pętli, PWM i ADC, logika automatyki domowej, przekaźnik, tranzystor jako klucz, mostek H, lutowanie, szukanie usterek',
-    grow: 'Etap 6: elektronika, która myśli. Mikrokontrolery, przekaźniki, PWM i lutowanie. Kawa już jest. Zaczynamy.',
+    grow: 'Etap 6: elektronika, która myśli. Mikrokontrolery, przekaźniki i lutowanie. Nie, nie jestem podekscytowana. Ale Ty możesz.',
     units: units, stickers: stickers, accs: accs
   });
 })();
