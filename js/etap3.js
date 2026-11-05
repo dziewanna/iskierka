@@ -173,7 +173,7 @@
               goal: { noBurn: true, cases: [
                 { name: 'Noc (ciemno)', want: 'oko świeci', set: { F: { dark: true } }, lit: { E1: true } },
                 { name: 'Dzień (jasno)', want: 'oko śpi', set: { F: { dark: false } }, lit: { E1: false } }
-              ] }, hint: 'czujnik światła od bazy do minusa baterii, a minus oka do kolektora', sol: [['E1:-', 'T:C'], ['F:a', 'T:B'], ['F:b', 'B:-']]
+              ] }, route: 'Brakują trzy kabelki: <b>minus oka → kolektor (C)</b> tranzystora oraz czujnik światła <b>od bazy (B) do minusa baterii</b>.', hint: 'czujnik światła od bazy do minusa baterii, a minus oka do kolektora', sol: [['E1:-', 'T:C'], ['F:a', 'T:B'], ['F:b', 'B:-']]
             }, 'Ciemność zwiększa opór fotorezystora, baza dostaje napięcie i tranzystor otwiera oko. Tak działa prawdziwy czujnik zmierzchu!'),
             order('Ułóż po kolei, co dzieje się wieczorem.', ['Robi się ciemno', 'Opór fotorezystora rośnie', 'Napięcie na bazie rośnie', 'Tranzystor zaczyna przewodzić', 'Dioda się zapala'], 'Tak działają latarnie i lampki ogrodowe.'),
             choice('Co zrobić, żeby lampka zapalała się dopiero w głębszej ciemności?', ['Zwiększyć opornik 10 kΩ, np. na 47 kΩ', 'Odwrócić diodę', 'Dodać drugą diodę', 'Zasłonić diodę'], 0, 'Większy opornik słabiej „ciągnie” bazę w górę. Wtedy fotorezystor musi mieć jeszcze większy opór – czyli musi być ciemniej – żeby na bazie pojawiło się 0,7 V.')

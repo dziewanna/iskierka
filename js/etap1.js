@@ -147,22 +147,31 @@
         {
           id: 'u2w', title: 'Potwór Mruczek', icon: 'monster', ws: true, desc: 'Misja: obudź elektronicznego potwora.',
           ex: [
-            learn('missionDemo', 'Poznaj Mruczka', 'To Mruczek – elektroniczny potwór. Jego oczy to żarówki. Złote kropki to <b>zaciski</b>: dotknij jednego, a potem drugiego, żeby połączyć je kabelkiem. Dotknij kabelka, żeby go usunąć. Na obrazku jeden kabelek już jest – czego jeszcze brakuje, żeby oko się otworzyło?'),
+            learn('missionDemo', 'Poznaj Mruczka', 'To Mruczek – elektroniczny potwór. Jego oczy to żarówki. Złote kropki to <b>zaciski</b>: dotknij jednego, a potem drugiego, żeby połączyć je kabelkiem. Dotknij kabelka, żeby go usunąć. Gdy utkniesz, dotknij <b>Podpowiedź</b>. Na obrazku jeden kabelek już jest – czego jeszcze brakuje, żeby oko się otworzyło?'),
             build('Mruczek śpi. Połącz baterię z jego okiem, żeby je otworzył.', {
               scene: 'monster', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'E1', t: 'lamp', skin: 'eye', at: [220, 112], name: 'Oko' }],
-              goal: { lit: { E1: true } }, hint: 'plus baterii do jednej nóżki oka, a drugą nóżkę do minusa', sol: [['B:+', 'E1:a'], ['E1:b', 'B:-']]
+              goal: { lit: { E1: true } }, route: 'Droga prądu: <b>plus baterii → oko → minus baterii</b>. Każda nóżka oka łączy się z innym biegunem.', hint: 'plus baterii do jednej nóżki oka, a drugą nóżkę do minusa', sol: [['B:+', 'E1:a'], ['E1:b', 'B:-']]
             }, 'Obwód jest zamknięty: z plusa baterii, przez oko, z powrotem do minusa.'),
             choice('Dlaczego oko zaświeciło dopiero po drugim kabelku?', ['Bo prąd musi wrócić do baterii – obwód był otwarty', F('Bo Mruczek budzi się powoli', 'Mruczek to śpioch, ale tu chodziło o zamknięte kółko dla prądu!'), F('Bo pierwszy kabelek był nieśmiały', 'Kabelki nie bywają nieśmiałe. Obwód musiał się zamknąć.'), 'Bo bateria potrzebowała chwili'], 0, 'Jeden kabelek to tylko połowa drogi. Prąd potrzebuje pełnego kółka.'),
             build('Teraz Mruczek ma dwoje oczu. Zapal oba!', {
               scene: 'monster', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'E1', t: 'lamp', skin: 'eye', at: [185, 112], name: 'Lewe oko' }, { id: 'E2', t: 'lamp', skin: 'eye', at: [255, 112], name: 'Prawe oko' }],
-              goal: { lit: { E1: true, E2: true } }, hint: 'połącz oczy jedno za drugim albo każde osobno z baterią', sol: [['B:+', 'E1:a'], ['E1:b', 'E2:a'], ['E2:b', 'B:-']]
+              goal: { lit: { E1: true, E2: true } }, route: 'Na przykład: <b>plus baterii → lewe oko → prawe oko → minus baterii</b>.', hint: 'połącz oczy jedno za drugim albo każde osobno z baterią', sol: [['B:+', 'E1:a'], ['E1:b', 'E2:a'], ['E2:b', 'B:-']]
             }, 'Da się na dwa sposoby: oczy jedno za drugim (szeregowo) albo każde osobno z baterią (równolegle).'),
-            build('Mruczek ma otwierać oczy dopiero wtedy, gdy wciśniesz mu nos.', {
-              scene: 'monster', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'E1', t: 'lamp', skin: 'eye', at: [185, 112], name: 'Lewe oko' }, { id: 'E2', t: 'lamp', skin: 'eye', at: [255, 112], name: 'Prawe oko' }, { id: 'S', t: 'sw', skin: 'nose', at: [220, 168], name: 'Nos' }],
+            learn('switchOn', 'Nos to przełącznik', 'Nos Mruczka działa jak <b>przełącznik</b>. Żeby sterował oczami, musi stać <b>na drodze prądu</b> – między baterią a oczami. Prąd idzie po kolei: <b>plus baterii → nos → oczy → minus baterii</b>. Gdy nos jest puszczony, droga jest przerwana.'),
+            build('Połowa kabelków już jest! Dołóż dwa: od plusa baterii do nosa i od nosa do lewego oka.', {
+              scene: 'monster', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'E1', t: 'lamp', skin: 'eye', at: [185, 112], name: 'Lewe oko' }, { id: 'E2', t: 'lamp', skin: 'eye', at: [255, 112], name: 'Prawe oko' }, { id: 'S', t: 'sw', skin: 'nose', at: [220, 184], name: 'Nos' }],
+              wires: [['E1:b', 'E2:a'], ['E2:b', 'B:-']],
               goal: { cases: [
                 { name: 'Nos wciśnięty', want: 'oczy otwarte', set: { S: { on: true } }, lit: { E1: true, E2: true } },
                 { name: 'Nos puszczony', want: 'oczy śpią', set: { S: { on: false } }, lit: { E1: false, E2: false } }
-              ] }, hint: 'prąd z baterii musi przejść przez nos, zanim dotrze do oczu', sol: [['B:+', 'S:a'], ['S:b', 'E1:a'], ['E1:b', 'E2:a'], ['E2:b', 'B:-']]
+              ] }, route: 'Szare kabelki już łączą oczy z minusem. Brakuje początku drogi: <b>plus baterii → nos</b> i <b>nos → lewe oko</b>.', hint: 'plus baterii do jednego zacisku nosa, drugi zacisk nosa do lewego oka', sol: [['B:+', 'S:a'], ['S:b', 'E1:a']]
+            }, 'Super! Teraz prąd musi przejść przez nos. Dotknij nosa w trakcie budowania, żeby sprawdzić, jak działa.'),
+            build('A teraz sam: zbuduj całość. Oczy mają się otwierać dopiero, gdy wciśniesz Mruczkowi nos.', {
+              scene: 'monster', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'E1', t: 'lamp', skin: 'eye', at: [185, 112], name: 'Lewe oko' }, { id: 'E2', t: 'lamp', skin: 'eye', at: [255, 112], name: 'Prawe oko' }, { id: 'S', t: 'sw', skin: 'nose', at: [220, 184], name: 'Nos' }],
+              goal: { cases: [
+                { name: 'Nos wciśnięty', want: 'oczy otwarte', set: { S: { on: true } }, lit: { E1: true, E2: true } },
+                { name: 'Nos puszczony', want: 'oczy śpią', set: { S: { on: false } }, lit: { E1: false, E2: false } }
+              ] }, route: 'Droga prądu: <b>plus baterii → nos → lewe oko → prawe oko → minus baterii</b>. Nos stoi na początku drogi, więc bez niego prąd nie dojdzie do oczu.', hint: 'prąd z baterii musi przejść przez nos, zanim dotrze do oczu', sol: [['B:+', 'S:a'], ['S:b', 'E1:a'], ['E1:b', 'E2:a'], ['E2:b', 'B:-']]
             }, 'Nos działa jak przełącznik: dopiero gdy go wciśniesz, obwód się zamyka.')
           ]
         }
@@ -223,16 +232,16 @@
                 { name: 'Oba oczy całe', want: 'oba świecą', lit: { E1: true, E2: true } },
                 { name: 'Lewe oko wykręcone', want: 'prawe świeci', set: { E1: { out: true } }, lit: { E2: true } },
                 { name: 'Prawe oko wykręcone', want: 'lewe świeci', set: { E2: { out: true } }, lit: { E1: true } }
-              ] }, hint: 'każde oko musi mieć własną drogę do baterii – równolegle', sol: [['B:+', 'E1:a'], ['E1:b', 'B:-'], ['B:+', 'E2:a'], ['E2:b', 'B:-']]
+              ] }, route: 'Dwie osobne drogi: <b>plus → lewe oko → minus</b> oraz <b>plus → prawe oko → minus</b>. Do jednego zacisku można podpiąć kilka kabelków.', hint: 'każde oko musi mieć własną drogę do baterii – równolegle', sol: [['B:+', 'E1:a'], ['E1:b', 'B:-'], ['B:+', 'E2:a'], ['E2:b', 'B:-']]
             }, 'Równolegle każde oko ma swoją drogę. Jedno zgaśnie – drugie dalej patrzy!'),
             choice('Mruczek ma oczy połączone równolegle. Jedno się przepaliło. Co z drugim?', ['Świeci dalej', 'Też gaśnie', F('Świeci jaśniej niż słońce', 'Ojej, oślepiłoby nas! Świeci dalej tak samo jasno.'), F('Puszcza do nas oczko', 'Hihi! Mruczek to żartowniś, ale drugie oko po prostu świeci dalej.')], 0, 'Każda droga w połączeniu równoległym działa niezależnie.'),
             build('Mruczek puszcza oczko: lewe oko ma się otwierać tylko po wciśnięciu nosa, a prawe ma być otwarte cały czas.', {
-              scene: 'monster', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'E1', t: 'lamp', skin: 'eye', at: [185, 112], name: 'Lewe oko' }, { id: 'E2', t: 'lamp', skin: 'eye', at: [255, 112], name: 'Prawe oko' }, { id: 'S', t: 'sw', skin: 'nose', at: [220, 168], name: 'Nos' }],
+              scene: 'monster', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'E1', t: 'lamp', skin: 'eye', at: [185, 112], name: 'Lewe oko' }, { id: 'E2', t: 'lamp', skin: 'eye', at: [255, 112], name: 'Prawe oko' }, { id: 'S', t: 'sw', skin: 'nose', at: [220, 184], name: 'Nos' }],
               wires: [['B:+', 'E2:a'], ['E2:b', 'B:-']],
               goal: { cases: [
                 { name: 'Nos wciśnięty', want: 'oba oczy otwarte', set: { S: { on: true } }, lit: { E1: true, E2: true } },
                 { name: 'Nos puszczony', want: 'lewe śpi, prawe patrzy', set: { S: { on: false } }, lit: { E1: false, E2: true } }
-              ] }, hint: 'lewe oko dostaje własną drogę przez nos', sol: [['B:+', 'S:a'], ['S:b', 'E1:a'], ['E1:b', 'B:-']]
+              ] }, route: 'Prawe oko już ma swoją drogę. Zbuduj nową dla lewego: <b>plus → nos → lewe oko → minus</b>.', hint: 'lewe oko dostaje własną drogę przez nos', sol: [['B:+', 'S:a'], ['S:b', 'E1:a'], ['E1:b', 'B:-']]
             }, 'Prawe oko ma swoją drogę, a lewe swoją – przez nos. Tak w domu każda lampa ma swój włącznik.'),
             tf('Gdy każde oko ma osobną drogę do baterii, to połączenie równoległe.', true, 'Właśnie tak! Szeregowo byłaby jedna wspólna droga.')
           ]
@@ -372,26 +381,26 @@
             }, 'Bzzzz! Brzęczyk dostał prąd z obu stron.'),
             volts('Wiatraczek potrzebuje 4,5 V. Ułóż baterie.', 4.5, [1.5, 1.5, 1.5, 9], 'Trzy paluszki po 1,5 V dają 4,5 V.', { name: 'Wiatraczek' }),
             build('Mruczek ma ryczeć tylko po wciśnięciu nosa, a oczy mają świecić cały czas.', {
-              scene: 'monster', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'E1', t: 'lamp', skin: 'eye', at: [185, 112], name: 'Lewe oko' }, { id: 'E2', t: 'lamp', skin: 'eye', at: [255, 112], name: 'Prawe oko' }, { id: 'Z', t: 'buzz', skin: 'mouth', at: [220, 212], name: 'Paszcza' }, { id: 'S', t: 'sw', skin: 'nose', at: [220, 168], name: 'Nos' }],
+              scene: 'monster', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'E1', t: 'lamp', skin: 'eye', at: [185, 112], name: 'Lewe oko' }, { id: 'E2', t: 'lamp', skin: 'eye', at: [255, 112], name: 'Prawe oko' }, { id: 'Z', t: 'buzz', skin: 'mouth', at: [220, 230], name: 'Paszcza' }, { id: 'S', t: 'sw', skin: 'nose', at: [220, 184], name: 'Nos' }],
               wires: [['B:+', 'E1:a'], ['E1:b', 'B:-'], ['B:+', 'E2:a'], ['E2:b', 'B:-']],
               goal: { cases: [
                 { name: 'Nos wciśnięty', want: 'ryk i otwarte oczy', set: { S: { on: true } }, lit: { Z: true, E1: true, E2: true } },
                 { name: 'Nos puszczony', want: 'cisza, oczy otwarte', set: { S: { on: false } }, lit: { Z: false, E1: true, E2: true } }
-              ] }, hint: 'paszcza (brzęczyk) i nos jedno za drugim, osobną drogą do baterii', sol: [['B:+', 'S:a'], ['S:b', 'Z:a'], ['Z:b', 'B:-']]
+              ] }, route: 'Oczy już świecą. Zbuduj osobną drogę dla ryku: <b>plus → nos → paszcza → minus</b>.', hint: 'paszcza (brzęczyk) i nos jedno za drugim, osobną drogą do baterii', sol: [['B:+', 'S:a'], ['S:b', 'Z:a'], ['Z:b', 'B:-']]
             }, 'Oczy mają swoją drogę, a paszcza swoją – przez nos. RAAAWR!'),
             build('Zbuduj alarm skrzyni skarbów: gdy ktoś ją otworzy, wpadnie światło i ma zabrzęczeć brzęczyk.', {
               scene: 'chest', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'F', t: 'ldr', at: [232, 130], name: 'Czujnik światła' }, { id: 'Z', t: 'buzz', at: [232, 222], name: 'Alarm' }],
               goal: { cases: [
                 { name: 'Skrzynia otwarta (jasno)', want: 'alarm gra', set: { F: { dark: false } }, lit: { Z: true } },
                 { name: 'Skrzynia zamknięta (ciemno)', want: 'cisza', set: { F: { dark: true } }, lit: { Z: false } }
-              ] }, hint: 'czujnik światła i brzęczyk jedno za drugim', sol: [['B:+', 'F:a'], ['F:b', 'Z:a'], ['Z:b', 'B:-']]
+              ] }, route: 'Droga prądu: <b>plus → czujnik światła → alarm → minus</b>. Czujnik działa jak drzwi, które otwiera światło.', hint: 'czujnik światła i brzęczyk jedno za drugim', sol: [['B:+', 'F:a'], ['F:b', 'Z:a'], ['Z:b', 'B:-']]
             }, 'W świetle fotorezystor przepuszcza prąd i alarm gra. W ciemności prawie nie przepuszcza – cisza.'),
             build('Strażnik ciasteczek! Gdy ktoś w nocy otworzy słoik, wpadnie światło. Robot ma wtedy zabrzęczeć i zakręcić wiatraczkiem.', {
               scene: 'jar', parts: [{ id: 'B', t: 'bat', at: [96, 268] }, { id: 'F', t: 'ldr', at: [96, 118], name: 'Czujnik w słoiku' }, { id: 'Z', t: 'buzz', at: [262, 192], name: 'Brzęczyk' }, { id: 'M', t: 'motor', skin: 'fan', at: [262, 38], name: 'Wiatraczek' }],
               goal: { cases: [
                 { name: 'Słoik otwarty (jasno)', want: 'brzęczy i kręci', set: { F: { dark: false } }, lit: { Z: true, M: true } },
                 { name: 'Słoik zamknięty (ciemno)', want: 'robot czuwa w ciszy', set: { F: { dark: true } }, lit: { Z: false, M: false } }
-              ] }, hint: 'najpierw czujnik, potem brzęczyk i wiatraczek', sol: [['B:+', 'F:a'], ['F:b', 'Z:a'], ['Z:b', 'M:a'], ['M:b', 'B:-']]
+              ] }, route: 'Droga prądu: <b>plus → czujnik w słoiku → brzęczyk → wiatraczek → minus</b>.', hint: 'najpierw czujnik, potem brzęczyk i wiatraczek', sol: [['B:+', 'F:a'], ['F:b', 'Z:a'], ['Z:b', 'M:a'], ['M:b', 'B:-']]
             }, 'Czujnik światła działa jak strażnik-przełącznik. Taki mechanizm to prawdziwy wynalazek!'),
             board('Dwie diody w szeregu: zapal obie jednym kabelkiem.', {
               fixed: [{ t: 'res', r: 100, legs: ['+2', 'a2'] }, { t: 'led', id: 'D1', legs: ['b2', 'b4'] }, { t: 'led', id: 'D2', col: '#3BA7FF', legs: ['c4', 'c6'] }],

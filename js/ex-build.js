@@ -233,6 +233,12 @@
       parts += body;
     });
     // zaciski
+    var ghosts = '';
+    (o.ghost || []).forEach(function (w) {
+      var a = termAt(e, w[0]), b = termAt(e, w[1]);
+      if (!a || !b) return;
+      ghosts += '<path class="ghost-w" d="' + wirePath(a, b) + '"/><circle class="ghost-t" cx="' + a.x + '" cy="' + a.y + '" r="12"/><circle class="ghost-t" cx="' + b.x + '" cy="' + b.y + '" r="12"/>';
+    });
     var tg = '';
     allTerms(e).forEach(function (t) {
       var sel = st.sel === t.id;
@@ -241,7 +247,7 @@
       if (t.key === '+' || t.key === '-') tg += '<text x="' + (t.x + (t.key === '+' ? 7 : -15)) + '" y="' + (t.y - 8) + '" ' + FONT + ' font-size="12" fill="' + (t.key === '+' ? '#E03A6C' : '#1E86E0') + '">' + (t.key === '+' ? '+' : '−') + '</text>';
       if (o.interactive) tg += '<circle class="mterm" data-act="mterm" data-t="' + t.id + '" cx="' + t.x + '" cy="' + t.y + '" r="16" role="button" tabindex="0" aria-label="Zacisk ' + (t.p.name || t.p.id) + ' ' + (t.key === '+' ? 'plus' : t.key === '-' ? 'minus' : t.key) + '"/>';
     });
-    var svg = '<svg xmlns="http://www.w3.org/2000/svg" class="circuit mission' + (e.scene === 'night' ? ' dark' : '') + '" viewBox="-10 -10 360 310" role="img" aria-label="Misja: obwód na obrazku">' + g + wires + flows + parts + tg + '</svg>';
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" class="circuit mission' + (e.scene === 'night' ? ' dark' : '') + '" viewBox="-10 -10 360 310" role="img" aria-label="Misja: obwód na obrazku">' + g + wires + flows + parts + ghosts + tg + '</svg>';
     return { svg: svg, sim: sim };
   }
 
@@ -274,29 +280,41 @@
     if (st.sel) return 'Teraz dotknij <b>drugiego</b> zacisku. Dotknij tego samego, żeby anulować.';
     return 'Dotknij złotego zacisku, a potem drugiego – połączysz je kabelkiem.' + (st.wires.length ? ' Dotknij kabelka, żeby go usunąć.' : '');
   }
+  /* kabelki z przykładowego rozwiązania, których jeszcze nie ma */
+  function missing(e, st) {
+    var have = (e.wires || []).concat(st.wires);
+    var same = function (a, b) { return (a[0] === b[0] && a[1] === b[1]) || (a[0] === b[1] && a[1] === b[0]); };
+    return (e.sol || []).filter(function (w) { return !have.some(function (h) { return same(h, w); }); });
+  }
+  var HINT_BTN = ['Podpowiedź', 'Pokaż następny kabelek', 'Pokaż całe rozwiązanie'];
   function draw(e, st) {
-    var L = api.L, done = L.checked;
-    var b = sceneSVG(e, st, { interactive: !done });
+    var L = api.L, done = L.checked, miss = missing(e, st);
+    var ghost = done ? (st.ok === false ? miss : []) : st.hint >= 3 ? miss : st.hint === 2 ? miss.slice(0, 1) : [];
+    var b = sceneSVG(e, st, { interactive: !done, ghost: ghost });
     $('#msvg').innerHTML = b.svg;
     $('#mstat').innerHTML = status(e, b.sim);
-    $('#mhint').innerHTML = done ? '' : hint(e, st);
+    $('#mhint').innerHTML = done ? (st.ok === false && miss.length ? 'Przerywane kabelki pokazują jedno z dobrych rozwiązań.' : '') : hint(e, st);
+    var tip = e.route || e.hint;
+    $('#mroute').innerHTML = tip && (st.hint >= 1 || (done && st.ok === false)) ? '<div class="mroute">' + ART.icon('lightbulb') + '<span>' + tip + '</span></div>' : '';
     $('#mcases').innerHTML = caseList(e, st, done);
+    var canMore = st.hint < 1 || (st.hint < 3 && miss.length > 0);
     $('#mtools').innerHTML = done ? '' : '<span>Kabelki: <b>' + st.wires.length + '</b>' + (e.maxWires ? ' z ' + e.maxWires : '') + '</span>' +
+      (canMore ? '<button class="btn ghost small" data-act="mhintb">' + ART.icon('lightbulb') + HINT_BTN[Math.min(st.hint, 2)] + '</button>' : '') +
       (st.wires.length ? '<button class="btn ghost small" data-act="mclear">Usuń wszystkie</button>' : '');
   }
 
   EX.build = {
     render: function (e, st) {
-      st.wires = []; st.sel = null; st.state = {};
+      st.wires = []; st.sel = null; st.state = {}; st.hint = 0; st.ok = null;
       e.parts.forEach(function (p) { if (p.t === 'sw') st.state[p.id] = { on: !!p.on }; if (p.t === 'ldr') st.state[p.id] = { dark: !!p.dark }; });
       return '<div class="eyebrow">Misja</div>' + api.speaker(e.q) +
-        '<div class="cir-card mission-card"><div id="msvg"></div><div class="cstat" id="mstat" role="status"></div><p class="bhint" id="mhint"></p><div class="mtools" id="mtools"></div></div><div id="mcases"></div>';
+        '<div class="cir-card mission-card"><div id="msvg"></div><div class="cstat" id="mstat" role="status"></div><p class="bhint" id="mhint"></p><div id="mroute"></div><div class="mtools" id="mtools"></div></div><div id="mcases"></div>';
     },
     mount: function (e, st) { draw(e, st); },
     ready: function (e, st) { return st.wires.length > 0; },
     grade: function (e, st) { return cases(e).every(function (c) { return caseOk(e, st, c); }); },
-    reveal: function (e, st) { st.sel = null; draw(e, st); },
-    answer: function (e) { return e.hint || ''; }
+    reveal: function (e, st, ok) { st.sel = null; st.ok = ok; draw(e, st); },
+    answer: function (e) { return e.route || e.hint || ''; }
   };
 
   function soundAfter(before, after) {
@@ -326,6 +344,11 @@
     var L = cur(); if (!L) return;
     L.st.wires.splice(+el.dataset.k, 1); L.st.sel = null;
     api.SND.play('pop'); draw(ex(), L.st); api.updateCta();
+  };
+  ACTS.mhintb = function () {
+    var L = cur(); if (!L) return;
+    L.st.hint = Math.min(3, L.st.hint + 1); L.st.sel = null;
+    api.SND.play('pop'); draw(ex(), L.st);
   };
   ACTS.mclear = function () { var L = cur(); if (!L) return; L.st.wires = []; L.st.sel = null; api.SND.play('pop'); draw(ex(), L.st); api.updateCta(); };
   ACTS.mtog = function (el) {

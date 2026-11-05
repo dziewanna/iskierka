@@ -211,13 +211,13 @@
             learn('robot', 'Robot Wolcik', 'Wolcik ma wiatraczek, który potrzebuje <b>9 V</b>, i dwie baterie po 4,5 V. Żeby napięcia się dodały, baterie łączymy <b>szeregowo</b>: plus jednej do minusa drugiej.'),
             build('Połącz baterie szeregowo i zasil wiatraczek Wolcika napięciem 9 V.', {
               scene: 'robot', parts: [{ id: 'B1', t: 'bat', rint: 0.01, at: [62, 200] }, { id: 'B2', t: 'bat', rint: 0.01, at: [62, 262] }, { id: 'M', t: 'motor', skin: 'fan', at: [203, 42], name: 'Wiatraczek', vmin: 7, need: 9 }],
-              goal: { lit: { M: true } }, hint: 'plus jednej baterii połącz z minusem drugiej, a wolne końce z wiatraczkiem', sol: [['B1:+', 'B2:-'], ['B2:+', 'M:a'], ['M:b', 'B1:-']]
+              goal: { lit: { M: true } }, route: 'Najpierw <b>plus górnej baterii → minus dolnej</b>. Potem <b>plus dolnej → wiatraczek → minus górnej</b>.', hint: 'plus jednej baterii połącz z minusem drugiej, a wolne końce z wiatraczkiem', sol: [['B1:+', 'B2:-'], ['B2:+', 'M:a'], ['M:b', 'B1:-']]
             }, 'Plus do minusa – i 4,5 V + 4,5 V = 9 V. Wiatraczek ruszył!'),
             tf('Odwrotnie połączona bateria w szeregu odejmuje napięcie zamiast je dodawać.', true, '4,5 V − 4,5 V = 0 V. Dlatego w pilocie baterie wkłada się według rysunku.'),
             calc('Trzy baterie po 1,5 V i jedna 4,5 V połączone szeregowo. Ile to razem woltów?', 9, 'V', '1,5 + 1,5 + 1,5 + 4,5 = 9 V.'),
             build('Wolcik ma oko z diody LED. Zapal je tak, żeby się nie przepaliło.', {
               scene: 'robot', parts: [{ id: 'B', t: 'bat', v: 9, at: [62, 262] }, { id: 'R', t: 'res', r: 470, at: [70, 176] }, { id: 'D', t: 'led', skin: 'eye', col: '#22C3A4', at: [203, 214], name: 'Oko-dioda' }],
-              goal: { lit: { D: true }, noBurn: true }, hint: 'opornik musi stać w drodze prądu do diody, a plus diody od strony plusa baterii', sol: [['B:+', 'R:a'], ['R:b', 'D:+'], ['D:-', 'B:-']]
+              goal: { lit: { D: true }, noBurn: true }, route: 'Droga prądu: <b>plus baterii → opornik → plus diody (+)</b>, a potem <b>minus diody → minus baterii</b>.', hint: 'opornik musi stać w drodze prądu do diody, a plus diody od strony plusa baterii', sol: [['B:+', 'R:a'], ['R:b', 'D:+'], ['D:-', 'B:-']]
             }, 'Opornik 470 Ω ogranicza prąd do bezpiecznych ok. 15–19 mA.'),
             calc('Bateria 9 V, dioda zabiera 2 V, chcesz 15 mA. Jaki opornik (Ω)?', 467, 'Ω', 'R = (9 − 2) V : 0,015 A ≈ 467 Ω. W sklepie wybierzesz najbliższy: 470 Ω.', { tol: 0.02, hint: 'R = (U baterii − U diody) : I' })
           ]
