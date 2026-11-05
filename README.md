@@ -1,16 +1,17 @@
-# Iskierka ⚡ — elektronika dla dzieci i nastolatków
+# Iskierka ⚡ — elektronika od zera, dla każdego
 
 Urocza gra edukacyjna w stylu kursów językowych z krótkimi lekcjami. Maskotka Iskierka
 **dorasta razem z graczem**: im trudniejszy etap, tym starsza postać i poważniejsza elektronika.
 
-| Etap | Wiek | Maskotka | Co jest w środku |
+| Etap | Poziom | Maskotka | Co jest w środku |
 | --- | --- | --- | --- |
-| 1 · Pierwsze iskry | 10+ | Iskierka | prąd i bateria, bezpieczeństwo, obwód, przewodniki, symbole, szeregowo i równolegle, zwarcie, opornik, dioda LED, czujniki, zielona energia |
-| 2 · Fizyka prądu | 12+ | Iskra | jednostki i przedrostki, multimetr, prawo Ohma, łączenie oporników, dzielnik i potencjometr, kod kolorów, moc i energia (kWh), bezpiecznik, elektromagnes, silnik, prądnica, transformator |
-| 3 · Elektronika na serio | 14+ | Błyskawica | kondensator i stała RC, diody i prostowanie, zasilacz, tranzystor jako przełącznik i wzmacniacz, czujnik zmierzchu, bramki logiczne, tabele prawdy, liczby binarne |
+| 1 · Pierwsze iskry | podstawy | Iskierka | prąd i bateria, bezpieczeństwo, obwód, przewodniki, symbole, szeregowo i równolegle, zwarcie, opornik, dioda LED, czujniki, zielona energia |
+| 2 · Fizyka prądu | średni | Iskra | jednostki i przedrostki, multimetr, prawo Ohma, łączenie oporników, dzielnik i potencjometr, kod kolorów, moc i energia (kWh), bezpiecznik, elektromagnes, silnik, prądnica, transformator |
+| 3 · Elektronika na serio | zaawansowany | Błyskawica | kondensator i stała RC, diody i prostowanie, zasilacz, tranzystor jako przełącznik i wzmacniacz, czujnik zmierzchu, bramki logiczne, tabele prawdy, liczby binarne |
 
-Starsze dziecko może zacząć od razu od etapu 2 albo 3: przy pierwszym uruchomieniu gra pyta o wiek,
-a w profilu jest przycisk „Odblokuj wszystkie etapy”.
+Wiek nie ma znaczenia: każdy początkujący zaczyna od podstaw. Kto zna już etap, może zdać **test przeskoczenia**
+(12 pytań, najwyżej 2 pomyłki) – wystarczy dotknąć zablokowanego etapu. W profilu jest też przycisk dla nauczyciela,
+który odblokowuje wszystko.
 
 ## Jak uruchomić
 

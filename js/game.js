@@ -77,7 +77,7 @@
   function applyForm() { const st = STAGES[S.stageMax] || STAGES[0]; ART.setForm(st ? st.form : 1); }
 
   /* ---------- powłoka ---------- */
-  const TABS = [['path', 'Nauka', 'path'], ['album', 'Album', 'sticker'], ['closet', 'Szafa', 'hanger'], ['me', 'Profil', 'user']];
+  const TABS = [['path', 'Nauka', 'path'], ['games', 'Gry', 'game'], ['album', 'Album', 'sticker'], ['closet', 'Szafa', 'hanger'], ['me', 'Profil', 'user']];
   function renderShell() {
     $('#app').innerHTML = '<header class="topbar" id="top"></header><main id="view" tabindex="-1"></main><nav class="tabs" id="tabs" aria-label="Menu"></nav>';
   }
@@ -97,6 +97,7 @@
   function renderView() {
     if (tab === 'path') renderPath();
     else if (tab === 'album') renderAlbum();
+    else if (tab === 'games' && API.renderGames) API.renderGames();
     else if (tab === 'closet') renderCloset();
     else renderMe();
   }
@@ -118,7 +119,7 @@
       const total = NODES.filter((n) => n.si === si).length, done = NODES.filter((n) => n.si === si && isDone(n)).length;
       return '<button class="stg' + (on ? ' on' : '') + (locked ? ' locked' : '') + '" role="tab" aria-selected="' + on + '" data-act="stage" data-s="' + si + '">' +
         '<span class="stg-m">' + ART.mascot(locked ? 'sleep' : 'happy', null, '', st.form) + '</span>' +
-        '<span class="stg-t"><b>Etap ' + st.n + '</b><span>' + st.age + ' · ' + st.name + '</span>' +
+        '<span class="stg-t"><b>Etap ' + st.n + '</b><span>' + st.level + '</span>' +
         '<i class="stg-bar"><i style="width:' + Math.round(done / total * 100) + '%"></i></i></span>' +
         (locked ? '<span class="stg-lock">' + ART.icon('lock') + '</span>' : '') + '</button>';
     }).join('') + '</div>';
@@ -170,7 +171,7 @@
     } else if (cur >= NODES.length) {
       const nx = STAGES[S.stage + 1];
       h += '<div class="finale">' + ART.mascot('cheer', S.wear) + (nx
-        ? '<h2>Etap ' + stage.n + ' ukończony!</h2><p>Czeka na Ciebie etap ' + nx.n + ' (' + nx.age + '): ' + nx.title + '.</p><button class="btn" data-act="stage" data-s="' + (S.stage + 1) + '" style="max-width:320px">Przejdź do etapu ' + nx.n + '</button>'
+        ? '<h2>Etap ' + stage.n + ' ukończony!</h2><p>Czeka na Ciebie etap ' + nx.n + ': ' + nx.title + '.</p><button class="btn" data-act="stage" data-s="' + (S.stage + 1) + '" style="max-width:320px">Przejdź do etapu ' + nx.n + '</button>'
         : '<h2>Cała ścieżka ukończona!</h2><p>Możesz powtarzać lekcje i zbierać kolejne iskry.</p>') + '</div>';
     } else {
       h += '<div class="finale"><p>Każda lekcja to 3–5 minut. Krok po kroku!</p></div>';
@@ -210,7 +211,7 @@
     const got = STICKERS.filter((s) => S.stickers.includes(s.id)).length;
     let h = '<div class="page-title"><h1>Album naklejek</h1><p>Zebrane: ' + got + ' z ' + STICKERS.length + '. Każdy nowy znajomy z lekcji trafia tutaj.</p></div>';
     STAGES.forEach((stg, si) => {
-      h += '<h2 class="album-h">Etap ' + stg.n + ' · ' + stg.name + ' <span>' + stg.age + '</span></h2><div class="album">';
+      h += '<h2 class="album-h">Etap ' + stg.n + ' · ' + stg.name + ' <span>' + stg.level + '</span></h2><div class="album">';
       STICKERS.filter((x) => x.si === si).forEach((s) => { const k = STICKERS.indexOf(s);
       const has = S.stickers.includes(s.id), rot = ((k * 37) % 9) - 4;
       h += '<button class="stk ' + (has ? '' : 'locked') + '" data-act="sticker" data-id="' + s.id + '" aria-label="' + (has ? esc(s.name) : 'Nieodkryta naklejka') + '">' +
@@ -263,17 +264,17 @@
       (SND.ios ? '<p class="note">Na iPhonie i iPadzie dźwięk gry wycisza przełącznik trybu cichego z boku urządzenia.</p>' : '') + '</div>' +
       '<div class="section"><h2>Etapy</h2><div class="stagelist">' + STAGES.map((st, si) => {
         const total = NODES.filter((n) => n.si === si).length, done = NODES.filter((n) => n.si === si && isDone(n)).length;
-        return '<div class="sbox">' + ART.mascot(si <= S.stageMax ? 'happy' : 'sleep', null, '', st.form) + '<div><b>Etap ' + st.n + ' · ' + st.name + '</b><span>' + st.age + ' · ' + st.title + ' · ' + (si <= S.stageMax ? done + ' / ' + total : 'zablokowany') + '</span></div></div>';
+        return '<div class="sbox">' + ART.mascot(si <= S.stageMax ? 'happy' : 'sleep', null, '', st.form) + '<div><b>Etap ' + st.n + ' · ' + st.name + '</b><span>' + st.level + ' · ' + st.title + ' · ' + (si <= S.stageMax ? done + ' / ' + total : 'zablokowany') + '</span></div></div>';
       }).join('') + '</div></div>' +
       '<div class="section"><h2>Dla rodziców i nauczycieli</h2><div class="parents">' +
-      '<p>Iskierka uczy elektroniki w trzech etapach, a maskotka dorasta razem z dzieckiem. <b>Etap 1 (10+)</b>: prąd, obwód, bezpieczeństwo, przewodniki, połączenia, opornik, dioda LED, czujniki. <b>Etap 2 (12+)</b>: pomiary multimetrem, prawo Ohma, łączenie oporników, moc i energia, magnetyzm. <b>Etap 3 (14+)</b>: kondensator, prostowanie, tranzystor, logika cyfrowa i liczby binarne.</p>' +
+      '<p>Iskierka prowadzi od zupełnych podstaw do elektroniki na serio – bez względu na wiek. Każdy zaczyna od etapu 1, a kto zna już podstawy, może zdać test przeskoczenia. Maskotka dorasta razem z graczem. <b>Etap 1 · podstawy</b>: prąd, obwód, bezpieczeństwo, przewodniki, połączenia, opornik, dioda LED, czujniki. <b>Etap 2 · średni</b>: pomiary, prawo Ohma, oporniki, moc i energia, magnetyzm. <b>Etap 3 · zaawansowany</b>: kondensator, prostowanie, tranzystor, logika cyfrowa.</p>' +
       '<ul><li>Lekcja trwa 3–5 minut. Zaczyna się od karty wiedzy, potem są ćwiczenia z natychmiastową podpowiedzią. Błędne odpowiedzi wracają na końcu lekcji.</li>' +
       '<li>Obwody w grze są naprawdę przeliczane: żarówki w szeregu świecą słabiej, zwarcie gasi żarówkę, a dioda działa w jedną stronę.</li>' +
       '<li>Rozdział o bezpieczeństwie jest celowo na początku. Warto omówić go razem z dzieckiem.</li>' +
       '<li>Do pierwszych prawdziwych eksperymentów wystarczy bateria 4,5 V, żaróweczka 3,5 V i kilka kabelków z krokodylkami – zawsze pod okiem dorosłego.</li>' +
       '<li>Każdy rozdział ma warsztat z łamigłówkami: płytka stykowa, wzorki z diod, dobieranie baterii i oporników.</li>' +
       '<li>Postęp zapisuje się tylko w tej przeglądarce. Gra niczego nie wysyła.</li></ul>' +
-      (S.stageMax < STAGES.length - 1 ? '<button class="btn ghost small" data-act="unlock-all">Odblokuj wszystkie etapy (dla starszych dzieci)</button>' : '') + '</div>' +
+      (S.stageMax < STAGES.length - 1 ? '<button class="btn ghost small" data-act="unlock-all">Odblokuj wszystkie etapy (tryb nauczyciela)</button>' : '') + '</div>' +
       '<button class="danger-link" data-act="reset">Zacznij od nowa (usuwa postęp)</button></div>';
     $('#view').innerHTML = h;
   }
@@ -300,12 +301,8 @@
     modal(ART.mascot('cheer') + '<h2>Cześć! Jestem Iskierka</h2>' +
       '<p>Razem odkryjemy, jak działa prąd: od baterii i żarówek, aż po diody LED i czujniki. Krótkie lekcje, dużo eksperymentów.</p>' +
       '<label for="oname" class="sr-only">Twoje imię</label><input id="oname" class="input" maxlength="20" autocomplete="off" placeholder="Twoje imię (nie musisz)">' +
-      '<div class="eyebrow">Ile masz lat?</div><div class="choicechips" id="oage" role="radiogroup" aria-label="Wiek">' + ageChips(S.stageMax) + '</div>' +
       '<div class="eyebrow">Ile chcesz się uczyć dziennie?</div><div class="choicechips" id="ogoal" role="radiogroup" aria-label="Cel dnia">' + goalChips(S.goal) + '</div>' +
       '<button class="btn" data-act="onboard">Zaczynamy!</button>', { locked: true, label: 'Powitanie', focus: '.btn' });
-  }
-  function ageChips(sel) {
-    return STAGES.map((st, si) => '<button class="cc ' + (sel === si ? 'on' : '') + '" role="radio" aria-checked="' + (sel === si) + '" data-act="age" data-s="' + si + '">' + st.ageLabel + '</button>').join('');
   }
   function guideModal(ui) {
     const u = STAGES[S.stage].units[ui];
@@ -419,13 +416,25 @@
       n.u.lessons.forEach((l) => l.ex.forEach((e) => { if (e.t !== 'learn') pool.push(e); }));
       queue = shuffle(pool).slice(0, 8);
     }
-    L = { node: n, i: 0, queue, replay: isDone(n), mistakes: 0, checks: 0, oks: 0, combo: 0, start: Date.now(), st: {}, checked: false, finished: false };
+    openLesson(n, queue, { replay: isDone(n) });
+  }
+  /* test przeskoczenia: 12 pytań z poprzedniego etapu, najwyżej 2 pomyłki */
+  const QUICK = ['choice', 'tf', 'fill', 'calc', 'circuit', 'slider', 'dial', 'triangle', 'grid', 'truth'];
+  function startPlacement(si) {
+    if (si !== S.stageMax + 1 || !STAGES[si]) return;
+    const pool = [];
+    STAGES[si - 1].units.forEach((u) => u.lessons.forEach((l) => l.ex.forEach((e) => { if (QUICK.indexOf(e.t) >= 0) pool.push(e); })));
+    closeModal();
+    openLesson({ kind: 'placement', id: 'skip-' + STAGES[si].id, si: si - 1, target: si }, shuffle(pool).slice(0, 12), { placement: true, allowed: 2 });
+  }
+  function openLesson(n, queue, extra) {
+    L = Object.assign({ node: n, i: 0, queue, replay: false, mistakes: 0, checks: 0, oks: 0, combo: 0, start: Date.now(), st: {}, checked: false, finished: false }, extra || {});
     popFor = null;
     const el = $('#lesson');
     el.innerHTML =
       '<div class="l-top gut"><div class="in"><button class="icon-btn" data-act="quit" aria-label="Zakończ lekcję">' + ART.icon('close') + '</button>' +
       '<div class="pbar" id="pbar" role="progressbar" aria-label="Postęp lekcji" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>' +
-      '<span class="hearts" id="hearts" aria-label="Serduszka">' + ART.icon('heart') + '<span id="hn">' + S.hearts + '</span></span></div></div>' +
+      '<span class="hearts" id="hearts" aria-label="' + (L.placement ? 'Dozwolone pomyłki' : 'Serduszka') + '">' + ART.icon('heart') + '<span id="hn">' + (L.placement ? L.allowed : S.hearts) + '</span></span></div></div>' +
       '<div class="l-body gut" id="lbody"><div class="in" id="lin"></div></div>' +
       '<div class="l-foot gut" id="lfoot"><div class="in" id="lfin"></div></div>';
     el.hidden = false;
@@ -474,11 +483,13 @@
   const FUNNY = ['Hihi, nie tym razem!', 'Ha! Dobry żart', 'Uroczo, ale nie', 'Iskierka chichocze'];
   function feedback(ok, ex, ans, o) {
     o = o || {};
+    if (L.placement) { o.noHeart = true; o.noRequeue = true; }
     L.checked = true; L.checks++;
     if (ok) { L.combo++; if (o.acc !== false) L.oks++; SND.play('good'); }
     else {
       L.combo = 0; L.mistakes++; SND.play('bad');
       if (!o.noHeart) loseHeart();
+      if (L.placement) { const hn = $('#hn'); if (hn) hn.textContent = Math.max(0, L.allowed - L.mistakes); }
       if (!o.noRequeue) L.queue.push(ex);
     }
     const pick = (a) => a[Math.floor(Math.random() * a.length)];
@@ -507,16 +518,35 @@
     if (L.finished) { closeLesson(); return; }
     const ex = L.queue[L.i];
     if (ex.t !== 'learn' && !L.checked) return;
-    if (S.hearts <= 0) { outOfHearts(); return; }
+    if (L.placement && L.mistakes > L.allowed) { finish(); return; }
+    if (!L.placement && S.hearts <= 0) { outOfHearts(); return; }
     L.i++;
     if (L.i >= L.queue.length) finish(); else renderStep();
   }
+  function finishPlacement() {
+    const n = L.node, pass = L.mistakes <= L.allowed, st = STAGES[n.target];
+    if (pass) {
+      S.xp += 10; S.todayXp += 10;
+      if (S.stageMax < n.target) { S.stageMax = n.target; pendingGrow = n.target; }
+      save();
+    }
+    L.finished = true;
+    $('#lin').innerHTML = '<div class="done-screen">' + ART.mascot(pass ? 'cheer' : 'think', S.wear, pass ? 'bounce' : '') +
+      '<h2>' + (pass ? 'Test zdany!' : 'Jeszcze nie tym razem') + '</h2>' +
+      '<div class="tiles"><div class="tile"><div class="tl">Pytania</div><div class="tv">' + L.checks + '</div></div><div class="tile mint"><div class="tl">Dobrze</div><div class="tv">' + L.oks + '</div></div><div class="tile violet"><div class="tl">Pomyłki</div><div class="tv">' + L.mistakes + '</div></div></div>' +
+      '<p>' + (pass ? 'Etap ' + st.n + ' (' + st.title + ') jest otwarty. Etap ' + STAGES[n.si].n + ' zostaje na ścieżce – możesz do niego wracać, kiedy chcesz.' : 'Etap ' + STAGES[n.si].n + ' nauczy Cię wszystkiego, czego tu zabrakło. Test możesz powtórzyć w każdej chwili.') + '</p></div>';
+    $('#lfoot').className = 'l-foot gut';
+    $('#lfin').innerHTML = '<button class="btn" data-act="next" id="cta">Dalej</button>';
+    setProgress();
+    if (pass) { SND.play('win'); confetti(50); } else SND.play('pop');
+  }
   function finish() {
+    if (L.node.kind === 'placement') { finishPlacement(); return; }
     const n = L.node, first = !L.replay;
     let xp = n.kind === 'test' ? (first ? 20 : 5) : (first ? 10 : 5);
     const perfect = L.mistakes === 0;
     if (perfect && first && n.kind === 'lesson') xp += 5;
-    const goalBefore = S.todayXp >= S.goal, lvBefore = levelOf(S.xp);
+    const goalBefore = S.todayXp >= S.goal, lvBefore = levelOf(S.xp), xpBefore = S.xp;
     S.xp += xp; S.todayXp += xp; S.lessons++;
     const t = day();
     let streakUp = false;
@@ -539,6 +569,9 @@
     if (!goalBefore && S.todayXp >= S.goal) rewards += '<div class="reward"><span class="big-ic">' + ART.icon('flame') + '</span><div><div class="tag">Cel dnia</div><h3>Cel dnia osiągnięty!</h3><p>Seria: ' + S.streak + ' ' + plural(S.streak, 'dzień', 'dni', 'dni') + '. Brawo za wytrwałość!</p></div></div>';
     else if (streakUp) rewards += '<div class="reward"><span class="big-ic">' + ART.icon('flame') + '</span><div><div class="tag">Seria</div><h3>' + S.streak + ' ' + plural(S.streak, 'dzień', 'dni', 'dni') + ' z rzędu</h3><p>Wróć jutro, żeby płomyk rósł.</p></div></div>';
     if (levelOf(S.xp) > lvBefore) rewards += '<div class="reward"><span class="big-ic">' + ART.icon('star') + '</span><div><div class="tag">Nowy poziom</div><h3>Poziom ' + (levelOf(S.xp) + 1) + ': ' + LEVELS[levelOf(S.xp)][1] + '</h3><p>Iskry płyną coraz szybciej!</p></div></div>';
+    (window.ISK_GAMES_LIST || []).filter((g) => xpBefore < g.need && S.xp >= g.need).forEach((g) => {
+      rewards += '<div class="reward"><span class="big-ic">' + ART.icon('game') + '</span><div><div class="tag">Nowa minigra</div><h3>' + g.name + '</h3><p>Znajdziesz ją w zakładce Gry.</p></div></div>';
+    });
     newAcc.forEach((a) => { rewards += '<div class="reward">' + ART.mascot('cheer', a.id) + '<div><div class="tag">Nowy dodatek</div><h3>' + a.name + '</h3><p>Znajdziesz go w szafie.</p></div></div>'; });
     const lastTest = n.kind === 'test' && stageDone(n.si);
     if (lastTest && n.si === S.stageMax && n.si + 1 < STAGES.length) {
@@ -899,14 +932,18 @@
   }
 
   function lockedStageModal(si) {
-    const st = STAGES[si];
-    modal(ART.mascot('sleep', null, '', st.form) + '<h2>Etap ' + st.n + ' · ' + st.name + '</h2><p>' + st.age + ' · ' + st.title + '. Otworzy się, gdy ukończysz etap ' + STAGES[si - 1].n + '. Starsze dzieci mogą zacząć od razu – rodzic lub nauczyciel odblokuje go w profilu.</p><button class="btn" data-act="close-modal">OK</button>', { label: 'Etap zablokowany' });
+    const st = STAGES[si], prev = STAGES[si - 1];
+    const canTest = si === S.stageMax + 1;
+    modal(ART.mascot('sleep', null, '', st.form) + '<h2>Etap ' + st.n + ' · ' + st.title + '</h2>' +
+      '<p>' + st.level + '. Otworzy się, gdy ukończysz etap ' + prev.n + '.' + (canTest ? ' Znasz już te podstawy? Zdaj <b>test przeskoczenia</b>: 12 pytań z etapu ' + prev.n + ', możesz pomylić się najwyżej 2 razy.' : ' Najpierw otwórz etap ' + prev.n + '.') + '</p>' +
+      (canTest ? '<button class="btn" data-act="skiptest" data-s="' + si + '">Zrób test przeskoczenia</button><button class="btn ghost" data-act="close-modal">Wrócę później</button>' : '<button class="btn" data-act="close-modal">OK</button>'),
+    { label: 'Etap zablokowany' });
   }
 
   /* ---------- wtyczki z dodatkowymi rodzajami zadań ---------- */
   const ACTS = {}, INPUTS = {}, KEYS = [];
   const API = {
-    EX, ACTS, INPUTS, KEYS, ART, CIR, SND, $, $$, esc, shuffle, num, plural, speaker, head, artBlock, cell, updateCta, feedback, confetti,
+    EX, ACTS, INPUTS, KEYS, ART, CIR, SND, $, $$, esc, shuffle, num, plural, speaker, head, artBlock, cell, updateCta, feedback, confetti, save, renderTop, modal, closeModal, STAGES,
     get L() { return L; }, get S() { return S; }
   };
   (window.ISK_PLUGINS || []).forEach((fn) => { try { fn(API); } catch (e) { console.error(e); } });
@@ -1006,13 +1043,7 @@
         if (si > S.stageMax) { lockedStageModal(si); break; }
         S.stage = si; popFor = null; save(); SND.play('pop'); render(); $('#view').scrollTop = 0; requestAnimationFrame(() => scrollToCurrent(false)); break;
       }
-      case 'age': {
-        const si = +el.dataset.s;
-        S.stageMax = si; S.stage = si; applyForm(); SND.play('tap');
-        const box = el.parentElement; if (box) box.innerHTML = ageChips(si);
-        const m = $('#modal .sheet > svg.mascot'); if (m) m.outerHTML = ART.mascot('cheer');
-        break;
-      }
+      case 'skiptest': startPlacement(+el.dataset.s); break;
       case 'unlock-all':
         S.stageMax = STAGES.length - 1; applyForm(); save(); SND.play('chest'); render();
         break;

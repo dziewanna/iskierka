@@ -1,4 +1,4 @@
-/* ISKIERKA — ETAP 3 · Błyskawica · 14+
+/* ISKIERKA — ETAP 3 · Błyskawica · zaawansowany
    Elektronika na serio: kondensator, diody i prostowanie, tranzystor, logika cyfrowa.
    Funkcje do tworzenia zadań są w js/kit.js. */
 (function () {
@@ -262,7 +262,7 @@
   ];
 
   window.ISK_STAGES.push({
-    id: 'e3', n: 3, name: 'Błyskawica', form: 3, age: '14+', ageLabel: '14 lat i więcej', title: 'Elektronika na serio',
+    id: 'e3', n: 3, name: 'Błyskawica', form: 3, level: 'zaawansowany', title: 'Elektronika na serio',
     grow: 'Znowu urosłam – teraz jestem <b>Błyskawicą</b>! Przed nami prawdziwa elektronika: kondensatory, tranzystory i logika, z której zbudowane są komputery.',
     units: units, stickers: stickers, accs: accs
   });

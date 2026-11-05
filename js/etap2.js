@@ -1,4 +1,4 @@
-/* ISKIERKA — ETAP 2 · Iskra · 12+
+/* ISKIERKA — ETAP 2 · Iskra · poziom średni
    Fizyka prądu: pomiary, prawo Ohma, łączenie oporników, moc i energia, magnetyzm.
    Funkcje do tworzenia zadań są w js/kit.js. */
 (function () {
@@ -303,7 +303,7 @@
   ];
 
   window.ISK_STAGES.push({
-    id: 'e2', n: 2, name: 'Iskra', form: 2, age: '12+', ageLabel: '12–13 lat', title: 'Fizyka prądu',
+    id: 'e2', n: 2, name: 'Iskra', form: 2, level: 'poziom średni', title: 'Fizyka prądu',
     grow: 'Urosłam! Teraz jestem <b>Iskrą</b>. W etapie 2 mierzymy i liczymy jak fizycy: multimetr, prawo Ohma, moc, energia i magnesy.',
     units: units, stickers: stickers, accs: accs
   });

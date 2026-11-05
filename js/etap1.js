@@ -1,4 +1,4 @@
-/* ISKIERKA — ETAP 1 · Iskierka · 10+
+/* ISKIERKA — ETAP 1 · Iskierka · podstawy
    Pierwsze iskry: prąd, bateria, bezpieczeństwo, obwód, połączenia, opornik, dioda, czujniki.
    Funkcje do tworzenia zadań są w js/kit.js.
    Pole sol przy płytkach stykowych to przykładowe rozwiązanie (otwory dla kolejnych części z pudełka). */
@@ -436,7 +436,7 @@
   ];
 
   window.ISK_STAGES.push({
-    id: 'e1', n: 1, name: 'Iskierka', form: 1, age: '10+', ageLabel: '10–11 lat', title: 'Pierwsze iskry',
+    id: 'e1', n: 1, name: 'Iskierka', form: 1, level: 'podstawy', title: 'Pierwsze iskry',
     grow: '', units: units, stickers: stickers, accs: accs
   });
 })();

@@ -298,6 +298,7 @@
     up: '<path d="M12 19 V5 M6 11 l6 -6 6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
     arrow: '<path d="M5 12 H19 M13 6 l6 6 -6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
     sun: '<circle cx="12" cy="12" r="4.5" fill="#FFC93C"/><path d="M12 2 v3 M12 19 v3 M2 12 h3 M19 12 h3 M5 5 l2 2 M17 17 l2 2 M19 5 l-2 2 M7 17 l-2 2" stroke="#F0A417" stroke-width="2" stroke-linecap="round"/>',
-    moon: '<path d="M19 15 A8 8 0 0 1 9 5 A8 8 0 1 0 19 15 Z" fill="#8E89C8"/>'
+    moon: '<path d="M19 15 A8 8 0 0 1 9 5 A8 8 0 1 0 19 15 Z" fill="#8E89C8"/>',
+    game: '<rect x="2.5" y="7" width="19" height="11" rx="5.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M7.5 10.5 v4 M5.5 12.5 h4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="15.5" cy="11" r="1.4" fill="currentColor"/><circle cx="18" cy="13.8" r="1.4" fill="currentColor"/>'
   });
 })();
