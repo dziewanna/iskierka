@@ -258,7 +258,9 @@
       '<div class="section"><h2>Jak masz na imię?</h2><div class="field"><label for="pname" class="sr-only">Imię</label><input id="pname" class="input" maxlength="20" autocomplete="off" value="' + esc(S.name) + '" placeholder="Wpisz imię"><button class="btn small" data-act="save-name">Zapisz</button></div></div>' +
       '<div class="section"><h2>Cel dnia</h2><div class="choicechips" role="radiogroup" aria-label="Cel dnia">' + goalChips() + '</div></div>' +
       '<div class="section"><h2>Aplikacja</h2><div class="parents" id="pwa-box">' + (window.ISK_PWA ? window.ISK_PWA.html() : '') + '</div></div>' +
-      '<div class="section"><div class="switchrow"><span>Dźwięki</span><button class="toggle" role="switch" aria-checked="' + S.sound + '" aria-label="Dźwięki" data-act="sound"></button></div></div>' +
+      '<div class="section"><div class="switchrow"><span>Dźwięki</span><button class="toggle" role="switch" aria-checked="' + S.sound + '" aria-label="Dźwięki" data-act="sound"></button></div>' +
+      (S.sound ? '<button class="btn ghost small" data-act="sound-test">Sprawdź dźwięk</button>' : '') +
+      (SND.ios ? '<p class="note">Na iPhonie i iPadzie dźwięk gry wycisza przełącznik trybu cichego z boku urządzenia.</p>' : '') + '</div>' +
       '<div class="section"><h2>Etapy</h2><div class="stagelist">' + STAGES.map((st, si) => {
         const total = NODES.filter((n) => n.si === si).length, done = NODES.filter((n) => n.si === si && isDone(n)).length;
         return '<div class="sbox">' + ART.mascot(si <= S.stageMax ? 'happy' : 'sleep', null, '', st.form) + '<div><b>Etap ' + st.n + ' · ' + st.name + '</b><span>' + st.age + ' · ' + st.title + ' · ' + (si <= S.stageMax ? done + ' / ' + total : 'zablokowany') + '</span></div></div>';
@@ -951,6 +953,7 @@
       }
       case 'save-name': { S.name = ($('#pname').value || '').trim().slice(0, 20); save(); SND.play('pop'); renderMe(); break; }
       case 'sound': S.sound = !S.sound; SND.set(S.sound); save(); if (S.sound) SND.play('pop'); renderMe(); break;
+      case 'sound-test': SND.unlock(); SND.play('win'); break;
       case 'reset':
         modal(ART.mascot('oops', S.wear) + '<h2>Zacząć od nowa?</h2><p>Znikną wszystkie iskry, naklejki i dodatki. Tego nie da się cofnąć.</p>' +
           '<button class="btn ghost" data-act="close-modal">Nie, zostawiam</button><button class="btn berry" data-act="reset-yes">Tak, zaczynam od nowa</button>', { label: 'Zacząć od nowa?' });

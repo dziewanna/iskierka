@@ -210,7 +210,7 @@
           ex: [
             learn('robot', 'Robot Wolcik', 'Wolcik ma wiatraczek, który potrzebuje <b>9 V</b>, i dwie baterie po 4,5 V. Żeby napięcia się dodały, baterie łączymy <b>szeregowo</b>: plus jednej do minusa drugiej.'),
             build('Połącz baterie szeregowo i zasil wiatraczek Wolcika napięciem 9 V.', {
-              scene: 'robot', parts: [{ id: 'B1', t: 'bat', rint: 0.01, at: [62, 200] }, { id: 'B2', t: 'bat', rint: 0.01, at: [62, 262] }, { id: 'M', t: 'motor', skin: 'fan', at: [203, 42], name: 'Wiatraczek', vmin: 7, need: 9 }],
+              scene: 'robot', parts: [{ id: 'B1', t: 'bat', rint: 0.01, at: [62, 200], name: 'Górna bateria' }, { id: 'B2', t: 'bat', rint: 0.01, at: [62, 262], name: 'Dolna bateria' }, { id: 'M', t: 'motor', skin: 'fan', at: [203, 42], name: 'Wiatraczek', vmin: 7, need: 9 }],
               goal: { lit: { M: true } }, route: 'Najpierw <b>plus górnej baterii → minus dolnej</b>. Potem <b>plus dolnej → wiatraczek → minus górnej</b>.', hint: 'plus jednej baterii połącz z minusem drugiej, a wolne końce z wiatraczkiem', sol: [['B1:+', 'B2:-'], ['B2:+', 'M:a'], ['M:b', 'B1:-']]
             }, 'Plus do minusa – i 4,5 V + 4,5 V = 9 V. Wiatraczek ruszył!'),
             tf('Odwrotnie połączona bateria w szeregu odejmuje napięcie zamiast je dodawać.', true, '4,5 V − 4,5 V = 0 V. Dlatego w pilocie baterie wkłada się według rysunku.'),

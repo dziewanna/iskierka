@@ -147,7 +147,7 @@
         {
           id: 'u2w', title: 'Potwór Mruczek', icon: 'monster', ws: true, desc: 'Misja: obudź elektronicznego potwora.',
           ex: [
-            learn('missionDemo', 'Poznaj Mruczka', 'To Mruczek – elektroniczny potwór. Jego oczy to żarówki. Złote kropki to <b>zaciski</b>: dotknij jednego, a potem drugiego, żeby połączyć je kabelkiem. Dotknij kabelka, żeby go usunąć. Gdy utkniesz, dotknij <b>Podpowiedź</b>. Na obrazku jeden kabelek już jest – czego jeszcze brakuje, żeby oko się otworzyło?'),
+            learn('missionDemo', 'Poznaj Mruczka', 'To Mruczek – elektroniczny potwór. Jego oczy to żarówki. Złote kropki to <b>zaciski</b>: dotknij jednego, a potem drugiego, żeby połączyć je kabelkiem. Każde oko ma <b>dwie nóżki</b>: prąd wchodzi jedną, a wychodzi drugą. Dotknij kabelka, żeby go usunąć. Gdy utkniesz, dotknij <b>Podpowiedź</b>. Na obrazku jeden kabelek już jest – czego jeszcze brakuje, żeby oko się otworzyło?'),
             build('Mruczek śpi. Połącz baterię z jego okiem, żeby je otworzył.', {
               scene: 'monster', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'E1', t: 'lamp', skin: 'eye', at: [220, 112], name: 'Oko' }],
               goal: { lit: { E1: true } }, route: 'Droga prądu: <b>plus baterii → oko → minus baterii</b>. Każda nóżka oka łączy się z innym biegunem.', hint: 'plus baterii do jednej nóżki oka, a drugą nóżkę do minusa', sol: [['B:+', 'E1:a'], ['E1:b', 'B:-']]
@@ -155,7 +155,7 @@
             choice('Dlaczego oko zaświeciło dopiero po drugim kabelku?', ['Bo prąd musi wrócić do baterii – obwód był otwarty', F('Bo Mruczek budzi się powoli', 'Mruczek to śpioch, ale tu chodziło o zamknięte kółko dla prądu!'), F('Bo pierwszy kabelek był nieśmiały', 'Kabelki nie bywają nieśmiałe. Obwód musiał się zamknąć.'), 'Bo bateria potrzebowała chwili'], 0, 'Jeden kabelek to tylko połowa drogi. Prąd potrzebuje pełnego kółka.'),
             build('Teraz Mruczek ma dwoje oczu. Zapal oba!', {
               scene: 'monster', parts: [{ id: 'B', t: 'bat', at: [62, 252] }, { id: 'E1', t: 'lamp', skin: 'eye', at: [185, 112], name: 'Lewe oko' }, { id: 'E2', t: 'lamp', skin: 'eye', at: [255, 112], name: 'Prawe oko' }],
-              goal: { lit: { E1: true, E2: true } }, route: 'Na przykład: <b>plus baterii → lewe oko → prawe oko → minus baterii</b>.', hint: 'połącz oczy jedno za drugim albo każde osobno z baterią', sol: [['B:+', 'E1:a'], ['E1:b', 'E2:a'], ['E2:b', 'B:-']]
+              goal: { lit: { E1: true, E2: true } }, route: 'Prąd wchodzi do oka jedną nóżką, a wychodzi drugą. Na przykład: plus baterii → <b>lewa</b> nóżka lewego oka, <b>prawa</b> nóżka lewego oka → <b>lewa</b> nóżka prawego oka, <b>prawa</b> nóżka prawego oka → minus baterii.', hint: 'połącz oczy jedno za drugim albo każde osobno z baterią', sol: [['B:+', 'E1:a'], ['E1:b', 'E2:a'], ['E2:b', 'B:-']]
             }, 'Da się na dwa sposoby: oczy jedno za drugim (szeregowo) albo każde osobno z baterią (równolegle).'),
             learn('switchOn', 'Nos to przełącznik', 'Nos Mruczka działa jak <b>przełącznik</b>. Żeby sterował oczami, musi stać <b>na drodze prądu</b> – między baterią a oczami. Prąd idzie po kolei: <b>plus baterii → nos → oczy → minus baterii</b>. Gdy nos jest puszczony, droga jest przerwana.'),
             build('Połowa kabelków już jest! Dołóż dwa: od plusa baterii do nosa i od nosa do lewego oka.', {
@@ -171,7 +171,7 @@
               goal: { cases: [
                 { name: 'Nos wciśnięty', want: 'oczy otwarte', set: { S: { on: true } }, lit: { E1: true, E2: true } },
                 { name: 'Nos puszczony', want: 'oczy śpią', set: { S: { on: false } }, lit: { E1: false, E2: false } }
-              ] }, route: 'Droga prądu: <b>plus baterii → nos → lewe oko → prawe oko → minus baterii</b>. Nos stoi na początku drogi, więc bez niego prąd nie dojdzie do oczu.', hint: 'prąd z baterii musi przejść przez nos, zanim dotrze do oczu', sol: [['B:+', 'S:a'], ['S:b', 'E1:a'], ['E1:b', 'E2:a'], ['E2:b', 'B:-']]
+              ] }, route: 'Droga prądu: <b>plus baterii → nos → lewe oko → prawe oko → minus baterii</b>. Nos stoi na początku drogi, więc bez niego prąd nie dojdzie do oczu. Pamiętaj: do każdego oka i nosa prąd wchodzi jednym zaciskiem, a wychodzi drugim.', hint: 'prąd z baterii musi przejść przez nos, zanim dotrze do oczu', sol: [['B:+', 'S:a'], ['S:b', 'E1:a'], ['E1:b', 'E2:a'], ['E2:b', 'B:-']]
             }, 'Nos działa jak przełącznik: dopiero gdy go wciśniesz, obwód się zamyka.')
           ]
         }

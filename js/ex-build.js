@@ -202,9 +202,24 @@
   var DEFS = '<defs><radialGradient id="mGlowY"><stop offset="0" stop-color="#FFD23F" stop-opacity=".8"/><stop offset="1" stop-color="#FFD23F" stop-opacity="0"/></radialGradient>' +
     '<radialGradient id="mGlowR"><stop offset="0" stop-color="#FF7A9A" stop-opacity=".8"/><stop offset="1" stop-color="#FF7A9A" stop-opacity="0"/></radialGradient></defs>';
 
-  function wirePath(a, b) {
-    var sag = 26 + Math.abs(b.x - a.x) * 0.12;
-    return 'M' + a.x + ' ' + a.y + ' C' + a.x + ' ' + r1(a.y + sag) + ' ' + b.x + ' ' + r1(b.y + sag) + ' ' + b.x + ' ' + b.y;
+  /* kabelek zwisa łukiem; wybieramy taki łuk, który nie przechodzi przez inne zaciski */
+  function wirePath(a, b, e) {
+    var base = 26 + Math.abs(b.x - a.x) * 0.12, pick = base;
+    if (e) {
+      var others = allTerms(e).filter(function (t) { return !(t.x === a.x && t.y === a.y) && !(t.x === b.x && t.y === b.y); });
+      var ok = function (sag) {
+        for (var i = 1; i < 20; i++) {
+          var t = i / 20, u = 1 - t;
+          var x = u * u * u * a.x + 3 * u * u * t * a.x + 3 * u * t * t * b.x + t * t * t * b.x;
+          var y = u * u * u * a.y + 3 * u * u * t * (a.y + sag) + 3 * u * t * t * (b.y + sag) + t * t * t * b.y;
+          for (var k = 0; k < others.length; k++) if (Math.hypot(others[k].x - x, others[k].y - y) < 15) return false;
+        }
+        return true;
+      };
+      var cands = [base, base * 0.5, base * 1.7, -base * 0.6, -base * 1.3, base * 2.4, 6];
+      for (var c = 0; c < cands.length; c++) if (ok(cands[c])) { pick = cands[c]; break; }
+    }
+    return 'M' + a.x + ' ' + a.y + ' C' + a.x + ' ' + r1(a.y + pick) + ' ' + b.x + ' ' + r1(b.y + pick) + ' ' + b.x + ' ' + b.y;
   }
 
   function sceneSVG(e, st, o) {
@@ -216,12 +231,12 @@
     all.forEach(function (w, k) {
       var a = termAt(e, w[0]), b = termAt(e, w[1]);
       if (!a || !b) return;
-      var d = wirePath(a, b), col = k < fixed.length ? '#6E6A9C' : WIRE[(k - fixed.length) % WIRE.length];
+      var d = wirePath(a, b, e), col = k < fixed.length ? '#6E6A9C' : WIRE[(k - fixed.length) % WIRE.length];
       var I = sim.cur[c.w0 + k];
       var vis = '<path d="' + d + '" stroke="' + col + '" stroke-width="5" fill="none" stroke-linecap="round"/>';
       if (o.interactive && k >= fixed.length) wires += '<g class="mwire tap" data-act="mwire" data-k="' + (k - fixed.length) + '" role="button" tabindex="0" aria-label="Usuń kabelek"><path d="' + d + '" stroke="transparent" stroke-width="18" fill="none"/>' + vis + '</g>';
       else wires += vis;
-      if (Math.abs(I) > 0.012) flows += '<path class="cflow" d="' + (I > 0 ? d : wirePath(b, a)) + '"/>';
+      if (Math.abs(I) > 0.012) flows += '<path class="cflow" d="' + (I > 0 ? d : wirePath(b, a, e)) + '"/>';
     });
     // elementy
     var parts = '';
@@ -237,7 +252,7 @@
     (o.ghost || []).forEach(function (w) {
       var a = termAt(e, w[0]), b = termAt(e, w[1]);
       if (!a || !b) return;
-      ghosts += '<path class="ghost-w" d="' + wirePath(a, b) + '"/><circle class="ghost-t" cx="' + a.x + '" cy="' + a.y + '" r="12"/><circle class="ghost-t" cx="' + b.x + '" cy="' + b.y + '" r="12"/>';
+      ghosts += '<path class="ghost-w" d="' + wirePath(a, b, e) + '"/><circle class="ghost-t" cx="' + a.x + '" cy="' + a.y + '" r="12"/><circle class="ghost-t" cx="' + b.x + '" cy="' + b.y + '" r="12"/>';
     });
     var tg = '';
     allTerms(e).forEach(function (t) {
@@ -287,6 +302,38 @@
     return (e.sol || []).filter(function (w) { return !have.some(function (h) { return same(h, w); }); });
   }
   var HINT_BTN = ['Podpowiedź', 'Pokaż następny kabelek', 'Pokaż całe rozwiązanie'];
+  var ZACISK = { mouth: 1, nose: 1, sw: 1, res: 1 };
+  function partName(p) { return p.name || ({ lamp: 'Żarówka', led: 'Dioda', buzz: 'Brzęczyk', motor: 'Silniczek', sw: 'Przełącznik', ldr: 'Czujnik światła', res: 'Opornik', npn: 'Tranzystor', bat: 'Bateria' })[p.t] || p.id; }
+  function legName(id, e) {
+    var t = termAt(e, id); if (!t) return id;
+    var p = t.p, k = t.key;
+    if (p.t === 'bat') return '<b>' + (k === '+' ? 'plus' : 'minus') + '</b> ' + (p.name ? '(' + p.name.toLowerCase() + ')' : 'baterii');
+    if (p.t === 'npn') return '<b>' + ({ C: 'kolektor (C)', B: 'baza (B)', E: 'emiter (E)' })[k] + '</b> tranzystora';
+    if (k === '+' || k === '-') return '<b>' + partName(p) + '</b> (nóżka ' + (k === '+' ? '+' : '−') + ')';
+    var z = ZACISK[skin(p)] ? (k === 'a' ? 'lewy zacisk' : 'prawy zacisk') : (k === 'a' ? 'lewa nóżka' : 'prawa nóżka');
+    return '<b>' + partName(p) + '</b> (' + z + ')';
+  }
+  function wireText(w, e) { return legName(w[0], e) + ' → ' + legName(w[1], e); }
+  /* „trener”: tłumaczy typowe pomyłki, zwłaszcza zwarcie */
+  function coach(e, st, sim) {
+    var wires = (e.wires || []).concat(st.wires), cnt = {}, par = {};
+    var f = function (x) { while (par[x] && par[x] !== x) x = par[x]; return x; };
+    wires.forEach(function (w) {
+      cnt[w[0]] = (cnt[w[0]] || 0) + 1; cnt[w[1]] = (cnt[w[1]] || 0) + 1;
+      par[w[0]] = par[w[0]] || w[0]; par[w[1]] = par[w[1]] || w[1]; par[f(w[0])] = f(w[1]);
+    });
+    var ids = {};
+    cases(e).forEach(function (cs) { Object.keys(cs.lit || {}).forEach(function (id) { ids[id] = 1; }); });
+    for (var i = 0; i < e.parts.length; i++) {
+      var p = e.parts[i];
+      if (!ids[p.id] || p.t === 'npn') continue;
+      var ts = terms(p).map(function (t) { return t.id; }), c0 = cnt[ts[0]] || 0, c1 = cnt[ts[1]] || 0;
+      if ((c0 > 0) !== (c1 > 0)) return '<b>' + partName(p) + '</b> ma kabelki tylko na jednej nóżce. Prąd musi <b>wejść jedną nóżką i wyjść drugą</b> – podłącz też tę drugą.';
+      if (c0 && c1 && f(ts[0]) === f(ts[1])) return 'Obie nóżki: <b>' + partName(p) + '</b> są połączone ze sobą samymi kabelkami, więc prąd je omija. Kabelki muszą prowadzić do <b>różnych</b> miejsc.';
+    }
+    if (sim.short) return 'Zwarcie: kabelki łączą plus z minusem baterii na skróty, z pominięciem elementów. Prąd musi po drodze przejść <b>przez</b> element – wejść jedną nóżką i wyjść drugą.';
+    return '';
+  }
   function draw(e, st) {
     var L = api.L, done = L.checked, miss = missing(e, st);
     var ghost = done ? (st.ok === false ? miss : []) : st.hint >= 3 ? miss : st.hint === 2 ? miss.slice(0, 1) : [];
@@ -294,8 +341,13 @@
     $('#msvg').innerHTML = b.svg;
     $('#mstat').innerHTML = status(e, b.sim);
     $('#mhint').innerHTML = done ? (st.ok === false && miss.length ? 'Przerywane kabelki pokazują jedno z dobrych rozwiązań.' : '') : hint(e, st);
+    var tipCoach = (b.sim.short || (done && st.ok === false)) ? coach(e, st, b.sim) : '';
+    $('#mcoach').innerHTML = tipCoach ? '<div class="mcoach">' + tipCoach + '</div>' : '';
     var tip = e.route || e.hint;
-    $('#mroute').innerHTML = tip && (st.hint >= 1 || (done && st.ok === false)) ? '<div class="mroute">' + ART.icon('lightbulb') + '<span>' + tip + '</span></div>' : '';
+    var steps = '';
+    if (!done && st.hint === 2 && miss.length) steps = '<span class="msteps">Następny kabelek: ' + wireText(miss[0], e) + '</span>';
+    else if ((!done && st.hint >= 3) || (done && st.ok === false)) steps = miss.length ? '<ol class="msteps">' + miss.map(function (w) { return '<li>' + wireText(w, e) + '</li>'; }).join('') + '</ol>' : '';
+    $('#mroute').innerHTML = tip && (st.hint >= 1 || (done && st.ok === false)) ? '<div class="mroute">' + ART.icon('lightbulb') + '<span>' + tip + steps + '</span></div>' : '';
     $('#mcases').innerHTML = caseList(e, st, done);
     var canMore = st.hint < 1 || (st.hint < 3 && miss.length > 0);
     $('#mtools').innerHTML = done ? '' : '<span>Kabelki: <b>' + st.wires.length + '</b>' + (e.maxWires ? ' z ' + e.maxWires : '') + '</span>' +
@@ -308,7 +360,7 @@
       st.wires = []; st.sel = null; st.state = {}; st.hint = 0; st.ok = null;
       e.parts.forEach(function (p) { if (p.t === 'sw') st.state[p.id] = { on: !!p.on }; if (p.t === 'ldr') st.state[p.id] = { dark: !!p.dark }; });
       return '<div class="eyebrow">Misja</div>' + api.speaker(e.q) +
-        '<div class="cir-card mission-card"><div id="msvg"></div><div class="cstat" id="mstat" role="status"></div><p class="bhint" id="mhint"></p><div id="mroute"></div><div class="mtools" id="mtools"></div></div><div id="mcases"></div>';
+        '<div class="cir-card mission-card"><div id="msvg"></div><div class="cstat" id="mstat" role="status"></div><div id="mcoach"></div><p class="bhint" id="mhint"></p><div id="mroute"></div><div class="mtools" id="mtools"></div></div><div id="mcases"></div>';
     },
     mount: function (e, st) { draw(e, st); },
     ready: function (e, st) { return st.wires.length > 0; },
