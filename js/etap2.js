@@ -6,7 +6,7 @@
   var K = window.ISK_KIT, B = K.B;
   var learn = K.learn, choice = K.choice, tf = K.tf, pairs = K.pairs, fill = K.fill, sort = K.sort, circ = K.circ;
   var calc = K.calc, dial = K.dial, tune = K.tune, volts = K.volts, rcombo = K.rcombo, bands = K.bands;
-  var build = K.build, triangle = K.triangle, grid = K.grid, F = K.F;
+  var build = K.build, design = K.design, triangle = K.triangle, grid = K.grid, F = K.F;
   var LL = K.LL;
 
   /* dzielnik z przerwą do zamknięcia */
@@ -220,6 +220,37 @@
               goal: { lit: { D: true }, noBurn: true }, route: 'Droga prądu: <b>plus baterii → opornik → plus diody (+)</b>, a potem <b>minus diody → minus baterii</b>.', hint: 'opornik musi stać w drodze prądu do diody, a plus diody od strony plusa baterii', sol: [['B:+', 'R:a'], ['R:b', 'D:+'], ['D:-', 'B:-']]
             }, 'Opornik 470 Ω ogranicza prąd do bezpiecznych ok. 15–19 mA.'),
             calc('Bateria 9 V, dioda zabiera 2 V, chcesz 15 mA. Jaki opornik (Ω)?', 467, 'Ω', 'R = (9 − 2) V : 0,015 A ≈ 467 Ω. W sklepie wybierzesz najbliższy: 470 Ω.', { tol: 0.02, hint: 'R = (U baterii − U diody) : I' })
+          ]
+        },
+        {
+          id: 'e2u3p', title: 'Projektant: rower i pokój', icon: 'wrench', ws: true, desc: 'Policz opornik i zaprojektuj dwa niezależne światła.',
+          ex: [
+            design('Zaprojektuj przednią lampkę do roweru.', {
+              id: 'd-rower', scene: 'bench', help: 2,
+              brief: 'Rower ma akumulator 6 V. Lampka z białą diodą ma świecić jasno, ale bez przepalenia.',
+              reqs: ['Dioda: 2 V i najlepiej 15 mA (bezpiecznie 8–25 mA).'],
+              slots: [{ id: 'PWR', at: [62, 262], name: 'Akumulator' }, { id: 'IN', at: [80, 120], name: 'Włącznik' }, { id: 'X1', at: [190, 210], name: 'Miejsce A' }, { id: 'OUT', at: [270, 110], name: 'Lampka' }],
+              bin: [{ t: 'bat', v: 6 }, { t: 'led', col: '#E9F4FF' }, { t: 'res', r: 22 }, { t: 'res', r: 270 }, { t: 'res', r: 2700 }, { t: 'sw' }, { t: 'buzz' }],
+              goal: { types: { OUT: ['led'] }, irange: { OUT: [0.008, 0.025] }, cases: [
+                { name: 'Włącznik włączony', want: 'świeci, nie przepala się', set: { IN: { on: true } }, lit: { OUT: true } },
+                { name: 'Włącznik wyłączony', want: 'ciemno', set: { IN: { on: false } }, lit: { OUT: false } }
+              ] },
+              route: 'R = (6 − 2) : 0,015 ≈ 267 Ω, więc <b>270 Ω</b>. Akumulator, włącznik, opornik i dioda w jednym kółku.',
+              sol: { parts: { PWR: 0, IN: 5, X1: 3, OUT: 1 }, wires: [['PWR:+', 'IN:a'], ['IN:b', 'X1:a'], ['X1:b', 'OUT:+'], ['OUT:-', 'PWR:-']] }
+            }, 'Prawo Ohma w praktyce: 4 V zostaje na oporniku, a 4 V : 270 Ω ≈ 15 mA.'),
+            design('Zaprojektuj dwie lampki, każdą z własnym przełącznikiem.', {
+              id: 'd-dwie', scene: 'bench', help: 2,
+              brief: 'W pokoju są dwie lampki: przy biurku i przy łóżku. Każda ma się włączać osobno, a bateria jest jedna.',
+              slots: [{ id: 'PWR', at: [70, 268], name: 'Zasilanie' }, { id: 'S1', at: [130, 70], name: 'Przełącznik 1' }, { id: 'S2', at: [130, 186], name: 'Przełącznik 2' }, { id: 'L1', at: [270, 60], name: 'Lampka 1' }, { id: 'L2', at: [270, 176], name: 'Lampka 2' }],
+              bin: [{ t: 'bat', v: 4.5 }, { t: 'lamp' }, { t: 'lamp' }, { t: 'sw' }, { t: 'sw' }, { t: 'buzz' }],
+              goal: { cases: [
+                { name: 'Tylko przełącznik 1', want: 'świeci tylko lampka 1', set: { S1: { on: true }, S2: { on: false } }, lit: { L1: true, L2: false } },
+                { name: 'Tylko przełącznik 2', want: 'świeci tylko lampka 2', set: { S1: { on: false }, S2: { on: true } }, lit: { L1: false, L2: true } },
+                { name: 'Oba włączone', want: 'świecą obie', set: { S1: { on: true }, S2: { on: true } }, lit: { L1: true, L2: true } }
+              ] },
+              route: 'Dwie osobne drogi od baterii (<b>równolegle</b>): plus → przełącznik 1 → lampka 1 → minus oraz plus → przełącznik 2 → lampka 2 → minus.',
+              sol: { parts: { PWR: 0, L1: 1, L2: 2, S1: 3, S2: 4 }, wires: [['PWR:+', 'S1:a'], ['PWR:+', 'S2:a'], ['S1:b', 'L1:a'], ['S2:b', 'L2:a'], ['L1:b', 'PWR:-'], ['L2:b', 'PWR:-']] }
+            }, 'Połączenie równoległe: każda lampka ma własną drogę i własny przełącznik. Tak są zbudowane obwody w domu.')
           ]
         }
       ]

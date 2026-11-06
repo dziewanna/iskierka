@@ -6,7 +6,7 @@
   var K = window.ISK_KIT, B = K.B;
   var learn = K.learn, choice = K.choice, tf = K.tf, pairs = K.pairs, fill = K.fill, sort = K.sort, circ = K.circ;
   var calc = K.calc, order = K.order, truth = K.truth, logic = K.logic, binary = K.binary, pattern = K.pattern;
-  var V = K.V, G = K.G, build = K.build, F = K.F;
+  var V = K.V, G = K.G, build = K.build, design = K.design, F = K.F;
 
   function twilightDark() { var c = B.twilight('ldr'); c.parts.forEach(function (p) { if (p.t === 'ldr') p.dark = true; }); return c; }
 
@@ -177,6 +177,24 @@
             }, 'Ciemność zwiększa opór fotorezystora, baza dostaje napięcie i tranzystor otwiera oko. Tak działa prawdziwy czujnik zmierzchu!'),
             order('Ułóż po kolei, co dzieje się wieczorem.', ['Robi się ciemno', 'Opór fotorezystora rośnie', 'Napięcie na bazie rośnie', 'Tranzystor zaczyna przewodzić', 'Dioda się zapala'], 'Tak działają latarnie i lampki ogrodowe.'),
             choice('Co zrobić, żeby lampka zapalała się dopiero w głębszej ciemności?', ['Zwiększyć opornik 10 kΩ, np. na 47 kΩ', 'Odwrócić diodę', 'Dodać drugą diodę', 'Zasłonić diodę'], 0, 'Większy opornik słabiej „ciągnie” bazę w górę. Wtedy fotorezystor musi mieć jeszcze większy opór – czyli musi być ciemniej – żeby na bazie pojawiło się 0,7 V.')
+          ]
+        },
+        {
+          id: 'e3u3p', title: 'Projektant: lampka nocna', icon: 'wrench', ws: true, desc: 'Czujnik zmierzchu od zera – Twój projekt.',
+          ex: [
+            design('Zaprojektuj lampkę nocną, która sama zapala się po zmroku.', {
+              id: 'd-nocna', scene: 'night', help: 2,
+              brief: 'Lampka przy łóżku ma się zapalać sama, gdy robi się ciemno, i gasnąć rano. Czujnik światła nie da rady zasilić diody – potrzebny jest pomocnik.',
+              reqs: ['Dioda nie może się spalić (bezpiecznie do 40 mA).'],
+              slots: [{ id: 'PWR', at: [56, 270], name: 'Zasilanie' }, { id: 'X1', at: [70, 150], name: 'Miejsce A' }, { id: 'IN', at: [150, 232], name: 'Czujnik' }, { id: 'X3', at: [232, 222], name: 'Miejsce C' }, { id: 'X2', at: [290, 150], name: 'Miejsce B' }, { id: 'OUT', at: [226, 110], name: 'Lampka', skins: { led: 'eye' } }],
+              bin: [{ t: 'bat', v: 9 }, { t: 'ldr' }, { t: 'npn' }, { t: 'led', col: '#22C3A4' }, { t: 'res', r: 10000 }, { t: 'res', r: 470 }, { t: 'res', r: 10 }, { t: 'sw' }, { t: 'buzz' }],
+              goal: { types: { OUT: ['led'] }, irange: { OUT: [0.005, 0.04] }, cases: [
+                { name: 'Noc (ciemno)', want: 'lampka świeci', set: { IN: { dark: true } }, lit: { OUT: true } },
+                { name: 'Dzień (jasno)', want: 'lampka śpi', set: { IN: { dark: false } }, lit: { OUT: false } }
+              ] },
+              route: 'Dzielnik dla bazy: <b>plus → 10 kΩ → baza</b>, <b>baza → czujnik → minus</b>. Moc: <b>plus → 470 Ω → dioda → kolektor</b>, emiter do minusa.',
+              sol: { parts: { PWR: 0, IN: 1, X3: 2, OUT: 3, X1: 4, X2: 5 }, wires: [['PWR:+', 'X1:a'], ['X1:b', 'X3:B'], ['IN:a', 'X3:B'], ['IN:b', 'PWR:-'], ['PWR:+', 'X2:b'], ['X2:a', 'OUT:+'], ['OUT:-', 'X3:C'], ['X3:E', 'PWR:-']] }
+            }, 'Czujnik i opornik 10 kΩ tworzą dzielnik napięcia. Po zmroku napięcie na bazie rośnie i tranzystor włącza diodę. To prawdziwy projekt – taki układ możesz kiedyś zlutować.')
           ]
         }
       ]

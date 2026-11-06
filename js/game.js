@@ -10,6 +10,8 @@
     (st.accs || []).forEach((x) => { x.si = si; ACCS.push(x); });
   });
   const KEY = 'iskierka.v1';
+  let DESIGNS = 0; // ile jest zadań „Projektant”
+  STAGES.forEach((st) => st.units.forEach((u) => u.lessons.forEach((l) => l.ex.forEach((e) => { if (e.t === 'design') DESIGNS++; }))));
   const MAX_HEARTS = 5, HEART_MS = 15 * 60 * 1000, CHARGE_TAPS = 12;
   const LEVELS = [[0, 'Iskra'], [50, 'Bateryjka'], [120, 'Żaróweczka'], [220, 'Obwód'], [350, 'Dioda'], [500, 'Generator'], [700, 'Elektrownia'],
     [950, 'Transformator'], [1250, 'Tranzystor'], [1600, 'Procesor'], [2000, 'Superkomputer']];
@@ -275,6 +277,7 @@
       '<div class="sbox">' + ART.icon(S.streak ? 'flame' : 'flameOff') + '<div><b>' + S.streak + '</b><span>' + plural(S.streak, 'dzień serii', 'dni serii', 'dni serii') + '</span></div></div>' +
       '<div class="sbox">' + ART.icon('star') + '<div><b>' + doneLessons + ' / ' + allLessons + '</b><span>lekcji</span></div></div>' +
       '<div class="sbox">' + ART.icon('sticker') + '<div><b>' + S.stickers.length + ' / ' + STICKERS.length + '</b><span>naklejek</span></div></div>' +
+      '<div class="sbox wide">' + ART.icon('wrench') + '<div><b>' + Object.keys(S.solo || {}).length + ' / ' + DESIGNS + '</b><span>projektów zbudowanych samodzielnie, bez podpowiedzi</span></div></div>' +
       '</div>' +
       '<div class="section"><h2>Jak masz na imię?</h2><div class="field"><label for="pname" class="sr-only">Imię</label><input id="pname" class="input" maxlength="20" autocomplete="off" value="' + esc(S.name) + '" placeholder="Wpisz imię"><button class="btn small" data-act="save-name">Zapisz</button></div></div>' +
       '<div class="section"><h2>Cel dnia</h2><div class="choicechips" role="radiogroup" aria-label="Cel dnia">' + goalChips() + '</div></div>' +
@@ -496,6 +499,7 @@
     const ex = L.queue[L.i], f = EX[ex.t];
     if (!f.grade || (f.ready && !f.ready(ex, L.st))) return;
     const ok = f.grade(ex, L.st);
+    L.checked = true; // rysunki po sprawdzeniu mają już pokazać wynik
     if (f.reveal) f.reveal(ex, L.st, ok);
     const fun = !ok && f.fun ? f.fun(ex, L.st) : '';
     feedback(ok, ex, f.answer ? f.answer(ex, L.st) : '', fun ? { note: fun, funny: true } : undefined);
@@ -523,10 +527,10 @@
     const combo = ok && L.combo >= 3 ? '<span class="combo">Seria ' + L.combo + '!</span>' : '';
     $('#lfoot').className = 'l-foot gut ' + (ok ? 'ok' : 'bad');
     $('#lfin').innerHTML = '<div class="fb" role="status">' + ART.mascot(ok || (o.funny && T !== ADULT) ? 'cheer' : 'oops', S.wear) + '<div><h3>' + title + combo + '</h3>' +
-      (!ok && ans ? '<p class="ans">' + (ex.t === 'circuit' || ex.t === 'slider' ? 'Wskazówka: ' : 'Poprawnie: ') + ans + '</p>' : '') +
+      (!ok && ans ? '<p class="ans">' + (ex.t === 'circuit' || ex.t === 'slider' ? 'Wskazówka: ' : ex.t === 'design' ? 'Co nie działa: ' : 'Poprawnie: ') + ans + '</p>' : '') +
       (o.note ? '<p class="' + (o.funny ? 'fun' : 'ans') + '">' + o.note + '</p>' : '') +
-      (ex.explain && (ok || ex.t !== 'circuit') ? '<p>' + ex.explain + '</p>' : '') +
-      (!ok && !o.noRequeue ? '<p style="opacity:.75">To zadanie wróci na końcu lekcji.</p>' : '') +
+      (ex.explain && (ok || (ex.t !== 'circuit' && ex.t !== 'design')) ? '<p>' + ex.explain + '</p>' : '') +
+      (!ok && !o.noRequeue ? '<p style="opacity:.75">' + (ex.t === 'design' ? 'Popraw projekt – zadanie wróci na końcu lekcji, z Twoimi częściami na miejscu.' : 'To zadanie wróci na końcu lekcji.') + '</p>' : '') +
       '</div></div><button class="btn ' + (ok ? 'mint' : 'berry') + '" data-act="next" id="cta">Dalej</button>';
     setProgress();
     try { $('#cta').focus({ preventScroll: true }); } catch (e) { /* nic */ }

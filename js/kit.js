@@ -27,6 +27,8 @@
     rcombo: function (q, target, tray, explain, o) { return ext({ t: 'rcombo', q: q, target: target, tray: tray, explain: explain }, o); },
     bands: function (q, value, explain) { return { t: 'bands', q: q, value: value, explain: explain }; },
     build: function (q, cfg, explain) { return ext({ t: 'build', q: q, explain: explain }, cfg); },
+    /* Projektant: zlecenie + magazyn części; gracz sam dobiera części i łączy (opis w js/ex-build.js) */
+    design: function (q, cfg, explain) { return ext({ t: 'design', q: q, explain: explain }, cfg); },
     triangle: function (q, target, explain) { return { t: 'triangle', q: q, target: target, explain: explain }; },
     grid: function (q, cfg, explain) { return ext({ t: 'grid', q: q, explain: explain }, cfg); },
     /* śmieszna zła odpowiedź z komentarzem Iskierki */

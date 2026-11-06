@@ -6,7 +6,7 @@
   'use strict';
   var K = window.ISK_KIT;
   var learn = K.learn, choice = K.choice, tf = K.tf, pairs = K.pairs, sort = K.sort, calc = K.calc, order = K.order;
-  var truth = K.truth, volts = K.volts, build = K.build, F = K.F;
+  var truth = K.truth, volts = K.volts, build = K.build, design = K.design, F = K.F;
 
   /* misja: światło na schodach sterowane z dołu i z góry */
   var STAIRS = [
@@ -92,6 +92,25 @@
             truth('Schody działają jak bramka logiczna. Gdy przełączniki są ustawione różnie, lampa świeci. Uzupełnij tabelę.', 'XOR', 'To bramka XOR: 1, gdy wejścia są różne. Zmiana dowolnego wejścia zmienia wynik – dokładnie tak jak na schodach.'),
             choice('Jak sterować światłem z trzech miejsc (dół, półpiętro, góra)?', ['Dwa schodowe na końcach, a pośrodku przełącznik krzyżowy', 'Trzy zwykłe przełączniki szeregowo', 'Trzy schodowe równolegle', F('Zatrudnić lokaja', 'Elegancko, ale drogo. Wystarczy przełącznik krzyżowy pośrodku.')], 0, 'Przełącznik krzyżowy zamienia ze sobą dwa przewody biegnące między schodowymi.'),
             tf('W domowej instalacji wyłącznik światła przerywa przewód fazowy L, a nie neutralny N.', true, 'Dzięki temu po wyłączeniu w oprawce lampy nie ma napięcia – można bezpieczniej wymienić żarówkę.')
+          ]
+        },
+        {
+          id: 'a5u1p', title: 'Projektant: korytarz', icon: 'wrench', ws: true, desc: 'Światło z dwóch miejsc. Bez instrukcji.',
+          ex: [
+            design('Zaprojektuj oświetlenie schodów sterowane z dołu i z góry.', {
+              id: 'd-korytarz', scene: 'stairs', help: 1,
+              brief: 'Klient wchodzi po schodach i chce zapalać światło na dole, a gasić na górze. I odwrotnie. Magazyn jak w hurtowni: jest wszystko, także rzeczy zbędne.',
+              slots: [{ id: 'PWR', at: [84, 270], name: 'Zasilanie' }, { id: 'DOL', at: [64, 168], name: 'Na dole' }, { id: 'GORA', at: [282, 58], name: 'Na górze', flip: true }, { id: 'OUT', at: [176, 46], name: 'Lampa' }],
+              bin: [{ t: 'bat', v: 4.5 }, { t: 'sw' }, { t: 'spdt' }, { t: 'sw' }, { t: 'spdt' }, { t: 'lamp' }, { t: 'buzz' }],
+              goal: { cases: [
+                { name: 'Oba w pozycji startowej', want: 'jasno', set: { DOL: { on: false }, GORA: { on: false } }, lit: { OUT: true } },
+                { name: 'Pstryk na dole', want: 'ciemno', set: { DOL: { on: true }, GORA: { on: false } }, lit: { OUT: false } },
+                { name: 'Potem pstryk na górze', want: 'jasno', set: { DOL: { on: true }, GORA: { on: true } }, lit: { OUT: true } },
+                { name: 'Sam pstryk na górze', want: 'ciemno', set: { DOL: { on: false }, GORA: { on: true } }, lit: { OUT: false } }
+              ] },
+              route: 'Dwa <b>przełączniki schodowe</b>: plus do C dolnego, A z A, B z B, C górnego do lampy, lampa do minusa.',
+              sol: { parts: { PWR: 0, DOL: 2, GORA: 4, OUT: 5 }, wires: [['PWR:+', 'DOL:C'], ['DOL:A', 'GORA:A'], ['DOL:B', 'GORA:B'], ['GORA:C', 'OUT:b'], ['OUT:a', 'PWR:-']] }
+            }, 'Zwykłe przełączniki tu nie wystarczą – potrzebne są dwa schodowe i dwa przewody między nimi. Teraz wiesz, czego szukać w hurtowni.')
           ]
         }
       ]

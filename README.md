@@ -42,7 +42,7 @@ i działa bez internetu.
    - **iPhone/iPad (Safari):** *Udostępnij* → *Do ekranu początkowego*.
    - **Komputer (Chrome, Edge):** ikona instalacji na końcu paska adresu.
 
-Przy każdej nowej wersji zmień numer `CACHE` w `sw.js` (np. `iskierka-v10`), żeby zainstalowane aplikacje pobrały nowe pliki.
+Przy każdej nowej wersji zmień numer `CACHE` w `sw.js` (np. `iskierka-v11`), żeby zainstalowane aplikacje pobrały nowe pliki.
 
 **Sklepy z aplikacjami:** z adresu GitHub Pages można zbudować paczkę do Google Play w darmowym narzędziu
 [PWABuilder](https://www.pwabuilder.com) (konto dewelopera Google Play kosztuje jednorazowo 25 USD).
@@ -61,6 +61,14 @@ w obu sklepach polityki prywatności – Iskierka nie zbiera żadnych danych, co
   robot strzeże słoika z ciastkami, Wolcik potrzebuje dokładnie 9 V, a nocny strażnik otwiera oko, gdy robi się ciemno.
   Dla dorosłych: światło schodowe z dwoma przełącznikami schodowymi i pompa ekspresu sterowana tranzystorem.
   Gra sprawdza działanie w każdej sytuacji (nos wciśnięty i puszczony, dzień i noc), wykrywa zwarcie i przepaloną diodę.
+- **Projektant** – najważniejszy cel gry: nauczyć się **samodzielnie konstruować**. Gracz dostaje tylko zlecenie
+  (np. „lampka, która sama zapala się po zmroku”) i magazyn części – także zbędnych. Sam wybiera elementy i wartości
+  (np. opornik 470 Ω zamiast 10 Ω), ustawia je na obrazku, łączy kabelkami, a gra sprawdza każdą sytuację ze zlecenia:
+  zwarcie, przepaloną diodę, za słaby prąd, za duży prąd przycisku. Po błędzie trener mówi, **co** nie działa, ale nie
+  zdradza rozwiązania, a projekt wraca z częściami na miejscu. Podpowiedzi z etapu na etap znikają:
+  latarka (etap 1, trzy podpowiedzi) → lampka w szafie i alarm w słoiku (etap 2) → lampka rowerowa i dwie niezależne
+  lampki (etap 3) → lampka nocna z tranzystorem (etap 4) → światło schodowe (etap 5, tylko lista części) →
+  wentylator sterowany tranzystorem (etap 6, zero podpowiedzi). W profilu widać, ile projektów udało się zbudować bez pomocy.
 - **Symbol czy jednostka?** – tabela wielkość–symbol–jednostka w kolorach (U i V, I i A, R i Ω, P i W)
   oraz trójkąt Ohma, w którym zasłania się literę palcem i od razu widać wzór z jednostkami.
 - **Śmieszne złe odpowiedzi** – na wiele z nich maskotka odpowiada osobnym żartem. W etapach dla dorosłych
@@ -115,4 +123,4 @@ choice('Co świeci?', ['Żarówka', F('Księżyc w kieszeni', 'Piękne, ale kies
 ```
 
 Lekcja z `ws: true` jest warsztatem. `F('tekst', 'żart')` tworzy śmieszną złą odpowiedź z komentarzem Iskierki.
-Misje (`build`) są opisane na początku `js/ex-build.js`, pozostałe funkcje w `js/kit.js`.
+Misje (`build`) i zadania Projektanta (`design`) są opisane w `js/ex-build.js`, pozostałe funkcje w `js/kit.js`.

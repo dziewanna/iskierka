@@ -6,7 +6,7 @@
   'use strict';
   var K = window.ISK_KIT, B = K.B;
   var learn = K.learn, choice = K.choice, tf = K.tf, pairs = K.pairs, fill = K.fill, sort = K.sort, circ = K.circ, slider = K.slider;
-  var board = K.board, volts = K.volts, build = K.build, F = K.F;
+  var board = K.board, volts = K.volts, build = K.build, design = K.design, calc = K.calc, F = K.F;
   var L = K.L, LL = K.LL, YESNO = K.YESNO;
 
   var units = [
@@ -245,6 +245,25 @@
             }, 'Prawe oko ma swoją drogę, a lewe swoją – przez nos. Tak w domu każda lampa ma swój włącznik.'),
             tf('Gdy każde oko ma osobną drogę do baterii, to połączenie równoległe.', true, 'Właśnie tak! Szeregowo byłaby jedna wspólna droga.')
           ]
+        },
+        {
+          id: 'u3p', title: 'Projektant: latarka', icon: 'wrench', ws: true, desc: 'Twój pierwszy projekt: sam wybierasz części.',
+          ex: [
+            learn('mascot', 'Teraz Ty jesteś konstruktorem!', 'Dostajesz <b>zlecenie</b> i <b>magazyn części</b>. Sam wybierasz, co jest potrzebne, ustawiasz części na obrazku i łączysz je kabelkami. Uwaga: w magazynie są też części, które się nie przydadzą!', { mood: 'cheer' }),
+            design('Zaprojektuj latarkę dla Mruczka.', {
+              id: 'd-latarka', scene: 'bench', help: 3,
+              brief: 'Mruczek boi się ciemności pod łóżkiem. Potrzebuje latarki, którą sam włączy i wyłączy.',
+              slots: [{ id: 'PWR', at: [70, 262], name: 'Zasilanie' }, { id: 'IN', at: [90, 130], name: 'Włącznik' }, { id: 'OUT', at: [250, 120], name: 'Światło' }],
+              bin: [{ t: 'bat', v: 4.5 }, { t: 'lamp' }, { t: 'sw' }, { t: 'buzz' }, { t: 'motor', skin: 'fan' }, { t: 'ldr' }],
+              goal: { cases: [
+                { name: 'Włącznik włączony', want: 'świeci', set: { IN: { on: true } }, lit: { OUT: true } },
+                { name: 'Włącznik wyłączony', want: 'ciemno', set: { IN: { on: false } }, lit: { OUT: false } }
+              ] },
+              route: 'Bateria, włącznik i żarówka w jednym kółku: <b>plus → włącznik → żarówka → minus</b>.',
+              sol: { parts: { PWR: 0, OUT: 1, IN: 2 }, wires: [['PWR:+', 'IN:a'], ['IN:b', 'OUT:a'], ['OUT:b', 'PWR:-']] }
+            }, 'Latarka to najprostszy obwód z przełącznikiem: bateria, włącznik i żarówka połączone w jedno kółko.'),
+            tf('W magazynie był brzęczyk i wiatraczek. Do latarki nie były potrzebne.', true, 'Konstruktor wybiera tylko to, czego wymaga zlecenie. Mniej części – mniej rzeczy do zepsucia.')
+          ]
         }
       ]
     },
@@ -316,6 +335,25 @@
               tray: [{ t: 'led', id: 'D1' }, { t: 'led', id: 'D2', col: '#22C3A4' }], goal: { lit: { D1: true, D2: true } }, hint: 'obie diody mogą mieć minus w kolumnie 5', sol: [['b2', 'b5'], ['b8', 'c5']]
             }, 'Obie diody dzielą kolumnę 5, która prowadzi do szyny −.'),
             tf('Na płytce stykowej trzeba wszystko lutować.', false, 'Elementy po prostu wciskasz w otwory. Można je wyjąć i zbudować coś nowego.')
+          ]
+        },
+        {
+          id: 'u4p', title: 'Projektant: lampka w szafie', icon: 'wrench', ws: true, desc: 'Dobierz baterię i opornik do diody.',
+          ex: [
+            calc('Bateria 9 V, dioda potrzebuje 2 V i 15 mA. Jaki opornik? R = (9 − 2) : 0,015', 467, 'Ω', '7 : 0,015 ≈ 467 Ω. W sklepie bierzemy najbliższy: 470 Ω.', { tol: 0.02 }),
+            design('Zaprojektuj lampkę, która zapala się po otwarciu szafy.', {
+              id: 'd-szafa', scene: 'bench', help: 3,
+              brief: 'W szafie jest ciemno. Gdy drzwi się otwierają, przycisk w drzwiach ma zapalić oszczędną diodę LED.',
+              reqs: ['W szafie ma świecić dioda LED.', 'Dioda nie może się spalić – najlepiej ok. 15 mA.'],
+              slots: [{ id: 'PWR', at: [62, 262], name: 'Zasilanie' }, { id: 'IN', at: [80, 120], name: 'Przycisk w drzwiach' }, { id: 'X1', at: [190, 210], name: 'Miejsce A' }, { id: 'OUT', at: [270, 110], name: 'Lampka' }],
+              bin: [{ t: 'bat', v: 9 }, { t: 'bat', v: 1.5 }, { t: 'led' }, { t: 'res', r: 10 }, { t: 'res', r: 470 }, { t: 'res', r: 10000 }, { t: 'lamp' }, { t: 'sw' }],
+              goal: { types: { OUT: ['led'] }, irange: { OUT: [0.005, 0.03] }, cases: [
+                { name: 'Drzwi otwarte', want: 'dioda świeci', set: { IN: { on: true } }, lit: { OUT: true } },
+                { name: 'Drzwi zamknięte', want: 'ciemno', set: { IN: { on: false } }, lit: { OUT: false } }
+              ] },
+              route: 'Bateria 9 V, przycisk, opornik 470 Ω i dioda w jednym kółku. Dłuższa nóżka diody (+) od strony plusa baterii.',
+              sol: { parts: { PWR: 0, IN: 7, X1: 4, OUT: 2 }, wires: [['PWR:+', 'IN:a'], ['IN:b', 'X1:a'], ['X1:b', 'OUT:+'], ['OUT:-', 'PWR:-']] }
+            }, 'Opornik 470 Ω ogranicza prąd do ok. 15 mA. Z 10 Ω dioda by się spaliła, a z 10 kΩ ledwo by się żarzyła.')
           ]
         }
       ]
@@ -406,6 +444,24 @@
               fixed: [{ t: 'res', r: 100, legs: ['+2', 'a2'] }, { t: 'led', id: 'D1', legs: ['b2', 'b4'] }, { t: 'led', id: 'D2', col: '#3BA7FF', legs: ['c4', 'c6'] }],
               tray: [{ t: 'wire' }], goal: { lit: { D1: true, D2: true } }, hint: 'połącz kolumnę 6 z szyną −', v: 9, sol: [['d6', '-6']]
             }, 'Diody stoją jedna za drugą, więc prąd przechodzi przez obie.')
+          ]
+        },
+        {
+          id: 'u5p', title: 'Projektant: strażnik słoika', icon: 'wrench', ws: true, desc: 'Wynalazek z czujnikiem – zaprojektuj go sam.',
+          ex: [
+            design('Zaprojektuj alarm, który zagra, gdy ktoś otworzy słoik z ciastkami.', {
+              id: 'd-sloik', scene: 'jar', help: 2,
+              brief: 'Ktoś podjada ciastka! W zamkniętym słoiku jest ciemno, w otwartym – jasno. Robot ma wtedy zagrać alarm.',
+              slots: [{ id: 'PWR', at: [96, 268], name: 'Zasilanie' }, { id: 'IN', at: [96, 118], name: 'W słoiku' }, { id: 'OUT', at: [262, 192], name: 'Robot' }],
+              bin: [{ t: 'bat', v: 4.5 }, { t: 'sw' }, { t: 'ldr' }, { t: 'lamp' }, { t: 'buzz' }, { t: 'motor', skin: 'fan' }],
+              goal: { types: { OUT: ['buzz'] }, cases: [
+                { name: 'Słoik otwarty (jasno)', want: 'alarm gra', set: { IN: { dark: false } }, lit: { OUT: true } },
+                { name: 'Słoik zamknięty (ciemno)', want: 'cisza', set: { IN: { dark: true } }, lit: { OUT: false } }
+              ] },
+              route: 'W słoiku stoi <b>czujnik światła</b> – on sam włącza prąd, gdy jest jasno. Bateria, czujnik i brzęczyk w jednym kółku.',
+              sol: { parts: { PWR: 0, IN: 2, OUT: 4 }, wires: [['PWR:+', 'OUT:b'], ['OUT:a', 'IN:b'], ['IN:a', 'PWR:-']] }
+            }, 'Czujnik światła działa jak przełącznik sterowany światłem. Nikt nie musi go naciskać – wystarczy otworzyć słoik.'),
+            choice('Dlaczego w słoiku nie zadziała zwykły przycisk?', ['Bo nikt by go nie nacisnął – złodziej ciastek go ominie', 'Bo przycisk nie przewodzi prądu', 'Bo przycisk jest za ciężki', 'Bo przycisk działa tylko w dzień'], 0, 'Czujnik reaguje sam. Na tym polega automatyka.')
           ]
         }
       ]

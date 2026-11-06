@@ -5,7 +5,7 @@
   'use strict';
   var K = window.ISK_KIT;
   var learn = K.learn, choice = K.choice, tf = K.tf, pairs = K.pairs, sort = K.sort, calc = K.calc, order = K.order;
-  var logic = K.logic, binary = K.binary, build = K.build, V = K.V, G = K.G, F = K.F;
+  var logic = K.logic, binary = K.binary, build = K.build, design = K.design, V = K.V, G = K.G, F = K.F;
 
   var units = [
     /* ================= ROZDZIAŁ 1 ================= */
@@ -126,6 +126,24 @@
             calc('Pompa pobiera 0,6 A przy 9 V. Jaka to moc?', 5.4, 'W', 'P = 9 · 0,6 = 5,4 W.'),
             choice('Pompa to silnik, czyli cewka. Co dodać równolegle do niej?', ['Diodę gaszącą', 'Drugą pompę', 'Kondensator 1 F', F('Filiżankę', 'Filiżanka stoi niżej. Równolegle do silnika – dioda gasząca.')], 0, 'Dioda chroni tranzystor przed skokiem napięcia przy wyłączaniu.'),
             tf('Opornik w bazie ogranicza prąd płynący z pinu do tranzystora.', true, 'Złącze baza–emiter to dioda. Bez opornika popłynąłby przez nie za duży prąd.')
+          ]
+        },
+        {
+          id: 'e6u2p', title: 'Projektant: wentylator', icon: 'wrench', ws: true, desc: 'Pełna samodzielność: zero podpowiedzi.',
+          ex: [
+            design('Zaprojektuj sterowanie wentylatorem w łazience.', {
+              id: 'd-wentylator', scene: 'bench', help: 0,
+              brief: 'Przycisk udaje pin mikrokontrolera. Wentylator ma działać, dopóki przycisk jest wciśnięty. Tym razem bez podpowiedzi – po sprawdzeniu trener powie tylko, co nie działa.',
+              reqs: ['Przycisk (pin) przepuści najwyżej 20 mA.', 'Wentylator pobiera ok. 0,6 A.'],
+              slots: [{ id: 'PWR', at: [62, 270], name: 'Zasilacz' }, { id: 'IN', at: [70, 150], name: 'Przycisk (pin)' }, { id: 'X1', at: [130, 64], name: 'Miejsce A' }, { id: 'X2', at: [150, 216], name: 'Miejsce B' }, { id: 'OUT', at: [262, 130], name: 'Wentylator', skins: { motor: 'fan' } }],
+              bin: [{ t: 'bat', v: 9 }, { t: 'sw' }, { t: 'motor' }, { t: 'npn' }, { t: 'res', r: 1000 }, { t: 'res', r: 10 }, { t: 'led' }, { t: 'buzz' }, { t: 'ldr' }],
+              goal: { types: { OUT: ['motor'] }, imax: { IN: 0.02 }, cases: [
+                { name: 'Przycisk wciśnięty', want: 'wentylator działa', set: { IN: { on: true } }, lit: { OUT: true } },
+                { name: 'Przycisk puszczony', want: 'wentylator stoi', set: { IN: { on: false } }, lit: { OUT: false } }
+              ] },
+              route: 'Przycisk → 1 kΩ → baza tranzystora; wentylator między plusem a kolektorem; emiter do minusa.',
+              sol: { parts: { PWR: 0, IN: 1, OUT: 2, X2: 3, X1: 4 }, wires: [['PWR:+', 'OUT:a'], ['OUT:b', 'X2:C'], ['X2:E', 'PWR:-'], ['PWR:+', 'IN:a'], ['IN:b', 'X1:a'], ['X1:b', 'X2:B']] }
+            }, 'Przycisk steruje tylko prądem bazy (kilka mA), a tranzystor przełącza 0,6 A wentylatora. Opornik 1 kΩ pilnuje, żeby pin nie dał więcej niż 20 mA.')
           ]
         }
       ]

@@ -148,7 +148,7 @@
           '<path d="M-16 8 L' + (up ? '16 -8' : '16 22') + '" stroke="#FF8A3D" stroke-width="6" stroke-linecap="round"/>' +
           legs([[-20, 8, 'L', -34, 8], [20, -8, 'L', 34, -8], [20, 22, 'L', 34, 22]]) + '</g>' +
           '<g ' + FONT + ' font-size="10" fill="currentColor"><text x="' + (-28 * f) + '" y="-2" text-anchor="middle">C</text><text x="' + (40 * f) + '" y="-14" text-anchor="middle">A</text><text x="' + (40 * f) + '" y="36" text-anchor="middle">B</text></g>' +
-          '<text x="0" y="-26" text-anchor="middle" ' + FONT + ' font-size="9" fill="currentColor">' + (p.name || 'pstryk') + '</text>';
+          (p.slot ? '' : '<text x="0" y="-26" text-anchor="middle" ' + FONT + ' font-size="9" fill="currentColor">' + (p.name || 'pstryk') + '</text>');
         break;
       }
       case 'nose': {
@@ -213,6 +213,10 @@
       '<path d="M0 248 L320 96" stroke="#6E4A2A" stroke-width="5" stroke-linecap="round"/><path d="M40 230 V258 M100 200 V228 M160 170 V198 M220 140 V168 M280 110 V138" stroke="#6E4A2A" stroke-width="3"/>' +
       '<path d="M175 -20 V20" stroke="#3B3561" stroke-width="3"/><path d="M152 22 h46 l-8 -10 h-30 z" fill="#3B3561"/>' +
       '<g fill="#3B3561"><ellipse cx="300" cy="104" rx="16" ry="8"/><path d="M288 100 q-6 -16 6 -18 q4 8 0 14 z"/><circle cx="306" cy="96" r="6"/><path d="M304 91 l2 -6 3 6 M309 91 l2 -6 3 6"/></g>',
+ bench: '<rect x="-20" y="-20" width="380" height="250" rx="18" fill="#E9D8B8"/>' +
+      '<g fill="#CDB68E">' + (function () { var h = ''; for (var yy = 0; yy < 220; yy += 22) for (var xx = 0; xx < 360; xx += 22) h += '<circle cx="' + xx + '" cy="' + yy + '" r="2.4"/>'; return h; })() + '</g>' +
+      '<rect x="-20" y="226" width="380" height="84" fill="#B98552"/><path d="M-20 228 H360" stroke="#8A5A30" stroke-width="5"/><path d="M10 258 h40 M120 284 h60 M240 262 h70" stroke="#A47040" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<g stroke="#8D95B5" stroke-width="4" stroke-linecap="round" fill="none"><path d="M318 14 v40 M310 14 h16"/><path d="M290 12 l-8 40"/></g><circle cx="284" cy="56" r="5" fill="#E5484D"/>',
     coffee: '<rect x="176" y="22" width="150" height="196" rx="18" fill="#3B3561" stroke="#2A2153" stroke-width="3"/><rect x="190" y="36" width="122" height="44" rx="8" fill="#2A2153"/>' +
       '<text x="251" y="64" text-anchor="middle" ' + FONT + ' font-size="15" fill="#7CF3D2">KAWA?</text><rect x="214" y="180" width="74" height="16" rx="6" fill="#6E6A9C"/>' +
       '<rect x="178" y="250" width="146" height="14" rx="6" fill="#6E6A9C"/><path d="M226 216 h50 l-6 34 h-38 z" fill="#FFFFFF" stroke="#C9C2E6" stroke-width="2.5"/><path d="M276 224 q14 2 10 14 q-3 8 -12 6" fill="none" stroke="#C9C2E6" stroke-width="3"/>' +
@@ -258,7 +262,7 @@
       var d = wirePath(a, b, e), col = k < fixed.length ? '#6E6A9C' : WIRE[(k - fixed.length) % WIRE.length];
       var I = sim.cur[c.w0 + k];
       var vis = '<path d="' + d + '" stroke="' + col + '" stroke-width="5" fill="none" stroke-linecap="round"/>';
-      if (o.interactive && k >= fixed.length) wires += '<g class="mwire tap" data-act="mwire" data-k="' + (k - fixed.length) + '" role="button" tabindex="0" aria-label="Usuń kabelek"><path d="' + d + '" stroke="transparent" stroke-width="18" fill="none"/>' + vis + '</g>';
+      if (o.interactive && k >= fixed.length) wires += '<g class="mwire tap" data-act="' + (o.wireAct || 'mwire') + '" data-k="' + (k - fixed.length) + '" role="button" tabindex="0" aria-label="Usuń kabelek"><path d="' + d + '" stroke="transparent" stroke-width="18" fill="none"/>' + vis + '</g>';
       else wires += vis;
       if (Math.abs(I) > 0.012) flows += '<path class="cflow" d="' + (I > 0 ? d : wirePath(b, a, e)) + '"/>';
     });
@@ -267,7 +271,7 @@
     e.parts.forEach(function (p) {
       var ss = sim.state[p.id], rs = st.state[p.id] || {};
       var body = '<g transform="translate(' + p.at[0] + ' ' + p.at[1] + ')">' + glyph(p, ss, rs) + '</g>';
-      var tap = o.interactive && (p.t === 'sw' || p.t === 'ldr' || p.t === 'spdt');
+      var tap = o.interactive && !o.noToggle && (p.t === 'sw' || p.t === 'ldr' || p.t === 'spdt');
       if (tap) body = '<g class="tap" data-act="mtog" data-id="' + p.id + '" role="button" tabindex="0" aria-label="' + (p.name || (p.t === 'ldr' ? 'Czujnik światła' : 'Przełącznik')) + '"><circle class="halo" cx="' + p.at[0] + '" cy="' + p.at[1] + '" r="28"/>' + body + '</g>';
       parts += body;
     });
@@ -278,15 +282,23 @@
       if (!a || !b) return;
       ghosts += '<path class="ghost-w" d="' + wirePath(a, b, e) + '"/><circle class="ghost-t" cx="' + a.x + '" cy="' + a.y + '" r="12"/><circle class="ghost-t" cx="' + b.x + '" cy="' + b.y + '" r="12"/>';
     });
+    // miejsca projektu: puste (przerywane kółko) albo zajęte (dotknij, żeby zabrać część)
+    var slots = '';
+    (o.slots || []).forEach(function (sl) {
+      var filled = e.parts.some(function (p) { return p.id === sl.id; }), x = sl.at[0], y = sl.at[1], sel = o.slotSel === sl.id;
+      if (!filled) slots += '<circle cx="' + x + '" cy="' + y + '" r="24" class="dslot-e' + (sel ? ' sel' : '') + '"/><text x="' + x + '" y="' + (y + 4) + '" text-anchor="middle" ' + FONT + ' font-size="20" class="dslot-p">+</text>';
+      slots += '<text x="' + x + '" y="' + (y - (filled ? 40 : 30)) + '" text-anchor="middle" ' + FONT + ' font-size="10" class="dslot-l">' + sl.name + '</text>';
+      if (o.interactive) slots += '<circle class="dslot-t" data-act="dslot" data-s="' + sl.id + '" cx="' + x + '" cy="' + y + '" r="' + (filled ? 20 : 26) + '" role="button" tabindex="0" aria-label="' + sl.name + (filled ? ': zabierz część' : ': puste miejsce, wybierz część') + '"/>';
+    });
     var tg = '';
     allTerms(e).forEach(function (t) {
       var sel = st.sel === t.id;
       tg += (sel ? '<circle cx="' + t.x + '" cy="' + t.y + '" r="12" fill="none" stroke="#1E86E0" stroke-width="3"/>' : '') +
         '<circle cx="' + t.x + '" cy="' + t.y + '" r="6.5" fill="#E8B04B" stroke="#8A5530" stroke-width="2"/>';
       if (t.key === '+' || t.key === '-') tg += '<text x="' + (t.x + (t.key === '+' ? 7 : -15)) + '" y="' + (t.y - 8) + '" ' + FONT + ' font-size="12" fill="' + (t.key === '+' ? '#E03A6C' : '#1E86E0') + '">' + (t.key === '+' ? '+' : '−') + '</text>';
-      if (o.interactive) tg += '<circle class="mterm" data-act="mterm" data-t="' + t.id + '" cx="' + t.x + '" cy="' + t.y + '" r="16" role="button" tabindex="0" aria-label="Zacisk ' + (t.p.name || t.p.id) + ' ' + (t.key === '+' ? 'plus' : t.key === '-' ? 'minus' : t.key) + '"/>';
+      if (o.interactive) tg += '<circle class="mterm" data-act="' + (o.termAct || 'mterm') + '" data-t="' + t.id + '" cx="' + t.x + '" cy="' + t.y + '" r="16" role="button" tabindex="0" aria-label="Zacisk ' + (t.p.name || t.p.id) + ' ' + (t.key === '+' ? 'plus' : t.key === '-' ? 'minus' : t.key) + '"/>';
     });
-    var svg = '<svg xmlns="http://www.w3.org/2000/svg" class="circuit mission' + (e.scene === 'night' ? ' dark' : '') + '" viewBox="-10 -10 360 310" role="img" aria-label="Misja: obwód na obrazku">' + g + wires + flows + parts + ghosts + tg + '</svg>';
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" class="circuit mission' + (e.scene === 'night' ? ' dark' : '') + '" viewBox="-10 -10 360 310" role="img" aria-label="Misja: obwód na obrazku">' + g + wires + flows + parts + slots + ghosts + tg + '</svg>';
     return { svg: svg, sim: sim };
   }
 
@@ -438,6 +450,225 @@
   };
   api.KEYS.push(function (ev) {
     var t = ev.target.closest && ev.target.closest('[data-act="mterm"], [data-act="mwire"], [data-act="mtog"]');
+    if (t && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); ACTS[t.dataset.act](t); return true; }
+    return false;
+  });
+
+  /* =====================================================================
+     PROJEKTANT – samodzielne konstruowanie.
+     design(q, {
+       brief: 'Zlecenie…', reqs: ['Dioda nie może się spalić'],
+       scene, slots: [{ id: 'OUT', at: [x, y], name: 'Lampka', skins: { led: 'eye' }, flip }],
+       bin: [{ t: 'bat', v: 9 }, { t: 'led' }, { t: 'res', r: 470 }, …],   — magazyn (także części zbędne)
+       goal: { cases: [{ name, want, set: { IN: { on: true } }, lit: { OUT: true } }], noBurn,
+               irange: { OUT: [0.005, 0.03] },   — prąd części, gdy ma działać
+               imax: { IN: 0.02 },               — prąd, którego część nie może przekroczyć
+               types: { OUT: ['led'] } },        — jaka część musi stać w danym miejscu
+       sol: { parts: { OUT: 1, … }, wires: [['PWR:+', 'IN:a'], …] },
+       route: 'opis rozwiązania', help: 0–3 (ile podpowiedzi wolno: 1 części, 2 opis, 3 całe rozwiązanie)
+     }, wyjaśnienie)
+     Gracz wybiera części, ustawia je w miejscach, łączy kabelkami. Gra sprawdza każdą sytuację.
+     ===================================================================== */
+  var TNAME = { bat: 'Bateria', lamp: 'Żarówka', led: 'Dioda LED', res: 'Opornik', buzz: 'Brzęczyk', motor: 'Silniczek', sw: 'Przycisk', ldr: 'Czujnik światła', npn: 'Tranzystor NPN', spdt: 'Przełącznik schodowy' };
+  function binName(it) {
+    if (it.label) return it.label;
+    if (it.t === 'bat') return 'Bateria ' + num(it.v || 4.5) + ' V';
+    if (it.t === 'res') return 'Opornik ' + CIR.fmtR(it.r || 220);
+    if (it.t === 'motor' && it.skin === 'fan') return 'Wiatraczek';
+    return TNAME[it.t] || it.t;
+  }
+  function dcur() { var L = api.L; return L && !L.checked && L.queue[L.i].t === 'design' ? L : null; }
+  function dmission(e, st) {
+    var parts = [];
+    e.slots.forEach(function (sl) {
+      var k = st.place[sl.id];
+      if (k == null) return;
+      var it = e.bin[k];
+      parts.push(Object.assign({}, it, { id: sl.id, at: sl.at, name: sl.name, skin: (sl.skins && sl.skins[it.t]) || it.skin, flip: sl.flip, slot: true }));
+    });
+    return { scene: e.scene, parts: parts, wires: [], goal: e.goal, vref: e.vref };
+  }
+  function partI(c, sim, id) {
+    var k = -1; c.parts.forEach(function (q, i) { if (q.id === id && k < 0) k = i; });
+    return k < 0 ? 0 : Math.abs(sim.cur[k] || 0);
+  }
+  /* sprawdza jedną sytuację; zwraca listę problemów (pusta = działa) */
+  function dcase(e, st, m, cs) {
+    var c = circuitOf(m, st, cs.set), sim = CIR.solve(c), probs = [], g = e.goal;
+    if (sim.short) probs.push({ k: 'short' });
+    Object.keys(sim.state).forEach(function (id) { var x = sim.state[id]; if (x.burn) probs.push({ k: 'burn', id: id }); });
+    Object.keys(cs.lit || {}).forEach(function (id) {
+      var x = sim.state[id], on = !!(x && x.on);
+      if (on !== !!cs.lit[id]) probs.push({ k: on ? 'on' : 'off', id: id, i: partI(c, sim, id) });
+      else if (on && g.irange && g.irange[id]) {
+        var I = partI(c, sim, id), rg = g.irange[id];
+        if (I < rg[0]) probs.push({ k: 'weak', id: id, i: I, rg: rg });
+        if (I > rg[1]) probs.push({ k: 'strong', id: id, i: I, rg: rg });
+      }
+    });
+    Object.keys(g.imax || {}).forEach(function (id) { var I = partI(c, sim, id); if (I > g.imax[id] + 1e-6) probs.push({ k: 'max', id: id, i: I, max: g.imax[id] }); });
+    return probs;
+  }
+  function dtypes(e, st) {
+    var out = [];
+    Object.keys(e.goal.types || {}).forEach(function (id) {
+      var k = st.place[id], ok = k != null && e.goal.types[id].indexOf(e.bin[k].t) >= 0;
+      if (!ok) out.push(id);
+    });
+    return out;
+  }
+  function dgrade(e, st) {
+    var m = dmission(e, st);
+    if (dtypes(e, st).length) return false;
+    return e.goal.cases.every(function (cs) { return dcase(e, st, m, cs).length === 0; });
+  }
+  function slotName(e, id) { var sl = e.slots.find(function (x) { return x.id === id; }); return sl ? sl.name : id; }
+  function mA(I) { return CIR.fmtI(I); }
+  /* trener projektanta: tłumaczy, co jest nie tak, ale nie zdradza rozwiązania */
+  function dcoach(e, st) {
+    var m = dmission(e, st), need = {};
+    e.goal.cases.forEach(function (cs) { Object.keys(cs.lit || {}).concat(Object.keys(cs.set || {})).forEach(function (id) { need[id] = 1; }); });
+    var empty = Object.keys(need).filter(function (id) { return st.place[id] == null; });
+    if (empty.length) return 'Puste miejsce: <b>' + empty.map(function (id) { return slotName(e, id); }).join('</b>, <b>') + '</b>. Wybierz dla niego część z magazynu.';
+    var bad = dtypes(e, st);
+    if (bad.length) { var id0 = bad[0]; return 'Zlecenie mówi, że w miejscu <b>' + slotName(e, id0) + '</b> ma stać: ' + e.goal.types[id0].map(function (t) { return TNAME[t].toLowerCase(); }).join(' albo ') + '.'; }
+    var sim0 = CIR.solve(circuitOf(m, st)), wiring = coach(m, st, sim0);
+    if (wiring && !sim0.short) return wiring;
+    var odd = Object.keys(need).filter(function (id) { var k = e.sol.parts[id]; return k != null && st.place[id] != null && e.bin[st.place[id]].t !== e.bin[k].t; });
+    if (odd.length) return 'W miejscu <b>' + slotName(e, odd[0]) + '</b> stoi: ' + binName(e.bin[st.place[odd[0]]]).toLowerCase() + '. Czy ta część zrobi to, czego wymaga zlecenie? Zajrzyj jeszcze raz do magazynu.';
+    for (var i = 0; i < e.goal.cases.length; i++) {
+      var cs = e.goal.cases[i], pr = dcase(e, st, m, cs);
+      if (!pr.length) continue;
+      var p = pr[0], nm = p.id ? '<b>' + slotName(e, p.id) + '</b>' : '';
+      var when = ' (sytuacja: ' + cs.name.toLowerCase() + ')';
+      if (p.k === 'short') return 'Zwarcie' + when + ': prąd płynie od plusa do minusa na skróty, z pominięciem części.';
+      if (p.k === 'burn') return nm + ' się przepala' + when + '. Prąd jest za duży – potrzebny większy opór. Dioda lubi ok. 15 mA: R = (U − 2 V) : 0,015 A.';
+      if (p.k === 'strong') return nm + ': płynie ' + mA(p.i) + ', a bezpiecznie to najwyżej ' + mA(p.rg[1]) + when + '. Zwiększ opór.';
+      if (p.k === 'weak') return nm + ' ledwo działa: ' + mA(p.i) + when + '. Za duży opór albo za słabe zasilanie.';
+      if (p.k === 'max') return 'Przez ' + nm + ' płynie ' + mA(p.i) + ', a wytrzyma najwyżej ' + mA(p.max) + when + '. Niech ciężką robotę zrobi inna część, np. tranzystor.';
+      if (p.k === 'off' && p.i > 0.0003) return nm + ' dostaje tylko ' + mA(p.i) + when + ' – to za mało, żeby zadziałać. Za duży opór albo za słabe zasilanie.';
+      if (p.k === 'off') return wiring || (nm + ' nie działa' + when + '. Sprawdź, czy prąd ma pełną drogę: plus → części → minus.');
+      if (p.k === 'on') return nm + ' działa, choć nie powinno' + when + '. Coś musi tu przerywać albo sterować prądem.';
+    }
+    return wiring;
+  }
+  function dbin(e, st, done) {
+    var used = {}; Object.keys(st.place).forEach(function (id) { used[st.place[id]] = id; });
+    var need = {}; if (st.hint >= 1) Object.keys(e.sol.parts).forEach(function (id) { need[e.sol.parts[id]] = 1; });
+    return '<div class="dbin" role="group" aria-label="Magazyn części">' + e.bin.map(function (it, k) {
+      var u = used[k], g = glyph(Object.assign({}, it, { at: [0, 0] }), null, {});
+      return '<button class="dpart' + (u ? ' used' : '') + (st.pick === k ? ' pick' : '') + (need[k] ? ' need' : '') + '" data-act="dpick" data-k="' + k + '"' + (done ? ' disabled' : '') + '>' +
+        '<svg viewBox="-46 -46 92 92" aria-hidden="true">' + g + '</svg><span>' + binName(it) + '</span>' + (u ? '<i>' + slotName(e, u) + '</i>' : '') + '</button>';
+    }).join('') + '</div>';
+  }
+  function dcases(e, st, done) {
+    var m = dmission(e, st);
+    return '<div class="cases"><span class="eyebrow">Wymagania – sprawdzimy każde</span>' + e.goal.cases.map(function (cs) {
+      var ok = done ? dcase(e, st, m, cs).length === 0 && !dtypes(e, st).length : null;
+      return '<div class="case' + (ok === true ? ' ok' : ok === false ? ' bad' : '') + '"><b>' + cs.name + '</b><span>' + (cs.want || '') + '</span>' + (ok == null ? '' : '<i>' + (ok ? '✓' : '✗') + '</i>') + '</div>';
+    }).join('') + (e.reqs || []).map(function (r) { return '<div class="case req"><b>Warunek</b><span>' + r + '</span></div>'; }).join('') + '</div>';
+  }
+  function ddraw(e, st) {
+    var done = api.L.checked, m = dmission(e, st);
+    var miss = st.hint >= 3 ? missing(Object.assign({}, m, { sol: e.sol.wires }), st) : [];
+    var b = sceneSVG(m, st, { interactive: !done, noToggle: true, slots: e.slots, slotSel: st.slotSel, ghost: done ? [] : miss, termAct: 'dterm', wireAct: 'dwire' });
+    $('#dsvg').innerHTML = b.svg;
+    $('#dbinw').innerHTML = dbin(e, st, done);
+    var used = Object.keys(st.place).length;
+    var info = done ? '' : st.pick != null ? 'Teraz dotknij miejsca na obrazku dla: <b>' + binName(e.bin[st.pick]) + '</b>.'
+      : st.slotSel ? 'Wybierz z magazynu część na miejsce: <b>' + slotName(e, st.slotSel) + '</b>.'
+        : st.sel ? 'Teraz dotknij <b>drugiego</b> zacisku.'
+          : !used ? 'Wybierz część z magazynu i dotknij miejsca na obrazku. Potem połącz złote zaciski kabelkami.'
+            : 'Dotknij części na obrazku, żeby ją zabrać. Kabelki: dotknij dwóch zacisków.';
+    $('#dhint').innerHTML = info;
+    var tip = !done && st.hint >= 2 ? e.route : '';
+    var parts = st.hint === 1 && !done ? 'Przydadzą się: ' + Object.keys(e.sol.parts).map(function (id) { return '<b>' + binName(e.bin[e.sol.parts[id]]) + '</b>'; }).join(', ') + '.' : '';
+    $('#droute').innerHTML = tip || parts ? '<div class="mroute">' + ART.icon('lightbulb') + '<span>' + (tip || parts) + '</span></div>' : '';
+    var co = !done && b.sim.short ? coach(m, st, b.sim) : '';
+    $('#dcoach').innerHTML = co ? '<div class="mcoach">' + co + '</div>' : done && st.ok && st.hint === 0 ? '<div class="msolo">' + ART.icon('star') + '<span><b>Projekt bez podpowiedzi.</b> Tak pracują prawdziwi konstruktorzy.</span></div>' : '';
+    $('#dcases').innerHTML = dcases(e, st, done);
+    var help = e.help == null ? 3 : e.help;
+    var canMore = st.hint < help;
+    $('#dtools').innerHTML = done ? '' : '<span>Części: <b>' + used + '</b> · kabelki: <b>' + st.wires.length + '</b></span>' +
+      (canMore ? '<button class="btn ghost small" data-act="dhintb">' + ART.icon('lightbulb') + ['Jakie części?', 'Jak połączyć?', 'Pokaż rozwiązanie'][st.hint] + '</button>' : (help === 0 ? '<span class="dsolo">Bez podpowiedzi – dasz radę!</span>' : '')) +
+      (used || st.wires.length ? '<button class="btn ghost small" data-act="dreset">Od nowa</button>' : '');
+  }
+  EX.design = {
+    render: function (e, st) {
+      st.place = {}; st.wires = []; st.state = {}; st.sel = null; st.pick = null; st.slotSel = null; st.hint = 0; st.ok = null;
+      // po nieudanej próbie projekt wraca z częściami i kabelkami na miejscu – poprawiasz, nie zaczynasz od zera
+      if (e._draft) { st.place = Object.assign({}, e._draft.place); st.wires = e._draft.wires.map(function (w) { return w.slice(); }); st.hint = e._draft.hint; }
+      return '<div class="eyebrow">Projektant</div>' + api.speaker(e.q) +
+        (e.brief ? '<div class="dbrief"><span class="eyebrow">Zlecenie</span><p>' + e.brief + '</p></div>' : '') +
+        '<div class="cir-card mission-card"><div id="dsvg"></div><div id="dcoach"></div><p class="bhint" id="dhint"></p><div id="droute"></div><div class="mtools" id="dtools"></div></div>' +
+        '<div class="dbinbox"><span class="eyebrow">Magazyn części</span><div id="dbinw"></div></div><div id="dcases"></div>';
+    },
+    mount: function (e, st) { ddraw(e, st); },
+    ready: function (e, st) { return Object.keys(st.place).length > 0 && st.wires.length > 0; },
+    grade: function (e, st) { return dgrade(e, st); },
+    reveal: function (e, st, ok) {
+      st.sel = null; st.pick = null; st.slotSel = null; st.ok = ok;
+      if (ok) delete e._draft; else e._draft = { place: Object.assign({}, st.place), wires: st.wires.map(function (w) { return w.slice(); }), hint: st.hint };
+      if (ok && st.hint === 0) { var S = api.S; S.solo = S.solo || {}; S.solo[e.id || e.q] = 1; api.save(); }
+      ddraw(e, st);
+    },
+    answer: function (e, st) { return dcoach(e, st) || 'nie wszystkie wymagania są spełnione – zobacz listę pod magazynem.'; }
+  };
+  function placeAt(e, st, sid, k) {
+    Object.keys(st.place).forEach(function (id) { if (st.place[id] === k) delete st.place[id]; });
+    st.place[sid] = k;
+    st.wires = st.wires.filter(function (w) { return w[0].split(':')[0] !== sid && w[1].split(':')[0] !== sid; });
+    st.pick = null; st.slotSel = null; st.sel = null;
+    api.SND.play('pop');
+  }
+  ACTS.dpick = function (el) {
+    var L = dcur(); if (!L) return;
+    var st = L.st, e = L.queue[L.i], k = +el.dataset.k;
+    if (st.slotSel) { placeAt(e, st, st.slotSel, k); }
+    else {
+      var free = e.slots.filter(function (sl) { return st.place[sl.id] == null; });
+      if (st.pick === k) st.pick = null;
+      else if (free.length === 1) placeAt(e, st, free[0].id, k);
+      else { st.pick = k; api.SND.play('tap'); }
+    }
+    ddraw(e, st); api.updateCta();
+  };
+  ACTS.dslot = function (el) {
+    var L = dcur(); if (!L) return;
+    var st = L.st, e = L.queue[L.i], sid = el.dataset.s;
+    if (st.place[sid] != null && st.pick == null) {
+      delete st.place[sid];
+      st.wires = st.wires.filter(function (w) { return w[0].split(':')[0] !== sid && w[1].split(':')[0] !== sid; });
+      api.SND.play('pop');
+    } else if (st.pick != null) placeAt(e, st, sid, st.pick);
+    else { st.slotSel = st.slotSel === sid ? null : sid; api.SND.play('tap'); }
+    st.sel = null; ddraw(e, st); api.updateCta();
+  };
+  ACTS.dterm = function (el) {
+    var L = dcur(); if (!L) return;
+    var st = L.st, e = L.queue[L.i], t = el.dataset.t;
+    if (!st.sel) { st.sel = t; api.SND.play('tap'); ddraw(e, st); return; }
+    if (st.sel === t) { st.sel = null; ddraw(e, st); return; }
+    var dup = st.wires.some(function (w) { return (w[0] === st.sel && w[1] === t) || (w[1] === st.sel && w[0] === t); });
+    if (!dup) {
+      var m = dmission(e, st), before = CIR.solve(circuitOf(m, st));
+      st.wires.push([st.sel, t]); api.SND.play('click');
+      soundAfter(before, CIR.solve(circuitOf(m, st)));
+    }
+    st.sel = null; ddraw(e, st); api.updateCta();
+  };
+  ACTS.dwire = function (el) { var L = dcur(); if (!L) return; L.st.wires.splice(+el.dataset.k, 1); L.st.sel = null; api.SND.play('pop'); ddraw(L.queue[L.i], L.st); api.updateCta(); };
+  ACTS.dreset = function () { var L = dcur(); if (!L) return; var st = L.st; st.place = {}; st.wires = []; st.sel = null; st.pick = null; st.slotSel = null; api.SND.play('pop'); ddraw(L.queue[L.i], st); api.updateCta(); };
+  ACTS.dhintb = function () {
+    var L = dcur(); if (!L) return;
+    var st = L.st, e = L.queue[L.i], help = e.help == null ? 3 : e.help;
+    if (st.hint >= help) return;
+    st.hint++;
+    if (st.hint >= 3) { st.place = {}; Object.keys(e.sol.parts).forEach(function (id) { st.place[id] = e.sol.parts[id]; }); st.wires = st.wires.filter(function (w) { return st.place[w[0].split(':')[0]] != null && st.place[w[1].split(':')[0]] != null; }); }
+    st.sel = null; st.pick = null; st.slotSel = null; api.SND.play('pop'); ddraw(e, st); api.updateCta();
+  };
+  api.KEYS.push(function (ev) {
+    var t = ev.target.closest && ev.target.closest('[data-act="dslot"], [data-act="dterm"], [data-act="dwire"]');
     if (t && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); ACTS[t.dataset.act](t); return true; }
     return false;
   });
