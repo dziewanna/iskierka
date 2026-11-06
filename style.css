@@ -1148,3 +1148,4 @@ svg.gag { width: 92px; height: 92px; flex: none; overflow: visible; }
 [data-look="pop"] .dpart { border: 3px solid var(--line); border-radius: var(--pk); box-shadow: 3px 3px 0 var(--shadow); }
 [data-look="pop"] .dbrief { border: 3px dashed var(--line); }
 .grid2 .sbox.wide { grid-column: 1 / -1; }
+.stagelist .sbox .btn.small { margin-top: 6px; min-height: 38px; font-size: 15px; }

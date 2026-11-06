@@ -21,8 +21,9 @@ Każdy etap pokazuje swoją wersję maskotki, także gdy wraca się do wcześnie
 | 5 · Prąd w dorosłym życiu | dla dorosłych | Iskrosława | instalacja w mieszkaniu (L, N, PE), bezpiecznik i różnicówka, budżet mocy i rachunki, światło schodowe, akumulatory Li-Ion i ładowarki USB-C, fotowoltaika i falownik |
 | 6 · Automatyka i mikrokontrolery | dla dorosłych+ | Iskrosława | mikrokontroler i piny, program w pętli, PWM i ADC, logika inteligentnego domu, przekaźnik, tranzystor jako klucz, lutowanie, szukanie usterek |
 
-Wiek nie ma znaczenia: każdy początkujący zaczyna od podstaw. Kto zna już etap, może zdać **test przeskoczenia**
-(12 pytań, najwyżej 2 pomyłki) – wystarczy dotknąć zablokowanego etapu. W profilu jest też przycisk dla nauczyciela,
+Wiek nie ma znaczenia: każdy początkujący zaczyna od podstaw. Kto zna już materiał, może zdać **test przeskoczenia**
+do dowolnego zablokowanego etapu – wystarczy go dotknąć (albo użyć przycisku w Profilu). Pytania pochodzą ze wszystkich
+przeskakiwanych etapów: 12 pytań na jeden etap, do 20 przy dłuższym skoku, z limitem 2–3 pomyłek. W profilu jest też przycisk dla nauczyciela,
 który odblokowuje wszystko.
 
 ## Jak uruchomić
@@ -42,7 +43,7 @@ i działa bez internetu.
    - **iPhone/iPad (Safari):** *Udostępnij* → *Do ekranu początkowego*.
    - **Komputer (Chrome, Edge):** ikona instalacji na końcu paska adresu.
 
-Przy każdej nowej wersji zmień numer `CACHE` w `sw.js` (np. `iskierka-v11`), żeby zainstalowane aplikacje pobrały nowe pliki.
+Przy każdej nowej wersji zmień numer `CACHE` w `sw.js` (np. `iskierka-v12`), żeby zainstalowane aplikacje pobrały nowe pliki.
 
 **Sklepy z aplikacjami:** z adresu GitHub Pages można zbudować paczkę do Google Play w darmowym narzędziu
 [PWABuilder](https://www.pwabuilder.com) (konto dewelopera Google Play kosztuje jednorazowo 25 USD).

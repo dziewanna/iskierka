@@ -64,6 +64,12 @@
       if (last && S.done['test-' + last.id]) S.stageMax++; else break;
     }
   }
+  /* do którego etapu doszła osoba naprawdę (zaliczone sprawdziany końcowe etapów) */
+  function progressMax() {
+    let m = 0;
+    while (m < STAGES.length - 1) { const us = STAGES[m].units, last = us[us.length - 1]; if (last && S.done['test-' + last.id]) m++; else break; }
+    return m;
+  }
   function who(gen) { const st = STAGES[S.stage] || STAGES[0]; return gen ? (st.gen || st.name) : st.name; }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* tryb prywatny */ } }
   function tick() {
@@ -187,7 +193,7 @@
       gi += nodes.length;
     });
     if (S.stage > S.stageMax) {
-      h = stageBar() + '<div class="finale">' + ART.mascot('think', S.wear) + '<h2>Ten etap jeszcze śpi</h2><p>Ukończ poprzedni etap, a ' + who() + ' otworzy ten. Rodzic lub nauczyciel może go odblokować w profilu.</p></div>';
+      h = stageBar() + '<div class="finale">' + ART.mascot('think', S.wear) + '<h2>Ten etap jeszcze śpi</h2><p>Ukończ poprzedni etap, a ' + who() + ' otworzy ten. Znasz już materiał? Zdaj test przeskoczenia.</p><button class="btn" data-act="skipask" data-s="' + S.stage + '" style="max-width:320px">Test przeskoczenia</button></div>';
     } else if (cur >= NODES.length) {
       const nx = STAGES[S.stage + 1];
       h += '<div class="finale">' + ART.mascot('cheer', S.wear) + (nx
@@ -287,7 +293,8 @@
       (SND.ios ? '<p class="note">Na iPhonie i iPadzie dźwięk gry wycisza przełącznik trybu cichego z boku urządzenia.</p>' : '') + '</div>' +
       '<div class="section"><h2>Etapy</h2><div class="stagelist">' + STAGES.map((st, si) => {
         const total = NODES.filter((n) => n.si === si).length, done = NODES.filter((n) => n.si === si && isDone(n)).length;
-        return '<div class="sbox">' + ART.mascot(si <= S.stageMax ? 'happy' : 'sleep', null, '', st.form) + '<div><b>Etap ' + st.n + ' · ' + st.name + '</b><span>' + st.level + ' · ' + st.title + ' · ' + (si <= S.stageMax ? done + ' / ' + total : 'zablokowany') + '</span></div></div>';
+        return '<div class="sbox">' + ART.mascot(si <= S.stageMax ? 'happy' : 'sleep', null, '', st.form) + '<div><b>Etap ' + st.n + ' · ' + st.name + '</b><span>' + st.level + ' · ' + st.title + ' · ' + (si <= S.stageMax ? done + ' / ' + total : 'zablokowany') + '</span>' +
+          (si > S.stageMax ? '<button class="btn ghost small" data-act="skipask" data-s="' + si + '">Test przeskoczenia</button>' : '') + '</div></div>';
       }).join('') + '</div></div>' +
       '<div class="section"><h2>Dla rodziców i nauczycieli</h2><div class="parents">' +
       '<p>Iskierka prowadzi od zupełnych podstaw do elektroniki na serio – bez względu na wiek. Każdy zaczyna od etapu 1, a kto zna już podstawy, może zdać test przeskoczenia. Maskotka dorasta razem z graczem: najpierw jest małą Iskierką, potem nastoletnią Skrą, a w etapach dla dorosłych – Iskrosławą. Razem z nią zmienia się poczucie humoru.</p>' +
@@ -298,7 +305,8 @@
       '<li>Do pierwszych prawdziwych eksperymentów wystarczy bateria 4,5 V, żaróweczka 3,5 V i kilka kabelków z krokodylkami – zawsze pod okiem dorosłego.</li>' +
       '<li>Każdy rozdział ma warsztat z łamigłówkami: płytka stykowa, wzorki z diod, dobieranie baterii i oporników.</li>' +
       '<li>Postęp zapisuje się tylko w tej przeglądarce. Gra niczego nie wysyła.</li></ul>' +
-      (S.stageMax < STAGES.length - 1 ? '<button class="btn ghost small" data-act="unlock-all">Odblokuj wszystkie etapy (tryb nauczyciela)</button>' : '') + '</div>' +
+      (S.stageMax < STAGES.length - 1 ? '<button class="btn ghost small" data-act="unlock-all">Odblokuj wszystkie etapy (tryb nauczyciela)</button>' : '') +
+      (S.stageMax > progressMax() ? '<button class="btn ghost small" data-act="relock">Przywróć blokady według postępów (wraca test przeskoczenia)</button>' : '') + '</div>' +
       '<button class="danger-link" data-act="reset">Zacznij od nowa (usuwa postęp)</button></div>';
     $('#view').innerHTML = h;
   }
@@ -444,12 +452,23 @@
   }
   /* test przeskoczenia: 12 pytań z poprzedniego etapu, najwyżej 2 pomyłki */
   const QUICK = ['choice', 'tf', 'fill', 'calc', 'circuit', 'slider', 'dial', 'triangle', 'grid', 'truth'];
+  /* test przeskoczenia: pytania ze wszystkich etapów, które się przeskakuje (od obecnego do docelowego) */
+  function skipPlan(si) {
+    const from = S.stageMax, span = Math.max(1, si - from), count = Math.min(20, 12 + 4 * (span - 1));
+    return { from, span, count, allowed: Math.max(2, Math.round(count / 6)) };
+  }
+  function skipRange(P, si) { const a = STAGES[P.from].n, z = STAGES[si - 1].n; return a === z ? 'z etapu ' + a : 'z etapów ' + a + '–' + z; }
   function startPlacement(si) {
-    if (si !== S.stageMax + 1 || !STAGES[si]) return;
-    const pool = [];
-    STAGES[si - 1].units.forEach((u) => u.lessons.forEach((l) => l.ex.forEach((e) => { if (QUICK.indexOf(e.t) >= 0) pool.push(e); })));
+    if (!STAGES[si] || si <= S.stageMax) return;
+    const P = skipPlan(si), per = Math.ceil(P.count / P.span);
+    let queue = [];
+    for (let k = P.from; k < si; k++) {
+      const pool = [];
+      STAGES[k].units.forEach((u) => u.lessons.forEach((l) => l.ex.forEach((e) => { if (QUICK.indexOf(e.t) >= 0) pool.push(e); })));
+      queue = queue.concat(shuffle(pool).slice(0, per));
+    }
     closeModal();
-    openLesson({ kind: 'placement', id: 'skip-' + STAGES[si].id, si: si - 1, target: si }, shuffle(pool).slice(0, 12), { placement: true, allowed: 2 });
+    openLesson({ kind: 'placement', id: 'skip-' + STAGES[si].id, si: si - 1, target: si, from: P.from }, shuffle(queue).slice(0, P.count), { placement: true, allowed: P.allowed });
   }
   function openLesson(n, queue, extra) {
     L = Object.assign({ node: n, i: 0, queue, replay: false, mistakes: 0, checks: 0, oks: 0, combo: 0, start: Date.now(), st: {}, checked: false, finished: false }, extra || {});
@@ -564,7 +583,7 @@
     $('#lin').innerHTML = '<div class="done-screen">' + ART.mascot(pass ? 'cheer' : 'think', S.wear, pass ? 'bounce' : '') +
       '<h2>' + (pass ? 'Test zdany!' : 'Jeszcze nie tym razem') + '</h2>' +
       '<div class="tiles"><div class="tile"><div class="tl">Pytania</div><div class="tv">' + L.checks + '</div></div><div class="tile mint"><div class="tl">Dobrze</div><div class="tv">' + L.oks + '</div></div><div class="tile violet"><div class="tl">Pomyłki</div><div class="tv">' + L.mistakes + '</div></div></div>' +
-      '<p>' + (pass ? 'Etap ' + st.n + ' (' + st.title + ') jest otwarty. Etap ' + STAGES[n.si].n + ' zostaje na ścieżce – możesz do niego wracać, kiedy chcesz.' : 'Etap ' + STAGES[n.si].n + ' nauczy Cię wszystkiego, czego tu zabrakło. Test możesz powtórzyć w każdej chwili.') + '</p></div>';
+      '<p>' + (pass ? 'Etap ' + st.n + ' (' + st.title + ') jest otwarty. Wcześniejsze etapy zostają na ścieżce – możesz do nich wracać, kiedy chcesz.' : 'Etap ' + STAGES[n.from != null ? n.from : n.si].n + ' nauczy Cię wszystkiego, czego tu zabrakło. Test możesz powtórzyć w każdej chwili.') + '</p></div>';
     $('#lfoot').className = 'l-foot gut';
     $('#lfin').innerHTML = '<button class="btn" data-act="next" id="cta">Dalej</button>';
     setProgress();
@@ -964,11 +983,11 @@
   }
 
   function lockedStageModal(si) {
-    const st = STAGES[si], prev = STAGES[si - 1];
-    const canTest = si === S.stageMax + 1;
+    const st = STAGES[si], prev = STAGES[si - 1], P = skipPlan(si);
     modal(ART.mascot('sleep', null, '', st.form) + '<h2>Etap ' + st.n + ' · ' + st.title + '</h2>' +
-      '<p>' + st.level + '. Otworzy się, gdy ukończysz etap ' + prev.n + '.' + (canTest ? ' Znasz już te podstawy? Zdaj <b>test przeskoczenia</b>: 12 pytań z etapu ' + prev.n + ', możesz pomylić się najwyżej 2 razy.' : ' Najpierw otwórz etap ' + prev.n + '.') + '</p>' +
-      (canTest ? '<button class="btn" data-act="skiptest" data-s="' + si + '">Zrób test przeskoczenia</button><button class="btn ghost" data-act="close-modal">Wrócę później</button>' : '<button class="btn" data-act="close-modal">OK</button>'),
+      '<p>' + st.level + '. Otworzy się, gdy ukończysz etap ' + prev.n + '. Znasz już ten materiał? Zdaj <b>test przeskoczenia</b>: ' + P.count + ' pytań ' + skipRange(P, si) +
+      ', możesz pomylić się najwyżej ' + P.allowed + ' razy. Po zdaniu od razu przejdziesz do etapu ' + st.n + '.</p>' +
+      '<button class="btn" data-act="skiptest" data-s="' + si + '">Zrób test przeskoczenia</button><button class="btn ghost" data-act="close-modal">Wrócę później</button>',
     { label: 'Etap zablokowany' });
   }
 
@@ -1076,6 +1095,8 @@
         S.stage = si; popFor = null; save(); SND.play('pop'); render(); $('#view').scrollTop = 0; requestAnimationFrame(() => scrollToCurrent(false)); break;
       }
       case 'skiptest': startPlacement(+el.dataset.s); break;
+      case 'skipask': SND.play('tap'); lockedStageModal(+el.dataset.s); break;
+      case 'relock': S.stageMax = progressMax(); if (S.stage > S.stageMax) S.stage = S.stageMax; save(); applyForm(); SND.play('pop'); render(); break;
       case 'unlock-all':
         S.stageMax = STAGES.length - 1; applyForm(); save(); SND.play('chest'); render();
         break;
